@@ -59,14 +59,14 @@ function generateTnPayload(count) {
     for (let i = 0; i < count; i++) {
         arr.push({
             "id": `Tag${i + 1}`,
-            "desc": `desc_${i + 1}`,
-            "quality": Math.random(),
-            "value": `C1_D1_Tag${i + 1}`
+            "desc": `C1_D1_Tag${i + 1}`,
+            "quality": 0,
+            "value": Math.random()
         });
     }
 
     const now = new Date();
-    const data = {
+    return {
         "type": "real",
         "sn": "TN001",
         "sendStartTime": now.toISOString().replace('T', ' ').substring(0, 19),
@@ -75,7 +75,6 @@ function generateTnPayload(count) {
             "C24_D1": arr
         }
     };
-    return data;
 }
 
 /**

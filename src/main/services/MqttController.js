@@ -42,9 +42,10 @@ class MqttController {
         this.config = config;
         this.logCallback = logCallback;
         this.isRunning = true; // 设置运行状态
-        this.log(`[Controller] 准备启动模拟，共 ${this.config.device_count} 个设备...`);
+        const deviceCount = this.config.device_end_number - this.config.device_start_number + 1;
+        this.log(`[Controller] 准备启动模拟, 设备范围: [${this.config.device_start_number} - ${this.config.device_end_number}], 共 ${deviceCount} 个设备...`);
 
-        for (let i = 1; i <= this.config.device_count; i++) {
+        for (let i = this.config.device_start_number; i <= this.config.device_end_number; i++) {
             const clientId = `${this.config.username_prefix}${String(i).padStart(2, '0')}`;
             const username = `${this.config.username_prefix}${String(i).padStart(2, '0')}`;
             const password = `${this.config.password_prefix}${String(i).padStart(2, '0')}`;

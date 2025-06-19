@@ -16,25 +16,28 @@
             <h2>配置</h2>
             <div class="form-grid">
                 <label for="host">MQTT Host:</label>
-                <input type="text" id="host">
+                <input type="text" id="host" value="127.0.0.1">
 
                 <label for="port">端口:</label>
-                <input type="number" id="port">
+                <input type="number" id="port" value="1883">
 
                 <label for="topic">主题 (Topic):</label>
                 <input type="text" id="topic">
 
-                <label for="device_count">设备数量:</label>
-                <input type="number" id="device_count">
+                <label for="device_start_number">设备起始编号:</label>
+                <input type="number" id="device_start_number" value="1">
+
+                <label for="device_end_number">设备结束编号:</label>
+                <input type="number" id="device_end_number" value="100">
 
                 <label for="username_prefix">用户名前缀:</label>
-                <input type="text" id="username_prefix">
+                <input type="text" id="username_prefix" value="c">
 
                 <label for="password_prefix">密码前缀:</label>
-                <input type="text" id="password_prefix">
+                <input type="text" id="password_prefix" value="c">
 
                 <label for="send_interval">发送间隔 (秒):</label>
-                <input type="number" id="send_interval">
+                <input type="number" id="send_interval" value="1">
 
                 <label for="format">数据格式:</label>
                 <select id="format">
@@ -44,7 +47,7 @@
                 </select>
 
                 <label for="data_point_count">数据点数:</label>
-                <input type="number" id="data_point_count">
+                <input type="number" id="data_point_count" value="10">
             </div>
             <div class="controls">
                 <button id="start-btn" class="btn-primary">启动模拟</button>

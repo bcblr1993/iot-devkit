@@ -4,7 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const hostInput = document.getElementById('host');
     const portInput = document.getElementById('port');
     const topicInput = document.getElementById('topic');
-    const deviceCountInput = document.getElementById('device_count');
+    const deviceStartNumberInput = document.getElementById('device_start_number');
+    const deviceEndNumberInput = document.getElementById('device_end_number');
     const usernamePrefixInput = document.getElementById('username_prefix');
     const passwordPrefixInput = document.getElementById('password_prefix');
     const sendIntervalInput = document.getElementById('send_interval');
@@ -34,7 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
             host: hostInput.value,
             port: parseInt(portInput.value, 10),
             topic: topicInput.value,
-            device_count: parseInt(deviceCountInput.value, 10),
+            device_start_number: parseInt(deviceStartNumberInput.value, 10),
+            device_end_number: parseInt(deviceEndNumberInput.value, 10),
             username_prefix: usernamePrefixInput.value,
             password_prefix: passwordPrefixInput.value,
             send_interval: parseInt(sendIntervalInput.value, 10),
