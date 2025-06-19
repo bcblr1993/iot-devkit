@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>MQTT 设备模拟器</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>MQTT 设备模拟器</h1>
+    </header>
+
+    <main>
+        <div class="config-panel">
+            <h2>配置</h2>
+            <div class="form-grid">
+                <label for="host">MQTT Host:</label>
+                <input type="text" id="host">
+
+                <label for="port">端口:</label>
+                <input type="number" id="port">
+
+                <label for="topic">主题 (Topic):</label>
+                <input type="text" id="topic">
+
+                <label for="device_count">设备数量:</label>
+                <input type="number" id="device_count">
+
+                <label for="username_prefix">用户名前缀:</label>
+                <input type="text" id="username_prefix">
+
+                <label for="password_prefix">密码前缀:</label>
+                <input type="text" id="password_prefix">
+
+                <label for="send_interval">发送间隔 (秒):</label>
+                <input type="number" id="send_interval">
+
+                <label for="format">数据格式:</label>
+                <select id="format">
+                    <option value="default">Default</option>
+                    <option value="tn">TN</option>
+                    <option value="tn-empty">TN-Empty</option>
+                </select>
+
+                <label for="data_point_count">数据点数:</label>
+                <input type="number" id="data_point_count">
+            </div>
+            <div class="controls">
+                <button id="start-btn" class="btn-primary">启动模拟</button>
+                <button id="stop-btn">停止模拟</button>
+            </div>
+        </div>
+
+        <div class="log-panel">
+            <h2>实时日志</h2>
+            <textarea id="log-output" readonly></textarea>
+        </div>
+    </main>
+</div>
+
+<script src="renderer.js"></script>
+</body>
+</html>
