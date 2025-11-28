@@ -43,6 +43,18 @@ function generateBatteryStatus(count) {
     };
 
     const base_len = Object.keys(data).length;
+
+    // 如果请求的数量小于基础数量，截取前 count 个
+    if (count < base_len) {
+        const slicedData = {};
+        const keys = Object.keys(data);
+        for (let i = 0; i < count; i++) {
+            slicedData[keys[i]] = data[keys[i]];
+        }
+        return slicedData;
+    }
+
+    // 如果请求的数量大于基础数量，补齐随机键
     for (let i = base_len + 1; i <= count; i++) {
         data[`random_key_${i}`] = getRandomInt(0, 1000);
     }

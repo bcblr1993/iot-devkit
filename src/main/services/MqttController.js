@@ -17,14 +17,19 @@ class MqttController {
     /**
      * 内部日志方法，增加运行状态检查
      * @param {string} message - 要记录的消息
+     * @param {string} type - 日志类型: 'info', 'success', 'error', 'data'
      */
-    log(message) {
+    log(message, type = 'info') {
         // 【核心修改】只有在 'isRunning' 状态为 true 时才发送日志到UI
         if (this.isRunning && typeof this.logCallback === 'function') {
-            this.logCallback(message);
+            this.logCallback({
+                message,
+                type,
+                timestamp: new Date().toLocaleTimeString()
+            });
         } else {
             // 如果已停止，只在后台控制台打印，用于调试，不影响UI
-            console.log(`[Controller-Suppressed] ${message}`);
+            console.log(`[Controller-Suppressed] [${type}] ${message}`);
         }
     }
 
@@ -35,7 +40,7 @@ class MqttController {
      */
     start(config, logCallback) {
         if (this.isRunning) {
-            this.log('[Controller] 模拟已经在运行中。');
+            this.log('[Controller] 模拟已经在运行中。', 'error');
             return;
         }
 
@@ -43,7 +48,7 @@ class MqttController {
         this.logCallback = logCallback;
         this.isRunning = true; // 设置运行状态
         const deviceCount = this.config.device_end_number - this.config.device_start_number + 1;
-        this.log(`[Controller] 准备启动模拟, 设备范围: [${this.config.device_start_number} - ${this.config.device_end_number}], 共 ${deviceCount} 个设备...`);
+        this.log(`[Controller] 准备启动模拟, 设备范围: [${this.config.device_start_number} - ${this.config.device_end_number}], 共 ${deviceCount} 个设备...`, 'info');
 
         for (let i = this.config.device_start_number; i <= this.config.device_end_number; i++) {
             const clientId = `${this.config.username_prefix}${String(i).padStart(2, '0')}`;
@@ -63,7 +68,7 @@ class MqttController {
             this.clients.push(client);
 
             client.on('connect', () => {
-                this.log(`[${clientId}] 连接成功!`);
+                this.log(`[${clientId}] 连接成功!`, 'success');
 
                 // --- 【修复】防止重连导致定时器叠加 ---
                 if (this.clientIntervals.has(clientId)) {
@@ -92,8 +97,8 @@ class MqttController {
                 const samplePayloadString = JSON.stringify(samplePayload, null, 2);
 
                 // 3. 打印包含配置信息和数据样本的详细日志
-                this.log(`[${clientId}] 将以 ${this.config.send_interval} 秒/次的频率发送 "${this.config.format}" 格式数据 (共 ${this.config.data_point_count} 个数据点)。`);
-                this.log(`[${clientId}] 数据示例如下 (仅展示 ${sampleCountForLog} 个数据点):\n${samplePayloadString}`);
+                this.log(`[${clientId}] 将以 ${this.config.send_interval} 秒/次的频率发送 "${this.config.format}" 格式数据 (共 ${this.config.data_point_count} 个数据点)。`, 'info');
+                this.log(`[${clientId}] 数据示例如下 (仅展示 ${sampleCountForLog} 个数据点):\n${samplePayloadString}`, 'data');
                 // --- 【新增修改结束】 ---
 
                 const intervalId = setInterval(() => {
@@ -112,7 +117,7 @@ class MqttController {
                     }
                     const msg = JSON.stringify(payload);
                     client.publish(this.config.topic, msg, (err) => {
-                        if (err) this.log(`[${clientId}] 发送失败: ${err.message}`);
+                        if (err) this.log(`[${clientId}] 发送失败: ${err.message}`, 'error');
                     });
                 }, this.config.send_interval * 1000);
 
@@ -120,11 +125,11 @@ class MqttController {
             });
 
             client.on('error', (err) => {
-                this.log(`[${clientId}] 连接错误: ${err.message}`);
+                this.log(`[${clientId}] 连接错误: ${err.message}`, 'error');
             });
 
             client.on('close', () => {
-                this.log(`[${clientId}] 连接关闭。`);
+                this.log(`[${clientId}] 连接关闭。`, 'info');
                 // 连接关闭时清除定时器
                 if (this.clientIntervals.has(clientId)) {
                     clearInterval(this.clientIntervals.get(clientId));
@@ -147,8 +152,8 @@ class MqttController {
         this.isRunning = false;
         // 显式地告诉UI模拟已停止
         if (typeof this.logCallback === 'function') {
-            this.logCallback('[Controller] 正在停止所有模拟设备...');
-            this.logCallback('[Controller] 所有设备已停止，模拟结束。');
+            this.logCallback({ message: '[Controller] 正在停止所有模拟设备...', type: 'info', timestamp: new Date().toLocaleTimeString() });
+            this.logCallback({ message: '[Controller] 所有设备已停止，模拟结束。', type: 'info', timestamp: new Date().toLocaleTimeString() });
         }
 
         // 清除所有定时器

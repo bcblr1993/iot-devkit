@@ -13,7 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const dataPointCountInput = document.getElementById('data_point_count');
     const startBtn = document.getElementById('start-btn');
     const stopBtn = document.getElementById('stop-btn');
-    const logOutput = document.getElementById('log-output');
+    const logContainer = document.getElementById('log-container');
+    const clearBtn = document.getElementById('clear-btn');
 
     // 1. 应用启动时，从主进程获取初始配置并填充UI
     window.api.getInitialConfig().then(config => {
@@ -48,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         // 通过预加载脚本的API，请求主进程启动模拟
         window.api.startSimulation(config);
-        logOutput.value = '启动命令已发送...\n';
+        addLogEntry({ message: '启动命令已发送...', type: 'info', timestamp: new Date().toLocaleTimeString() });
     });
 
     // 3. 为“停止”按钮添加点击事件监听器
@@ -57,11 +58,55 @@ document.addEventListener('DOMContentLoaded', () => {
         window.api.stopSimulation();
     });
 
-    // 4. 监听从主进程发来的日志更新
-    window.api.onLogUpdate((message) => {
-        const timestamp = new Date().toLocaleTimeString();
-        logOutput.value += `[${timestamp}] ${message}\n`;
-        // 自动滚动到日志末尾
-        logOutput.scrollTop = logOutput.scrollHeight;
+    // 4. 为“清空”按钮添加点击事件监听器
+    clearBtn.addEventListener('click', () => {
+        logContainer.innerHTML = '';
     });
+
+    // 5. 监听从主进程发来的日志更新
+    window.api.onLogUpdate((logObj) => {
+        // 兼容旧版本：如果是字符串，封装成对象
+        if (typeof logObj === 'string') {
+            logObj = { message: logObj, type: 'info', timestamp: new Date().toLocaleTimeString() };
+        }
+        addLogEntry(logObj);
+    });
+
+    /**
+     * 向日志容器添加一条新日志
+     * @param {object} log - { message, type, timestamp }
+     */
+    function addLogEntry(log) {
+        const entryDiv = document.createElement('div');
+        entryDiv.className = 'log-entry';
+
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'log-timestamp';
+        timeSpan.textContent = `[${log.timestamp}]`;
+
+        const msgSpan = document.createElement('span');
+        // 根据类型添加对应的样式类
+        switch (log.type) {
+            case 'success':
+                msgSpan.className = 'log-success';
+                break;
+            case 'error':
+                msgSpan.className = 'log-error';
+                break;
+            case 'data':
+                msgSpan.className = 'log-data';
+                break;
+            default:
+                msgSpan.className = 'log-info';
+        }
+        msgSpan.textContent = log.message;
+
+        entryDiv.appendChild(timeSpan);
+        entryDiv.appendChild(msgSpan);
+
+        logContainer.appendChild(entryDiv);
+
+        // 自动滚动到底部
+        logContainer.scrollTop = logContainer.scrollHeight;
+    }
 });

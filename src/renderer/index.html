@@ -56,8 +56,11 @@
         </div>
 
         <div class="log-panel">
-            <h2>实时日志</h2>
-            <textarea id="log-output" readonly></textarea>
+            <div class="log-header">
+                <h2>实时日志</h2>
+                <button id="clear-btn" class="btn-small">清空</button>
+            </div>
+            <div id="log-container"></div>
         </div>
     </main>
 </div>
