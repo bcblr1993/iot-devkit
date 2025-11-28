@@ -6,7 +6,11 @@
   "author": "yannan.chen",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder"
+    "build": "electron-builder",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux",
+    "build:all": "electron-builder --mac --win"
   },
   "keywords": [],
   "license": "ISC",
@@ -30,11 +34,22 @@
       "package.json"
     ],
     "win": {
-      "target": "nsis",
+      "target": {
+        "target": "nsis",
+        "arch": [
+          "x64",
+          "ia32"
+        ]
+      },
       "icon": "build/icon.ico"
     },
     "mac": {
-      "target": "dmg",
+      "target": {
+        "target": "dmg",
+        "arch": [
+          "universal"
+        ]
+      },
       "icon": "build/icon.icns",
       "category": "public.app-category.developer-tools"
     },
