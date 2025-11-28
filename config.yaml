@@ -12,4 +12,4 @@ mqtt:
 # Data Generation Configuration
 data:
   format: 'default'
-  data_point_count: 100
+  data_point_count: 10

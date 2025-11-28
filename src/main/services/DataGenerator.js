@@ -106,9 +106,99 @@ function generateTnEmptyPayload(count) {
     return data;
 }
 
+/**
+ * 根据 Schema 生成特定类型的数据
+ * @param {Array} schema - Schema 数组
+ * @param {number} count - 需要生成的数量（从头开始截取）
+ * @returns {object} 数据对象
+ */
+function generateTypedData(schema, count) {
+    const data = {};
+    const effectiveCount = Math.min(count, schema.length);
+
+    for (let i = 0; i < effectiveCount; i++) {
+        const item = schema[i];
+        switch (item.type) {
+            case 'float':
+                data[item.name] = getRandomFloat(0, 100, 2);
+                break;
+            case 'int':
+                data[item.name] = getRandomInt(0, 1000);
+                break;
+            case 'string':
+                data[item.name] = `str_val_${getRandomInt(0, 100)}`;
+                break;
+            case 'bool':
+                data[item.name] = getRandomInt(0, 1) === 1;
+                break;
+            default:
+                data[item.name] = getRandomFloat(0, 100, 2);
+        }
+    }
+    return data;
+}
+
+/**
+ * 生成单个自定义 key 的值
+ * @param {object} keyDef - key 定义 { name, type, min, max }
+ * @returns {any} 生成的值
+ */
+function generateCustomKeyValue(keyDef) {
+    switch (keyDef.type) {
+        case 'int':
+            const min = keyDef.min !== undefined ? keyDef.min : 0;
+            const max = keyDef.max !== undefined ? keyDef.max : 100;
+            return getRandomInt(min, max);
+        case 'float':
+            const fMin = keyDef.min !== undefined ? keyDef.min : 0;
+            const fMax = keyDef.max !== undefined ? keyDef.max : 100;
+            return getRandomFloat(fMin, fMax, 2);
+        case 'string':
+            return keyDef.value || `str_${getRandomInt(0, 1000)}`;
+        case 'bool':
+            return getRandomInt(0, 1) === 1;
+        default:
+            return null;
+    }
+}
+
+/**
+ * 生成自定义 keys 数据对象
+ * @param {Array} customKeys - 自定义 key 定义数组
+ * @returns {object} 自定义数据对象
+ */
+function generateCustomKeys(customKeys) {
+    const data = {};
+    if (!customKeys || !Array.isArray(customKeys)) {
+        return data;
+    }
+
+    customKeys.forEach(keyDef => {
+        if (keyDef.name) {
+            data[keyDef.name] = generateCustomKeyValue(keyDef);
+        }
+    });
+
+    return data;
+}
+
+/**
+ * 合并自定义 keys 和生成的数据
+ * @param {object} generatedData - 生成的数据
+ * @param {Array} customKeys - 自定义 key 定义数组
+ * @returns {object} 合并后的数据
+ */
+function mergeCustomKeys(generatedData, customKeys) {
+    const customData = generateCustomKeys(customKeys);
+    return { ...generatedData, ...customData };
+}
+
 // 导出模块函数
 module.exports = {
     generateBatteryStatus,
     generateTnPayload,
-    generateTnEmptyPayload
+    generateTnEmptyPayload,
+    generateTypedData,
+    generateCustomKeys,
+    mergeCustomKeys
 };
