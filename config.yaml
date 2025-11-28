@@ -1,0 +1,15 @@
+# MQTT Configuration
+mqtt:
+  host: 'localhost'
+  port: 1883
+  topic: 'v1/devices/me/telemetry'
+  username_prefix: 'c'
+  password_prefix: 'c'
+  device_start_number: 1
+  device_end_number: 10
+  send_interval: 1
+
+# Data Generation Configuration
+data:
+  format: 'default'
+  data_point_count: 100

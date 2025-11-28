@@ -94,9 +94,13 @@ ipcMain.handle('get-initial-config', () => {
         const fileContents = fs.readFileSync(configPath, 'utf8');
         return yaml.load(fileContents);
     } catch (error) {
-        console.error("加载 config.yaml 失败:", error);
+        if (error.code === 'ENOENT') {
+            console.log("提示: 未找到 config.yaml，将使用默认配置启动。");
+        } else {
+            console.error("加载 config.yaml 失败:", error);
+        }
         return {
-            mqtt: { host: 'localhost', port: 1883, topic: 'v1/devices/me/telemetry', username_prefix: 'c', password_prefix: 'c', device_count: 10, send_interval: 1 },
+            mqtt: { host: 'localhost', port: 1883, topic: 'v1/devices/me/telemetry', username_prefix: 'c', password_prefix: 'c', device_start_number: 1, device_end_number: 10, send_interval: 1 },
             data: { format: 'default', data_point_count: 100 }
         };
     }

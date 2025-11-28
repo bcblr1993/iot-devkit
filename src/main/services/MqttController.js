@@ -9,7 +9,7 @@ class MqttController {
     constructor() {
         this.config = null;
         this.clients = [];
-        this.intervals = [];
+        this.clientIntervals = new Map(); // 【修改】使用 Map 管理每个客户端的定时器
         this.isRunning = false;
         this.logCallback = null; // 日志回调函数将由 main.js 传入
     }
@@ -65,6 +65,12 @@ class MqttController {
             client.on('connect', () => {
                 this.log(`[${clientId}] 连接成功!`);
 
+                // --- 【修复】防止重连导致定时器叠加 ---
+                if (this.clientIntervals.has(clientId)) {
+                    clearInterval(this.clientIntervals.get(clientId));
+                    this.clientIntervals.delete(clientId);
+                }
+
                 // --- 【新增】生成并打印数据样本 ---
 
                 // 1. 为了避免日志过长，我们只生成一个包含3个数据点的样本用于展示
@@ -109,7 +115,8 @@ class MqttController {
                         if (err) this.log(`[${clientId}] 发送失败: ${err.message}`);
                     });
                 }, this.config.send_interval * 1000);
-                this.intervals.push(intervalId);
+
+                this.clientIntervals.set(clientId, intervalId);
             });
 
             client.on('error', (err) => {
@@ -118,6 +125,11 @@ class MqttController {
 
             client.on('close', () => {
                 this.log(`[${clientId}] 连接关闭。`);
+                // 连接关闭时清除定时器
+                if (this.clientIntervals.has(clientId)) {
+                    clearInterval(this.clientIntervals.get(clientId));
+                    this.clientIntervals.delete(clientId);
+                }
             });
         }
     }
@@ -134,14 +146,16 @@ class MqttController {
         // 【核心修改】立刻将状态置为 false
         this.isRunning = false;
         // 显式地告诉UI模拟已停止
-        if(typeof this.logCallback === 'function') {
+        if (typeof this.logCallback === 'function') {
             this.logCallback('[Controller] 正在停止所有模拟设备...');
             this.logCallback('[Controller] 所有设备已停止，模拟结束。');
         }
 
         // 清除所有定时器
-        this.intervals.forEach(clearInterval);
-        this.intervals = [];
+        for (const intervalId of this.clientIntervals.values()) {
+            clearInterval(intervalId);
+        }
+        this.clientIntervals.clear();
 
         // 遍历所有客户端进行清理
         this.clients.forEach(client => {

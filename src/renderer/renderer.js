@@ -20,7 +20,10 @@ document.addEventListener('DOMContentLoaded', () => {
         hostInput.value = config.mqtt.host;
         portInput.value = config.mqtt.port;
         topicInput.value = config.mqtt.topic;
-        deviceCountInput.value = config.mqtt.device_count;
+        // 【修复】使用正确的字段并移除未定义的 deviceCountInput
+        // 兼容旧配置：如果只有 device_count，则默认从1开始
+        deviceStartNumberInput.value = config.mqtt.device_start_number !== undefined ? config.mqtt.device_start_number : 1;
+        deviceEndNumberInput.value = config.mqtt.device_end_number !== undefined ? config.mqtt.device_end_number : (config.mqtt.device_count || 10);
         usernamePrefixInput.value = config.mqtt.username_prefix;
         passwordPrefixInput.value = config.mqtt.password_prefix;
         sendIntervalInput.value = config.mqtt.send_interval;
