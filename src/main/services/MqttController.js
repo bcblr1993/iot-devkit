@@ -71,22 +71,32 @@ class MqttController {
 
             this.createClient(i, mqttConfig, (client, clientId) => {
                 // 基础模式的定时器逻辑
+                const intervalSeconds = this.config.send_interval || 1;
+                this.log(`[${clientId}] 启动定时发送，间隔: ${intervalSeconds}秒`, 'info');
+
                 const intervalId = setInterval(() => {
                     let payload;
+
+                    // Calculate effective count for random keys
+                    // Total keys = Random keys + Custom keys
+                    // So: Random keys = Total keys - Custom keys
+                    const customKeyCount = (this.config.custom_keys && this.config.custom_keys.length) || 0;
+                    const randomKeyCount = Math.max(0, this.config.data.data_point_count - customKeyCount);
+
                     switch (this.config.data.format) {
                         case 'tn':
-                            payload = generateTnPayload(this.config.data.data_point_count);
+                            payload = generateTnPayload(randomKeyCount);
                             break;
                         case 'tn-empty':
                             payload = generateTnEmptyPayload();
                             break;
                         default:
-                            payload = generateBatteryStatus(this.config.data.data_point_count);
+                            payload = generateBatteryStatus(randomKeyCount);
                             break;
                     }
 
                     // Merge custom keys if defined
-                    if (this.config.custom_keys && this.config.custom_keys.length > 0) {
+                    if (customKeyCount > 0) {
                         payload = mergeCustomKeys(payload, this.config.custom_keys);
                     }
 
@@ -94,7 +104,7 @@ class MqttController {
                     client.publish(this.config.mqtt.topic, msg, (err) => {
                         if (err) this.log(`[${clientId}] 发送失败: ${err.message}`, 'error');
                     });
-                }, this.config.mqtt.send_interval * 1000);
+                }, intervalSeconds * 1000);
 
                 this.addInterval(clientId, intervalId);
             });
@@ -122,12 +132,16 @@ class MqttController {
                 };
 
                 this.createClient(i, mqttConfig, (client, clientId) => {
+                    // Calculate effective count for random keys
+                    const customKeyCount = (group.customKeys && group.customKeys.length) || 0;
+                    const randomKeyCount = Math.max(0, group.keyCount - customKeyCount);
+
                     // 1. 全量上报定时器
                     const fullIntervalId = setInterval(() => {
-                        let data = generateTypedData(schema, group.keyCount); // 全量
+                        let data = generateTypedData(schema, randomKeyCount); // 全量 (减去自定义key数量)
 
                         // Merge custom keys if defined
-                        if (group.customKeys && group.customKeys.length > 0) {
+                        if (customKeyCount > 0) {
                             data = mergeCustomKeys(data, group.customKeys);
                         }
 
@@ -138,13 +152,33 @@ class MqttController {
                     this.addInterval(clientId, fullIntervalId);
 
                     // 2. 变化上报定时器
-                    const changeCount = Math.floor(group.keyCount * group.changeRatio);
-                    if (changeCount > 0) {
+                    // 注意：变化上报通常是基于总 Key 数量的比例，这里我们假设变化上报也包含自定义 Key
+                    // 或者我们只对随机生成的 Key 进行变化上报？
+                    // 用户需求是 "数据点数为 5 就最多定义 5 个 key"，这意味着总数控制。
+                    // 对于变化上报，如果比例是 0.3，总数 10，那么应该上报 3 个 Key。
+                    // 这 3 个 Key 可能包含自定义 Key，也可能不包含。
+                    // 简单起见，我们先计算需要上报的总数，然后尝试混合。
+                    // 但目前的实现是 generateTypedData 生成前 N 个，mergeCustomKeys 添加所有自定义 Key。
+                    // 如果 mergeCustomKeys 总是添加所有自定义 Key，那么变化上报的数量可能会超过预期（如果自定义 Key 很多）。
+                    // 不过通常变化上报是 "部分" 上报。
+                    // 让我们保持简单：变化上报的数量 = floor(总数 * 比例)。
+                    // 其中自定义 Key 全部上报（假设它们是重要的），剩余配额给随机 Key。
+
+                    const totalChangeCount = Math.floor(group.keyCount * group.changeRatio);
+
+                    if (totalChangeCount > 0) {
                         const changeIntervalId = setInterval(() => {
-                            let data = generateTypedData(schema, changeCount); // 前 N%
+                            // 计算随机 Key 在变化上报中的配额
+                            // 如果自定义 Key 数量已经超过了变化上报的总数，那么只上报自定义 Key（或者部分？这里假设全部自定义 Key 都要上报）
+                            // 实际上，通常变化上报是上报 "发生变化" 的数据。
+                            // 这里简化逻辑：优先上报自定义 Key，剩余空间填随机 Key。
+
+                            const randomChangeCount = Math.max(0, totalChangeCount - customKeyCount);
+
+                            let data = generateTypedData(schema, randomChangeCount); // 前 N% 的随机 Key
 
                             // Merge custom keys if defined
-                            if (group.customKeys && group.customKeys.length > 0) {
+                            if (customKeyCount > 0) {
                                 data = mergeCustomKeys(data, group.customKeys);
                             }
 
