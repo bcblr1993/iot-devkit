@@ -522,12 +522,32 @@ button {
 
 .log-success {
     color: #51cf66;
+    /* 更亮的绿色 */
     font-weight: 500;
 }
 
 .log-error {
     color: #ff6b6b;
+    /* 更亮的红色 */
     font-weight: 500;
+}
+
+.log-warning {
+    color: #ffd43b;
+    /* 更亮的黄色 */
+    font-weight: 500;
+}
+
+.log-info {
+    color: #74c0fc;
+    /* 更亮的蓝色 - 原来可能太暗 */
+    font-weight: 400;
+}
+
+/* Default log entry color */
+.log-entry {
+    color: #e9ecef;
+    /* 基础白色 */
 }
 
 .log-data {
