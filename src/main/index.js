@@ -66,14 +66,14 @@ function setupIpcForWindow(instance) {
         }
     };
 
-    // 绑定监听
-    ipcMain.on('start-simulation', startHandler);
-    ipcMain.on('stop-simulation', stopHandler);
+    // 绑定监听 - 使用handle而不是on，因为preload使用invoke
+    ipcMain.handle('start-simulation', startHandler);
+    ipcMain.handle('stop-simulation', stopHandler);
 
     // 当窗口关闭时，移除这些特定的监听器，防止内存泄漏
     window.on('closed', () => {
-        ipcMain.removeListener('start-simulation', startHandler);
-        ipcMain.removeListener('stop-simulation', stopHandler);
+        ipcMain.removeHandler('start-simulation');
+        ipcMain.removeHandler('stop-simulation');
     });
 }
 

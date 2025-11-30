@@ -49,7 +49,8 @@ export class TabManager {
 
         this.currentMode = targetMode;
 
-        if (this.onModeChange) {
+        // Notify mode change if callback provided
+        if (typeof this.onModeChange === 'function') {
             this.onModeChange(targetMode);
         }
     }
