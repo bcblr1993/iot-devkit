@@ -44,9 +44,6 @@ function createWindow() {
     return mainWindow;
 }
 
-return mainWindow;
-}
-
 // Global IPC handlers for start/stop simulation
 ipcMain.handle('start-simulation', (event, config) => {
     const window = BrowserWindow.fromWebContents(event.sender);
