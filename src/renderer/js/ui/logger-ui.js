@@ -33,11 +33,6 @@ export class LoggerUI {
     addEntry(logEntry) {
         if (!this.logContainer) return;
 
-        // Debug log to check data payload
-        if (logEntry.data) {
-            console.log('Received log with data:', logEntry);
-        }
-
         // Store log entry
         this.allLogs.push(logEntry);
 
