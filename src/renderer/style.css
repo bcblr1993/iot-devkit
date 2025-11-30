@@ -550,17 +550,85 @@ button {
     font-weight: 400;
 }
 
+.log-data-wrapper {
+    position: relative;
+    margin-top: 4px;
+}
+
 .log-data {
     color: #a5d6a7;
     font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
     font-size: 12px;
     background-color: rgba(0, 0, 0, 0.3);
     padding: 8px;
+    padding-right: 30px;
+    /* Space for scrollbar and buttons */
     border-radius: 4px;
-    margin-top: 4px;
     white-space: pre-wrap;
     word-break: break-all;
     border-left: 3px solid #667eea;
+
+    /* Collapsible styles */
+    max-height: 120px;
+    overflow-y: auto;
+    transition: max-height 0.3s ease;
+}
+
+.log-data.expanded {
+    max-height: none;
+    overflow-y: visible;
+}
+
+/* Custom scrollbar for log data */
+.log-data::-webkit-scrollbar {
+    width: 6px;
+}
+
+.log-data::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.log-data::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+.log-data::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Action buttons container */
+.log-actions {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    display: flex;
+    gap: 5px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 2px;
+    border-radius: 4px;
+}
+
+.log-data-wrapper:hover .log-actions {
+    opacity: 1;
+}
+
+.log-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border-radius: 3px;
+    padding: 2px 6px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.log-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.4);
 }
 
 /* ==================== Custom Keys Section ==================== */

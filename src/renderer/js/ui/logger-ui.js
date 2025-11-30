@@ -74,11 +74,48 @@ export class LoggerUI {
 
         // Display JSON data if filter is active and data exists
         if (this.currentFilter && logEntry.data) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'log-data-wrapper';
+
             const dataDiv = document.createElement('div');
             dataDiv.className = 'log-data';
-            // Format JSON with indentation
-            dataDiv.textContent = JSON.stringify(logEntry.data, null, 2);
-            logDiv.appendChild(dataDiv);
+            const jsonString = JSON.stringify(logEntry.data, null, 2);
+            dataDiv.textContent = jsonString;
+
+            // Actions container
+            const actions = document.createElement('div');
+            actions.className = 'log-actions';
+
+            // Copy button
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'log-btn';
+            copyBtn.textContent = '📋 复制';
+            copyBtn.title = '复制 JSON';
+            copyBtn.onclick = (e) => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(jsonString).then(() => {
+                    const originalText = copyBtn.textContent;
+                    copyBtn.textContent = '✅ 已复制';
+                    setTimeout(() => copyBtn.textContent = originalText, 2000);
+                });
+            };
+
+            // Expand/Collapse button
+            const expandBtn = document.createElement('button');
+            expandBtn.className = 'log-btn';
+            expandBtn.textContent = '展开';
+            expandBtn.onclick = (e) => {
+                e.stopPropagation();
+                dataDiv.classList.toggle('expanded');
+                expandBtn.textContent = dataDiv.classList.contains('expanded') ? '收起' : '展开';
+            };
+
+            actions.appendChild(copyBtn);
+            actions.appendChild(expandBtn);
+
+            wrapper.appendChild(dataDiv);
+            wrapper.appendChild(actions);
+            logDiv.appendChild(wrapper);
         }
 
         return logDiv;
