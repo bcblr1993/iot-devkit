@@ -506,8 +506,18 @@ button {
     min-width: 90px;
 }
 
-.log-info {
-    color: #e9ecef;
+.log-message {
+    flex: 1;
+    word-wrap: break-word;
+}
+
+/* Search highlight */
+.log-message mark {
+    background-color: #ffc107;
+    color: #000;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-weight: bold;
 }
 
 .log-success {
@@ -545,6 +555,49 @@ button {
     font-weight: 600;
     color: #495057;
     margin: 0;
+}
+
+.log-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 16px;
+}
+
+.log-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #495057;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.log-controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex: 1;
+}
+
+.log-search-input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 13px;
+    transition: all 0.3s ease;
+    max-width: 400px;
+}
+
+.log-search-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.log-search-input::placeholder {
+    color: #adb5bd;
 }
 
 .btn-add-small {
