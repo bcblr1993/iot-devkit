@@ -3,8 +3,8 @@
  * 负责创建、管理所有虚拟设备，并处理它们的生命周期
  */
 const mqtt = require('mqtt');
-const { generateBatteryStatus, generateTnPayload, generateTnEmptyPayload, generateTypedData, mergeCustomKeys } = require('./DataGenerator');
-const SchemaGenerator = require('./SchemaGenerator');
+const { generateBatteryStatus, generateTnPayload, generateTnEmptyPayload, generateTypedData, mergeCustomKeys } = require('./data-generator');
+const SchemaGenerator = require('./schema-generator');
 
 class MqttController {
     constructor() {

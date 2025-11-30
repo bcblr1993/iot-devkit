@@ -2,7 +2,7 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const yaml = require('js-yaml');
-const MqttController = require('./services/MqttController');
+const MqttController = require('./services/mqtt-controller');
 
 // 【修改】将 mainWindow 和 mqttController 的管理放入一个数组中，以便管理多个实例
 let windows = [];
@@ -93,14 +93,14 @@ app.whenReady().then(() => {
 // 这个IPC是全局的,用于加载初始配置，可以保持不变
 ipcMain.handle('get-initial-config', () => {
     try {
-        const configPath = path.join(app.getAppPath(), 'config.yaml');
+        const configPath = path.join(app.getAppPath(), 'resources/config/default-config.yaml');
         const fileContents = fs.readFileSync(configPath, 'utf8');
         return yaml.load(fileContents);
     } catch (error) {
         if (error.code === 'ENOENT') {
-            console.log("提示: 未找到 config.yaml，将使用默认配置启动。");
+            console.log("提示: 未找到 default-config.yaml，将使用默认配置启动。");
         } else {
-            console.error("加载 config.yaml 失败:", error);
+            console.error("加载 default-config.yaml 失败:", error);
         }
         return {
             mqtt: { host: 'localhost', port: 1883, topic: 'v1/devices/me/telemetry', username_prefix: 'c', password_prefix: 'c', device_start_number: 1, device_end_number: 10, send_interval: 1 },
