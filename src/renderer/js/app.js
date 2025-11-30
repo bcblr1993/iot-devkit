@@ -73,6 +73,11 @@ class App {
         document.addEventListener('mode-change-request', (e) => {
             this.handleModeChangeRequest(e.detail);
         });
+
+        // Listen to MQTT logs from main process
+        window.api.onLog((logObj) => {
+            this.logger.addEntry(logObj);
+        });
     }
 
     async loadInitialConfig() {

@@ -51,9 +51,9 @@ ipcMain.handle('start-simulation', (event, config) => {
 
     if (windowEntry && windowEntry.controller) {
         windowEntry.controller.start(config, (logObj) => {
-            // Send log updates back to renderer if needed
+            // Send logs back to renderer
             if (!window.isDestroyed()) {
-                // For now, logs are handled client-side
+                window.webContents.send('mqtt-log', logObj);
             }
         });
     }

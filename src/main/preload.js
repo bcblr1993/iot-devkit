@@ -14,5 +14,8 @@ contextBridge.exposeInMainWorld('api', {
 
     // Config import/export
     saveConfig: (config) => ipcRenderer.invoke('save-config', config),
-    loadConfig: () => ipcRenderer.invoke('load-config')
+    loadConfig: () => ipcRenderer.invoke('load-config'),
+
+    // Listen to MQTT logs from main process
+    onLog: (callback) => ipcRenderer.on('mqtt-log', (event, logObj) => callback(logObj))
 });
