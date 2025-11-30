@@ -22,7 +22,7 @@ function createWindow() {
     mainWindow.loadFile('src/renderer/index.html');
 
     // 打开开发者工具（用于调试）
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
 
     const mqttController = new MqttController();
 
