@@ -201,7 +201,7 @@ input::placeholder {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    max-height: 400px;
+    max-height: 600px;
     overflow-y: auto;
     padding-right: 8px;
 }
@@ -356,6 +356,17 @@ button {
     opacity: 0.6;
 }
 
+.btn-secondary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+}
+
 .btn-add {
     padding: 8px 16px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -367,6 +378,13 @@ button {
 .btn-add:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-add:disabled {
+    background: #ced4da;
+    cursor: not-allowed;
+    opacity: 0.6;
+    transform: none;
 }
 
 .btn-clear {

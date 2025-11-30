@@ -6,17 +6,16 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 // 在 window 对象上暴露一个名为 'api' 的全局变量
 contextBridge.exposeInMainWorld('api', {
-    // 暴露一个函数用于请求初始配置
+    // 启动模拟
+    startSimulation: (config) => ipcRenderer.invoke('start-simulation', config),
+    // 停止模拟
+    stopSimulation: () => ipcRenderer.invoke('stop-simulation'),
+    // 获取初始配置
     getInitialConfig: () => ipcRenderer.invoke('get-initial-config'),
-
-    // 暴露一个函数用于发送 'start' 命令到主进程
-    startSimulation: (config) => ipcRenderer.send('start-simulation', config),
-
-    // 暴露一个函数用于发送 'stop' 命令到主进程
-    stopSimulation: () => ipcRenderer.send('stop-simulation'),
-
-    // 暴露一个函数，允许渲染进程注册一个回调来接收日志更新
-    onLogUpdate: (callback) => ipcRenderer.on('log-update', (event, message) => {
-        callback(message);
-    })
+    // 监听主进程日志
+    onLog: (callback) => ipcRenderer.on('mqtt-log', (event, logEntry) => callback(logEntry)),
+    // 保存配置到文件
+    saveConfig: (config) => ipcRenderer.invoke('save-config', config),
+    // 从文件加载配置
+    loadConfig: () => ipcRenderer.invoke('load-config')
 });

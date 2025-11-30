@@ -21,6 +21,9 @@ function createWindow() {
 
     mainWindow.loadFile('src/renderer/index.html');
 
+    // 打开开发者工具（用于调试）
+    mainWindow.webContents.openDevTools();
+
     const mqttController = new MqttController();
 
     // 将新创建的窗口和控制器存入数组
@@ -87,7 +90,7 @@ app.whenReady().then(() => {
     });
 });
 
-// 这个IPC是全局的，用于加载初始配置，可以保持不变
+// 这个IPC是全局的,用于加载初始配置，可以保持不变
 ipcMain.handle('get-initial-config', () => {
     try {
         const configPath = path.join(app.getAppPath(), 'config.yaml');
@@ -103,6 +106,77 @@ ipcMain.handle('get-initial-config', () => {
             mqtt: { host: 'localhost', port: 1883, topic: 'v1/devices/me/telemetry', username_prefix: 'c', password_prefix: 'c', device_start_number: 1, device_end_number: 10, send_interval: 1 },
             data: { format: 'default', data_point_count: 100 }
         };
+    }
+});
+
+// IPC: 保存配置到文件
+ipcMain.handle('save-config', async (event, config) => {
+    try {
+        const { dialog } = require('electron');
+        const result = await dialog.showSaveDialog({
+            title: '保存配置',
+            defaultPath: 'mqtt-simulator-config.json',
+            filters: [
+                { name: 'JSON 配置文件', extensions: ['json'] },
+                { name: '所有文件', extensions: ['*'] }
+            ]
+        });
+
+        if (result.canceled || !result.filePath) {
+            return { success: false, message: '用户取消保存' };
+        }
+
+        fs.writeFileSync(result.filePath, JSON.stringify(config, null, 2), 'utf-8');
+        return { success: true, message: '配置保存成功', path: result.filePath };
+    } catch (error) {
+        console.error('保存配置失败:', error);
+        return { success: false, message: `保存失败: ${error.message}` };
+    }
+});
+
+// IPC: 从文件加载配置
+ipcMain.handle('load-config', async () => {
+    try {
+        const { dialog } = require('electron');
+
+        // 1. 先选择文件
+        const fileResult = await dialog.showOpenDialog({
+            title: '加载配置',
+            filters: [
+                { name: 'JSON 配置文件', extensions: ['json'] },
+                { name: '所有文件', extensions: ['*'] }
+            ],
+            properties: ['openFile']
+        });
+
+        if (fileResult.canceled || fileResult.filePaths.length === 0) {
+            return { success: false, message: '用户取消加载' };
+        }
+
+        // 2. 显示确认对话框
+        const confirmResult = await dialog.showMessageBox({
+            type: 'warning',
+            buttons: ['取消', '确认导入'],
+            defaultId: 1,
+            title: '确认导入配置',
+            message: '导入配置将覆盖当前所有设置',
+            detail: '当前的所有配置（包括基础模式、高级模式、分组和自定义Key）将被替换为文件中的配置。\n\n此操作无法撤销，是否继续？'
+        });
+
+        // 用户点击"取消"（索引 0）
+        if (confirmResult.response === 0) {
+            return { success: false, message: '用户取消导入' };
+        }
+
+        // 3. 用户确认，读取并解析文件
+        const filePath = fileResult.filePaths[0];
+        const fileContent = fs.readFileSync(filePath, 'utf-8');
+        const config = JSON.parse(fileContent);
+
+        return { success: true, message: '配置加载成功', config };
+    } catch (error) {
+        console.error('加载配置失败:', error);
+        return { success: false, message: `加载失败: ${error.message}` };
     }
 });
 

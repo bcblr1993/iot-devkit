@@ -147,23 +147,62 @@ document.addEventListener('DOMContentLoaded', () => {
         logContainer.innerHTML = '';
     });
 
-    // Log Update
-    window.api.onLogUpdate((logObj) => {
-        if (typeof logObj === 'string') {
-            logObj = { message: logObj, type: 'info', timestamp: new Date().toLocaleTimeString() };
-        }
-        addLogEntry(logObj);
-    });
+    // Log Update - Commented out as this API method doesn't exist
+    // window.api.onLogUpdate((logObj) => {
+    //     if (typeof logObj === 'string') {
+    //         addLogEntry({ message: logObj, type: 'info', timestamp: new Date().toLocaleTimeString() });
+    //     } else {
+    //         addLogEntry(logObj);
+    //     }
+    // });
 
     // --- Helper Functions ---
 
+    // Update add group button state based on current group count
+    function updateAddGroupButtonState() {
+        const currentGroupCount = groupsContainer.children.length;
+        const MAX_GROUPS = 10;
+
+        if (currentGroupCount >= MAX_GROUPS) {
+            addGroupBtn.disabled = true;
+            addGroupBtn.title = `最多只能添加 ${MAX_GROUPS} 个分组`;
+        } else {
+            addGroupBtn.disabled = false;
+            addGroupBtn.title = '添加新分组';
+        }
+    }
+
+    // Listen for group deletion events triggered by global deleteGroup function
+    document.addEventListener('groupDeleted', updateAddGroupButtonState);
+
+    // Delete group and update button state
+    window.deleteGroup = function (groupId) {
+        const groupElement = document.getElementById(`group-${groupId}`);
+        if (groupElement) {
+            groupElement.remove();
+            updateAddGroupButtonState();
+            // Dispatch a custom event to notify other parts of the application
+            const event = new CustomEvent('groupDeleted', { detail: { groupId } });
+            document.dispatchEvent(event);
+        }
+    };
+
     function addGroup() {
+        // Check if maximum number of groups reached
+        const currentGroupCount = groupsContainer.children.length;
+        const MAX_GROUPS = 10;
+
+        if (currentGroupCount >= MAX_GROUPS) {
+            alert(`最多只能添加 ${MAX_GROUPS} 个分组`);
+            return;
+        }
+
         const id = Date.now();
         const groupHtml = `
             <div class="group-item" id="group-${id}">
                 <div class="group-header">
                     <span>分组 #${groupsContainer.children.length + 1}</span>
-                    <button class="delete-group-btn" onclick="document.getElementById('group-${id}').remove()">删除</button>
+                    <button class="delete-group-btn" onclick="window.deleteGroup(${id})">删除</button>
                 </div>
                 <div class="group-form">
                     <div>
@@ -246,7 +285,44 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
         groupsContainer.insertAdjacentHTML('beforeend', groupHtml);
+
+        // Update button state after adding group
+        updateAddGroupButtonState();
     }
+
+    // Update add group button state based on current group count
+    function updateAddGroupButtonState() {
+        const currentGroupCount = groupsContainer.children.length;
+        const MAX_GROUPS = 10;
+
+        if (currentGroupCount >= MAX_GROUPS) {
+            addGroupBtn.disabled = true;
+            addGroupBtn.title = `最多只能添加 ${MAX_GROUPS} 个分组`;
+        } else {
+            addGroupBtn.disabled = false;
+            addGroupBtn.title = '添加新分组';
+        }
+    }
+
+    // Listen for group deletion events triggered by global deleteGroup function
+    document.addEventListener('groupDeleted', updateAddGroupButtonState);
+
+    // Delete group function (also defined in global-functions.js, but this is for updating button state)
+    window.deleteGroup = function (groupId) {
+        const currentGroupCount = groupsContainer.children.length;
+
+        // Prevent deleting the last group
+        if (currentGroupCount <= 1) {
+            alert('至少需要保留一个分组！');
+            return;
+        }
+
+        const groupElement = document.getElementById(`group-${groupId}`);
+        if (groupElement) {
+            groupElement.remove();
+            updateAddGroupButtonState();
+        }
+    };
 
     function collectGroupsData() {
         const groupElements = document.querySelectorAll('.group-item');
