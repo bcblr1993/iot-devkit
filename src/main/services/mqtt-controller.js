@@ -104,7 +104,11 @@ class MqttController {
 
                     const msg = JSON.stringify(payload);
                     client.publish(this.config.mqtt.topic, msg, (err) => {
-                        if (err) this.log(`[${clientId}] 发送失败: ${err.message}`, 'error');
+                        if (err) {
+                            this.log(`[${clientId}] 发送失败: ${err.message}`, 'error');
+                        } else {
+                            this.log(`[${clientId}] 发送成功`, 'info', payload);
+                        }
                     });
                 }, intervalSeconds * 1000);
 
