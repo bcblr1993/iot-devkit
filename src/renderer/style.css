@@ -520,33 +520,34 @@ button {
     font-weight: bold;
 }
 
+/* Default log entry color */
+.log-entry {
+    color: #e9ecef;
+    margin-bottom: 4px;
+}
+
 /* 更亮的绿色 */
-.log-success {
+.log-entry.log-success {
     color: #51cf66;
     font-weight: 500;
 }
 
 /* 更亮的红色 */
-.log-error {
+.log-entry.log-error {
     color: #ff6b6b;
     font-weight: 500;
 }
 
 /* 更亮的黄色 */
-.log-warning {
+.log-entry.log-warning {
     color: #ffd43b;
     font-weight: 500;
 }
 
-/* 更亮的蓝色 - 原来可能太暗 */
-.log-info {
+/* 更亮的蓝色 */
+.log-entry.log-info {
     color: #74c0fc;
     font-weight: 400;
-}
-
-/* Default log entry color */
-.log-entry {
-    color: #e9ecef;
 }
 
 .log-data {
