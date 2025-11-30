@@ -41,41 +41,35 @@ function createWindow() {
         windows = windows.filter(w => w.id !== instance.id);
     });
 
-    // 为这个新窗口设置IPC监听
-    setupIpcForWindow(instance);
+    return mainWindow;
 }
 
-// 【新增】为特定窗口实例设置IPC处理
-function setupIpcForWindow(instance) {
-    const { window, controller } = instance;
-
-    const startHandler = (event, config) => {
-        // 确保事件来自正确的窗口
-        if (event.sender === window.webContents) {
-            controller.start(config, (messages) => {
-                if (!window.isDestroyed()) {
-                    window.webContents.send('log-update', messages);
-                }
-            });
-        }
-    };
-
-    const stopHandler = (event) => {
-        if (event.sender === window.webContents) {
-            controller.stop();
-        }
-    };
-
-    // 绑定监听 - 使用handle而不是on，因为preload使用invoke
-    ipcMain.handle('start-simulation', startHandler);
-    ipcMain.handle('stop-simulation', stopHandler);
-
-    // 当窗口关闭时，移除这些特定的监听器，防止内存泄漏
-    window.on('closed', () => {
-        ipcMain.removeHandler('start-simulation');
-        ipcMain.removeHandler('stop-simulation');
-    });
+return mainWindow;
 }
+
+// Global IPC handlers for start/stop simulation
+ipcMain.handle('start-simulation', (event, config) => {
+    const window = BrowserWindow.fromWebContents(event.sender);
+    const windowEntry = windows.find(w => w.window === window);
+
+    if (windowEntry && windowEntry.controller) {
+        windowEntry.controller.start(config, (logObj) => {
+            // Send log updates back to renderer if needed
+            if (!window.isDestroyed()) {
+                // For now, logs are handled client-side
+            }
+        });
+    }
+});
+
+ipcMain.handle('stop-simulation', (event) => {
+    const window = BrowserWindow.fromWebContents(event.sender);
+    const windowEntry = windows.find(w => w.window === window);
+
+    if (windowEntry && windowEntry.controller) {
+        windowEntry.controller.stop();
+    }
+});
 
 
 app.whenReady().then(() => {

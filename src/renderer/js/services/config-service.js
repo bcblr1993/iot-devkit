@@ -81,10 +81,29 @@ export class ConfigService {
 
         // Switch to the configured mode
         if (config.mode) {
-            const targetBtn = document.querySelector(`[data-tab="${config.mode}"]`);
-            if (targetBtn) {
-                this.tabManager.performSwitch(targetBtn, config.mode);
-            }
+            // Manually switch tabs without going through event system
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabBtns.forEach(btn => {
+                if (btn.dataset.tab === config.mode) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            tabContents.forEach(content => {
+                const panel = content;
+                if (panel.id === `${config.mode}-panel`) {
+                    panel.classList.add('active');
+                } else {
+                    panel.classList.remove('active');
+                }
+            });
+
+            // Update tab manager's current mode
+            this.tabManager.currentMode = config.mode;
         }
     }
 

@@ -20,7 +20,10 @@ class App {
     initializeComponents() {
         // Initialize UI components
         this.logger = new LoggerUI();
-        this.tabManager = new TabManager((mode) => this.onModeChange(mode));
+        // Use arrow function to preserve 'this' context
+        this.tabManager = new TabManager(() => {
+            // This callback is optional, mode changes are handled via events
+        });
         this.groupManager = new GroupManager();
         this.customKeyManager = new CustomKeyManager();
         this.configService = new ConfigService(this.tabManager, this.groupManager, this.customKeyManager);
