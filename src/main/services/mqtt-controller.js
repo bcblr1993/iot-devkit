@@ -20,13 +20,15 @@ class MqttController {
      * 内部日志方法
      * @param {string} message - 要记录的消息
      * @param {string} type - 日志类型: 'info', 'success', 'error', 'data'
+     * @param {Object} [data] - 可选的数据载荷
      */
-    log(message, type = 'info') {
+    log(message, type = 'info', data = null) {
         if (this.isRunning && typeof this.logCallback === 'function') {
             this.logCallback({
                 message,
                 type,
-                timestamp: new Date().toLocaleTimeString()
+                timestamp: new Date().toLocaleTimeString(),
+                data
             });
         } else {
             console.log(`[Controller-Suppressed] [${type}] ${message}`);
@@ -146,7 +148,11 @@ class MqttController {
                         }
 
                         client.publish(this.config.mqtt.topic, JSON.stringify(data), (err) => {
-                            if (err) this.log(`[${clientId}] 全量上报失败: ${err.message}`, 'error');
+                            if (err) {
+                                this.log(`[${clientId}] 发送数据失败: ${err.message}`, 'error');
+                            } else {
+                                this.log(`[${clientId}] 发送数据成功`, 'info', data);
+                            }
                         });
                     }, group.fullInterval * 1000);
                     this.addInterval(clientId, fullIntervalId);
@@ -183,7 +189,11 @@ class MqttController {
                             }
 
                             client.publish(this.config.mqtt.topic, JSON.stringify(data), (err) => {
-                                if (err) this.log(`[${clientId}] 变化上报失败: ${err.message}`, 'error');
+                                if (err) {
+                                    this.log(`[${clientId}] 变化上报失败: ${err.message}`, 'error');
+                                } else {
+                                    this.log(`[${clientId}] 变化上报成功`, 'info', data);
+                                }
                             });
                         }, group.changeInterval * 1000);
                         this.addInterval(clientId, changeIntervalId);

@@ -551,9 +551,16 @@ button {
 }
 
 .log-data {
-    color: #ffd43b;
+    color: #a5d6a7;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 12px;
+    background-color: rgba(0, 0, 0, 0.3);
+    padding: 8px;
+    border-radius: 4px;
+    margin-top: 4px;
     white-space: pre-wrap;
     word-break: break-all;
+    border-left: 3px solid #667eea;
 }
 
 /* ==================== Custom Keys Section ==================== */

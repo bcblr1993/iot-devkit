@@ -72,6 +72,15 @@ export class LoggerUI {
         logDiv.appendChild(timestampSpan);
         logDiv.appendChild(messageSpan);
 
+        // Display JSON data if filter is active and data exists
+        if (this.currentFilter && logEntry.data) {
+            const dataDiv = document.createElement('div');
+            dataDiv.className = 'log-data';
+            // Format JSON with indentation
+            dataDiv.textContent = JSON.stringify(logEntry.data, null, 2);
+            logDiv.appendChild(dataDiv);
+        }
+
         return logDiv;
     }
 
