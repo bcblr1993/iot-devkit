@@ -168,6 +168,29 @@ input::placeholder {
     animation: fadeIn 0.3s ease;
 }
 
+/* Locked panel state */
+.tab-content.locked {
+    opacity: 0.6;
+    pointer-events: none;
+    position: relative;
+}
+
+.tab-content.locked::after {
+    content: '🔒 模拟运行中，配置已锁定';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 20px 40px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;

@@ -159,6 +159,9 @@ class App {
         this.isRunning = true;
         this.startBtn.disabled = true;
         this.stopBtn.disabled = false;
+
+        // Lock configuration panel
+        this.lockConfigPanel();
     }
 
     handleStop() {
@@ -168,6 +171,9 @@ class App {
         this.isRunning = false;
         this.startBtn.disabled = false;
         this.stopBtn.disabled = true;
+
+        // Unlock configuration panel
+        this.unlockConfigPanel();
     }
 
     async handleExport() {
@@ -254,6 +260,60 @@ class App {
         }
 
         return config;
+    }
+
+    /**
+     * Lock configuration panel during simulation
+     */
+    lockConfigPanel() {
+        // Disable all input elements in both panels
+        const inputs = document.querySelectorAll('#basic-panel input, #basic-panel select, #basic-panel button, #advanced-panel input, #advanced-panel select, #advanced-panel button');
+        inputs.forEach(input => {
+            // Don't disable the stop button
+            if (input !== this.stopBtn) {
+                input.disabled = true;
+            }
+        });
+
+        // Disable tab switching
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        tabBtns.forEach(btn => btn.disabled = true);
+
+        // Disable export/import buttons
+        if (this.exportBtn) this.exportBtn.disabled = true;
+        if (this.importBtn) this.importBtn.disabled = true;
+
+        // Add visual feedback
+        const panels = document.querySelectorAll('.tab-content');
+        panels.forEach(panel => panel.classList.add('locked'));
+    }
+
+    /**
+     * Unlock configuration panel after simulation stops
+     */
+    unlockConfigPanel() {
+        // Enable all input elements
+        const inputs = document.querySelectorAll('#basic-panel input, #basic-panel select, #basic-panel button, #advanced-panel input, #advanced-panel select, #advanced-panel button');
+        inputs.forEach(input => {
+            input.disabled = false;
+        });
+
+        // Enable tab switching
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        tabBtns.forEach(btn => btn.disabled = false);
+
+        // Enable export/import buttons
+        if (this.exportBtn) this.exportBtn.disabled = false;
+        if (this.importBtn) this.importBtn.disabled = false;
+
+        // Remove visual feedback
+        const panels = document.querySelectorAll('.tab-content');
+        panels.forEach(panel => panel.classList.remove('locked'));
+
+        // Re-apply group button state check
+        if (this.groupManager) {
+            this.groupManager.updateButtonState();
+        }
     }
 }
 
