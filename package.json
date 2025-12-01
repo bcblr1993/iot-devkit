@@ -1,15 +1,20 @@
 {
   "name": "mqtt-electron-simulator",
-  "version": "1.0.0",
+  "version": "1.0.0-20251201-135649",
   "description": "一个用于模拟多设备发送MQTT数据的Electron应用",
   "main": "src/main/index.js",
   "author": "yannan.chen",
   "scripts": {
     "start": "electron .",
+    "prebuild": "node scripts/update-version-timestamp.js",
     "build": "electron-builder",
+    "prebuild:mac": "node scripts/update-version-timestamp.js",
     "build:mac": "electron-builder --mac",
+    "prebuild:win": "node scripts/update-version-timestamp.js",
     "build:win": "electron-builder --win",
+    "prebuild:linux": "node scripts/update-version-timestamp.js",
     "build:linux": "electron-builder --linux",
+    "prebuild:all": "node scripts/update-version-timestamp.js",
     "build:all": "electron-builder --mac --win"
   },
   "keywords": [],
@@ -27,6 +32,7 @@
     "appId": "9H0o93zkxj047QoMwp",
     "productName": "MQTT设备模拟器",
     "copyright": "Copyright © 2025 ${author}",
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "directories": {
       "output": "dist"
     },
@@ -44,6 +50,14 @@
         ]
       },
       "icon": "resources/icons/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "MQTT设备模拟器"
     },
     "mac": {
       "target": {
