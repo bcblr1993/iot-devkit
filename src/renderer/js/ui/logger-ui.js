@@ -10,6 +10,8 @@ export class LoggerUI {
         this.searchInput = getElement('log-search');
         this.allLogs = []; // Store all logs
         this.currentFilter = '';
+        this.MAX_DOM_LOGS = 500; // Maximum DOM elements to prevent memory leak
+        this.MAX_STORED_LOGS = 1000; // Maximum stored logs for search
 
         this.setupSearchListener();
     }
@@ -36,18 +38,24 @@ export class LoggerUI {
         // Store log entry
         this.allLogs.push(logEntry);
 
-        // Create log element
-        const logDiv = this.createLogElement(logEntry);
-
-        // Check if it matches current filter
-        if (this.matchesFilter(logEntry)) {
-            this.logContainer.appendChild(logDiv);
-            this.logContainer.scrollTop = this.logContainer.scrollHeight;
+        // Limit stored logs to prevent memory issues
+        if (this.allLogs.length > this.MAX_STORED_LOGS) {
+            this.allLogs.shift();
         }
 
-        // Limit stored logs to prevent memory issues (keep last 1000)
-        if (this.allLogs.length > 1000) {
-            this.allLogs.shift();
+        // Only add to DOM if it matches current filter
+        if (this.matchesFilter(logEntry)) {
+            const logDiv = this.createLogElement(logEntry);
+            this.logContainer.appendChild(logDiv);
+
+            // **CRITICAL: Limit DOM elements to prevent memory leak**
+            // Remove oldest DOM element if exceeding limit
+            while (this.logContainer.children.length > this.MAX_DOM_LOGS) {
+                this.logContainer.removeChild(this.logContainer.firstChild);
+            }
+
+            // Auto-scroll to bottom
+            this.logContainer.scrollTop = this.logContainer.scrollHeight;
         }
     }
 

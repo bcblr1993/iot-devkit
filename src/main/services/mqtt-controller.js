@@ -80,6 +80,8 @@ class MqttController {
                 const intervalSeconds = this.config.send_interval || 1;
                 this.log(`[${clientId}] 启动定时发送，间隔: ${intervalSeconds}秒`, 'info');
 
+                let sendCount = 0; // Counter for log sampling
+
                 const intervalId = setInterval(() => {
                     let payload;
 
@@ -111,7 +113,11 @@ class MqttController {
                         if (err) {
                             this.log(`[${clientId}] 发送失败: ${err.message}`, 'error');
                         } else {
-                            this.log(`[${clientId}] 发送成功`, 'info', payload);
+                            sendCount++;
+                            // Log sampling: only log every 10 successful sends to reduce memory usage
+                            if (sendCount % 10 === 1) {
+                                this.log(`[${clientId}] 已发送 ${sendCount} 条消息`, 'success');
+                            }
                         }
                     });
                 }, intervalSeconds * 1000);
@@ -150,6 +156,9 @@ class MqttController {
                     const customKeyCount = (group.customKeys && group.customKeys.length) || 0;
                     const randomKeyCount = Math.max(0, group.keyCount - customKeyCount);
 
+                    let fullSendCount = 0; // Counter for full report sampling
+                    let changeSendCount = 0; // Counter for change report sampling
+
                     // 1. 全量上报定时器
                     const fullIntervalId = setInterval(() => {
                         let data = generateTypedData(schema, randomKeyCount); // 全量 (减去自定义key数量)
@@ -163,7 +172,11 @@ class MqttController {
                             if (err) {
                                 this.log(`[${clientId}] 发送数据失败: ${err.message}`, 'error');
                             } else {
-                                this.log(`[${clientId}] 发送数据成功`, 'info', data);
+                                fullSendCount++;
+                                // Log sampling: only log every 10 successful full reports
+                                if (fullSendCount % 10 === 1) {
+                                    this.log(`[${clientId}] 全量上报成功 (已发送${fullSendCount}次)`, 'success');
+                                }
                             }
                         });
                     }, group.fullInterval * 1000);
@@ -204,7 +217,11 @@ class MqttController {
                                 if (err) {
                                     this.log(`[${clientId}] 变化上报失败: ${err.message}`, 'error');
                                 } else {
-                                    this.log(`[${clientId}] 变化上报成功`, 'info', data);
+                                    changeSendCount++;
+                                    // Log sampling: only log every 10 successful change reports
+                                    if (changeSendCount % 10 === 1) {
+                                        this.log(`[${clientId}] 变化上报成功 (已发送${changeSendCount}次)`, 'success');
+                                    }
                                 }
                             });
                         }, group.changeInterval * 1000);
