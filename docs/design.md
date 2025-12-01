@@ -1,68 +1,187 @@
-
-**`design.md`**
-```markdown
 # 设计文档 - MQTT 设备模拟器
 
-本文档概述了将 Python MQTT 模拟工具重构为 Electron 桌面应用的设计思路和技术架构。
+本文档阐述 MQTT 设备模拟器的技术架构、设计决策和实现细节。
 
-## 1. 核心架构：Electron 进程模型
+## 1. 架构概览
 
-本项目遵循 Electron 标准的 **主进程-渲染进程** 模型，以实现功能分离和性能优化。
+### 1.1 Electron 进程模型
 
--   **主进程 (`src/main/main.js`)**
-    -   **职责**:
-        -   创建和管理应用窗口 (`BrowserWindow`)。
-        -   处理应用的生命周期事件（启动、关闭等）。
-        -   作为“后端”服务器，运行所有 Node.js 密集型任务。
-        -   实例化和控制 `MqttController`，这是所有模拟任务的核心。
-        -   通过 `ipcMain` 监听来自渲染进程的命令（如启动/停止模拟）。
-        -   通过 `webContents.send` 将日志和状态更新推送到渲染进程。
-    -   **设计决策**: 将 MQTT 客户端管理和数据发送逻辑完全放在主进程中，可以防止复杂的网络活动和定时器阻塞 UI，确保用户界面始终保持响应。
+本项目遵循 Electron 标准的**主进程-渲染进程**分离架构：
 
--   **渲染进程 (`src/renderer/`)**
-    -   **职责**:
-        -   渲染用户界面 (`index.html` 和 `style.css`)。
-        -   处理用户交互 (`renderer.js`)，例如表单输入和按钮点击。
-        -   通过 `preload.js` 暴露的 `window.api` 对象，向主进程发送命令。
-        -   监听从主进程推送来的日志更新，并将其显示在文本区域中。
-    -   **设计决策**: 渲染进程只负责“展示”和“用户输入”，不包含任何核心业务逻辑，保持其轻量和高效。
+- **主进程** (`src/main/index.js`)
+  - 创建和管理应用窗口
+  - 处理应用生命周期
+  - 运行 MQTT 模拟核心逻辑
+  - 通过 IPC 接收渲染进程命令
+  - 推送日志和状态更新到渲染进程
 
--   **预加载脚本 (`src/main/preload.js`)**
-    -   **职责**:
-        -   在渲染进程的 Web 环境加载之前运行，可以访问 Node.js API。
-        -   使用 `contextBridge` 在 `window` 对象上安全地暴露一个 `api` 对象。
-        -   这个 `api` 对象充当了渲染进程和主进程之间的唯一、受控的通信桥梁，避免了将 `ipcRenderer` 等强大 API 直接暴露给渲染进程，提高了安全性。
+- **渲染进程** (`src/renderer/`)
+  - 渲染用户界面 (HTML/CSS)
+  - 处理用户交互 (ES6 模块化 JavaScript)
+  - 通过 `preload.js` 暴露的安全 API 与主进程通信
+  - 实时显示日志和状态
+
+- **预加载脚本** (`src/main/preload.js`)
+  - 使用 `contextBridge` 安全地暴露 IPC 通道
+  - 隔离渲染进程和 Node.js API，提高安全性
 
 ## 2. 模块化设计
 
-为了代码的可维护性和可读性，核心功能被拆分为独立的模块。
+### 2.1 主进程模块
 
--   **`MqttController.js`**:
-    -   这是一个面向对象的类，封装了所有与 MQTT 模拟相关的逻辑。
-    -   它维护着所有客户端实例和定时器 (`setInterval`) 的列表。
-    -   提供 `start(config)` 和 `stop()` 两个公共方法，供主进程调用。
-    -   通过构造函数接收一个回调函数，用于将内部产生的日志实时传递出去，实现了与主进程的解耦。
+```
+src/main/
+├── index.js                    # 主进程入口，窗口管理，IPC处理
+├── preload.js                  # Context Bridge，IPC API暴露
+└── services/
+    ├── mqtt-controller.js      # MQTT模拟控制器
+    ├── data-generator.js       # 数据生成器
+    └── schema-generator.js     # Schema生成器（高级模式）
+```
 
--   **`DataGenerator.js`**:
-    -   一个纯函数模块，仅负责根据输入生成指定格式的模拟数据。
-    -   它不依赖任何外部状态，易于测试和复用。
+#### MqttController
+- **职责**：管理所有 MQTT 客户端和模拟任务
+- **核心方法**：
+  - `start(config, logCallback)`: 启动模拟（基础/高级模式）
+  - `stop()`: 停止所有模拟
+  - `createClient()`: 创建单个设备客户端
+- **特性**：
+  - 自动凭证生成（支持零填充）
+  - 日志采样（减少90%日志量）
+  - 定时器管理
 
-## 3. 数据流
+#### DataGenerator
+- **职责**：生成模拟数据
+- **支持格式**：
+  - `default`: 电池状态数据
+  - `tn`: ThingsBoard格式
+  - `tn-empty`: ThingsBoard空值格式
+- **特性**：支持自定义Key、类型比例
 
-**用户启动模拟的流程：**
+### 2.2 渲染进程模块（ES6）
 
-1.  **UI (renderer.js)**: 用户点击“启动”按钮。
-2.  **UI (renderer.js)**: 从表单收集配置数据，调用 `window.api.startSimulation(config)`。
-3.  **Bridge (preload.js)**: `startSimulation` 函数被触发，它使用 `ipcRenderer.send('start-simulation', config)` 向主进程发送消息。
-4.  **Main (main.js)**: `ipcMain.on('start-simulation', ...)` 监听到该消息。
-5.  **Main (main.js)**: 调用 `mqttController.start(config)`，将配置传递给控制器。
-6.  **Controller (MqttController.js)**:
-    -   循环创建指定数量的 `mqtt` 客户端。
-    -   为每个客户端设置事件监听器（`connect`, `error`等）。
-    -   当客户端连接成功时，启动一个 `setInterval` 来定时生成和发布数据。
-    -   在每个关键步骤（如连接、发送），调用构造函数传入的 `logCallback`，将日志消息发送出去。
-7.  **Main (main.js)**: `logCallback` 被执行，它拿到日志消息，并通过 `mainWindow.webContents.send('log-update', message)` 将消息推送到渲染进程。
-8.  **Bridge (preload.js)**: `window.api.onLogUpdate` 注册的回调被触发。
-9.  **UI (renderer.js)**: 回调函数执行，将收到的日志消息追加到页面的 `<textarea>` 中。
+```
+src/renderer/
+├── index.html                  # UI界面
+├── style.css                   # 样式
+└── js/
+    ├── app.js                  # 应用主入口
+    ├── ui/
+    │   ├── logger-ui.js        # 日志显示组件
+    │   ├── tabs.js             # 标签页管理
+    │   ├── groups.js           # 分组管理（高级模式）
+    │   └── custom-keys.js      # 自定义Key管理
+    ├── services/
+    │   └── config-service.js   # 配置导入/导出
+    ├── utils/
+    │   └── dom-helpers.js      # DOM工具函数
+    └── constants/
+        └── ui-constants.js     # UI常量
+```
 
-这个单向数据流（命令从 UI 到 Main，状态从 Main 到 UI）使得应用状态清晰可控。
+**模块化优势**：
+- 代码职责清晰
+- 易于测试和维护
+- 支持代码复用
+
+## 3. 核心功能设计
+
+### 3.1 双模式支持
+
+#### 基础模式
+- 统一配置所有设备
+- 简单快速
+- 适合测试场景
+
+#### 高级模式
+- 分组管理（最多10组）
+- 每组独立配置：
+  - 设备范围
+  - 凭证前缀
+  - 数据点数量
+  - 全量/变化上报间隔
+  - 类型占比
+- 灵活性强，适合复杂场景
+
+### 3.2 日志系统优化
+
+#### 内存管理
+- **DOM元素限制**：最多保留500条日志
+- **存储限制**：内存中保留1000条历史
+- **日志采样**：每10次成功发送记录1次（减少90%）
+
+#### 搜索与过滤
+- 实时搜索（设备ID、消息内容）
+- 高亮显示匹配项
+- 过滤状态提示
+
+#### JSON数据展示
+- 条件显示：仅在搜索时显示JSON数据
+- 可折叠：默认限高120px
+- 复制功能：一键复制完整JSON
+
+### 3.3 配置管理
+
+#### 导入/导出
+- 导出当前配置为JSON
+- 导入已保存配置
+- 保留版本号，便于兼容性管理
+
+#### 配置面板锁定
+- 模拟运行时自动锁定所有输入
+- 防止误操作
+- 视觉反馈（🔒 模拟运行中）
+
+### 3.4 凭证生成
+
+- **自动零填充**：固定2位（如 `c01`, `c09`, `c10`）
+- **独立前缀**：设备名、ClientID、用户名、密码
+- **范围支持**：灵活的起始/结束编号
+
+## 4. 性能优化
+
+### 4.1 内存泄漏修复
+- DOM元素自动清理
+- 日志采样降低IPC压力
+- 数据载荷优化
+
+### 4.2 打包优化
+- 跨平台图标支持（.icns, .ico, .png）
+- NSIS配置（可选安装路径、桌面快捷方式）
+- 自动时间戳版本号
+
+## 5. 数据流
+
+### 启动模拟流程
+1. 用户点击"启动"按钮
+2. `app.js` 收集配置，调用 `window.api.startSimulation(config)`
+3. `preload.js` 转发到主进程 `ipcMain.handle('start-simulation')`
+4. `MqttController.start()` 创建设备客户端
+5. 客户端连接并启动定时器
+6. 日志通过 `mqtt-log` IPC 事件回传到渲染进程
+7. `LoggerUI` 接收并显示日志（带DOM限制）
+
+### 配置导入流程
+1. 用户点击"导入配置"
+2. 主进程显示文件对话框
+3. 确认后读取JSON文件
+4. `ConfigService.fillConfigToUI()` 填充UI
+5. 重建分组、自定义Key
+6. 切换到对应模式
+
+## 6. 技术栈
+
+- **框架**：Electron 28.3.3
+- **语言**：JavaScript (ES6 Modules)
+- **MQTT**：mqtt.js 5.13.1
+- **配置**：js-yaml 4.1.0
+- **构建**：electron-builder 24.13.3
+- **图标工具**：to-ico 1.1.5
+
+## 7. 设计原则
+
+1. **关注点分离**：主进程处理业务逻辑，渲染进程专注UI
+2. **模块化**：单一职责，高内聚低耦合
+3. **性能优先**：DOM限制、日志采样、异步处理
+4. **用户体验**：实时反馈、锁定保护、搜索过滤
+5. **可维护性**：清晰的目录结构、完善的注释
