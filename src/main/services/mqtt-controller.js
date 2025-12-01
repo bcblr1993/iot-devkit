@@ -59,6 +59,10 @@ class MqttController {
 
     startBasicMode() {
         const deviceCount = this.config.device_end_number - this.config.device_start_number + 1;
+        // Calculate padding length based on the end number
+        // User requested fixed padding of 2 (e.g. 1-100 -> c01...c100)
+        const paddingLength = 2;
+
         this.log(`[Controller] 启动基础模式, 设备范围: [${this.config.device_start_number} - ${this.config.device_end_number}], 共 ${deviceCount} 个设备...`, 'info');
 
         for (let i = this.config.device_start_number; i <= this.config.device_end_number; i++) {
@@ -71,7 +75,7 @@ class MqttController {
                 password_prefix: this.config.password_prefix,
             };
 
-            this.createClient(i, mqttConfig, (client, clientId) => {
+            this.createClient(i, mqttConfig, paddingLength, (client, clientId) => {
                 // 基础模式的定时器逻辑
                 const intervalSeconds = this.config.send_interval || 1;
                 this.log(`[${clientId}] 启动定时发送，间隔: ${intervalSeconds}秒`, 'info');
@@ -122,6 +126,10 @@ class MqttController {
 
         this.config.advanced.groups.forEach(group => {
             const count = group.end - group.start + 1;
+            // Calculate padding length based on the end number for this group
+            // User requested fixed padding of 2
+            const paddingLength = 2;
+
             this.log(`[Controller] 启动分组 "${group.name}": 设备 [${group.start} - ${group.end}], Key数量: ${group.keyCount}`, 'info');
 
             for (let i = group.start; i <= group.end; i++) {
@@ -137,7 +145,7 @@ class MqttController {
                     password_prefix: group.passwordPrefix,
                 };
 
-                this.createClient(i, mqttConfig, (client, clientId) => {
+                this.createClient(i, mqttConfig, paddingLength, (client, clientId) => {
                     // Calculate effective count for random keys
                     const customKeyCount = (group.customKeys && group.customKeys.length) || 0;
                     const randomKeyCount = Math.max(0, group.keyCount - customKeyCount);
@@ -207,15 +215,18 @@ class MqttController {
         });
     }
 
-    createClient(deviceIndex, mqttConfig, onConnect) {
+    createClient(deviceIndex, mqttConfig, paddingLength, onConnect) {
         // 使用各自独立的前缀
         const clientIdPrefix = mqttConfig.client_id_prefix || mqttConfig.username_prefix || 'device';
         const usernamePrefix = mqttConfig.username_prefix || 'device';
         const passwordPrefix = mqttConfig.password_prefix || 'device';
 
-        const clientId = `${clientIdPrefix}${deviceIndex}`;
-        const username = `${usernamePrefix}${deviceIndex}`;
-        const password = `${passwordPrefix}${deviceIndex}`;
+        // Pad the device index with zeros
+        const indexStr = String(deviceIndex).padStart(paddingLength, '0');
+
+        const clientId = `${clientIdPrefix}${indexStr}`;
+        const username = `${usernamePrefix}${indexStr}`;
+        const password = `${passwordPrefix}${indexStr}`;
 
         const options = {
             clientId,
