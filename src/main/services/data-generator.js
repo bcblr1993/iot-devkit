@@ -193,6 +193,122 @@ function mergeCustomKeys(generatedData, customKeys) {
     return { ...generatedData, ...customData };
 }
 
+// ======================== 模板缓存优化 ========================
+
+/**
+ * 全局模板缓存
+ * Key: 缓存键（由schema、keyCount、customKeys生成）
+ * Value: JSON字符串模板
+ */
+const templateCache = new Map();
+const MAX_CACHE_SIZE = 100; // LRU缓存最大大小
+
+/**
+ * 生成缓存键
+ * @param {Array} schema - Schema数组
+ * @param {number} keyCount - Key数量
+ * @param {Array} customKeys - 自定义Key数组
+ * @returns {string} 缓存键
+ */
+function getCacheKey(schema, keyCount, customKeys = []) {
+    const schemaHash = schema ? JSON.stringify(schema) : 'null';
+    const customHash = customKeys.length > 0 ? JSON.stringify(customKeys) : 'empty';
+    return `${schemaHash}-${keyCount}-${customHash}`;
+}
+
+/**
+ * 获取或创建模板（带缓存）
+ * @param {Array} schema - Schema数组
+ * @param {number} keyCount - Key数量
+ * @param {Array} customKeys - 自定义Key数组
+ * @returns {string} JSON字符串模板
+ */
+function getOrCreateTemplate(schema, keyCount, customKeys = []) {
+    const cacheKey = getCacheKey(schema, keyCount, customKeys);
+
+    // 缓存命中
+    if (templateCache.has(cacheKey)) {
+        return templateCache.get(cacheKey);
+    }
+
+    // 缓存未命中，生成新模板
+    let data = generateTypedData(schema, keyCount);
+    if (customKeys.length > 0) {
+        data = mergeCustomKeys(data, customKeys);
+    }
+
+    const template = JSON.stringify(data);
+
+    // LRU缓存清理：如果缓存满了，删除最旧的条目
+    if (templateCache.size >= MAX_CACHE_SIZE) {
+        const firstKey = templateCache.keys().next().value;
+        templateCache.delete(firstKey);
+    }
+
+    templateCache.set(cacheKey, template);
+    return template;
+}
+
+/**
+ * 获取缓存的模板（仅用于基础模式，不带schema）
+ * @param {number} keyCount - Key数量
+ * @param {string} format - 数据格式 (default/tn/tn-empty)
+ * @param {Array} customKeys - 自定义Key数组
+ * @returns {string} JSON字符串模板
+ */
+function getBasicTemplate(keyCount, format, customKeys = []) {
+    const cacheKey = `basic-${format}-${keyCount}-${customKeys.length > 0 ? JSON.stringify(customKeys) : 'empty'}`;
+
+    if (templateCache.has(cacheKey)) {
+        return templateCache.get(cacheKey);
+    }
+
+    let data;
+    switch (format) {
+        case 'tn':
+            data = generateTnPayload(keyCount);
+            break;
+        case 'tn-empty':
+            data = generateTnEmptyPayload();
+            break;
+        default:
+            data = generateBatteryStatus(keyCount);
+            break;
+    }
+
+    if (customKeys.length > 0) {
+        data = mergeCustomKeys(data, customKeys);
+    }
+
+    const template = JSON.stringify(data);
+
+    if (templateCache.size >= MAX_CACHE_SIZE) {
+        const firstKey = templateCache.keys().next().value;
+        templateCache.delete(firstKey);
+    }
+
+    templateCache.set(cacheKey, template);
+    return template;
+}
+
+/**
+ * 清理模板缓存（在停止模拟时调用）
+ */
+function clearTemplateCache() {
+    templateCache.clear();
+}
+
+/**
+ * 获取缓存统计信息
+ * @returns {object} 缓存统计
+ */
+function getCacheStats() {
+    return {
+        size: templateCache.size,
+        maxSize: MAX_CACHE_SIZE
+    };
+}
+
 // 导出模块函数
 module.exports = {
     generateBatteryStatus,
@@ -200,5 +316,10 @@ module.exports = {
     generateTnEmptyPayload,
     generateTypedData,
     generateCustomKeys,
-    mergeCustomKeys
+    mergeCustomKeys,
+    // 模板缓存相关
+    getOrCreateTemplate,
+    getBasicTemplate,
+    clearTemplateCache,
+    getCacheStats
 };

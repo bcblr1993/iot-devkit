@@ -3,7 +3,7 @@
  * 负责创建、管理所有虚拟设备，并处理它们的生命周期
  */
 const mqtt = require('mqtt');
-const { generateBatteryStatus, generateTnPayload, generateTnEmptyPayload, generateTypedData, mergeCustomKeys } = require('./data-generator');
+const { generateBatteryStatus, generateTnPayload, generateTnEmptyPayload, generateTypedData, mergeCustomKeys, getBasicTemplate, getOrCreateTemplate, clearTemplateCache } = require('./data-generator');
 const SchemaGenerator = require('./schema-generator');
 
 class MqttController {
@@ -83,32 +83,16 @@ class MqttController {
                 let sendCount = 0; // Counter for log sampling
 
                 const intervalId = setInterval(() => {
-                    let payload;
-
-                    // Calculate effective count for random keys
-                    // Total keys = Random keys + Custom keys
-                    // So: Random keys = Total keys - Custom keys
+                    // Use cached template (performance optimization)
                     const customKeyCount = (this.config.custom_keys && this.config.custom_keys.length) || 0;
                     const randomKeyCount = Math.max(0, this.config.data.data_point_count - customKeyCount);
 
-                    switch (this.config.data.format) {
-                        case 'tn':
-                            payload = generateTnPayload(randomKeyCount);
-                            break;
-                        case 'tn-empty':
-                            payload = generateTnEmptyPayload();
-                            break;
-                        default:
-                            payload = generateBatteryStatus(randomKeyCount);
-                            break;
-                    }
+                    const msg = getBasicTemplate(
+                        randomKeyCount,
+                        this.config.data.format,
+                        this.config.custom_keys || []
+                    );
 
-                    // Merge custom keys if defined
-                    if (customKeyCount > 0) {
-                        payload = mergeCustomKeys(payload, this.config.custom_keys);
-                    }
-
-                    const msg = JSON.stringify(payload);
                     client.publish(this.config.mqtt.topic, msg, (err) => {
                         if (err) {
                             this.log(`[${clientId}] 发送失败: ${err.message}`, 'error');
@@ -161,14 +145,10 @@ class MqttController {
 
                     // 1. 全量上报定时器
                     const fullIntervalId = setInterval(() => {
-                        let data = generateTypedData(schema, randomKeyCount); // 全量 (减去自定义key数量)
+                        // Use cached template (performance optimization)
+                        const msg = getOrCreateTemplate(schema, randomKeyCount, group.customKeys || []);
 
-                        // Merge custom keys if defined
-                        if (customKeyCount > 0) {
-                            data = mergeCustomKeys(data, group.customKeys);
-                        }
-
-                        client.publish(this.config.mqtt.topic, JSON.stringify(data), (err) => {
+                        client.publish(this.config.mqtt.topic, msg, (err) => {
                             if (err) {
                                 this.log(`[${clientId}] 发送数据失败: ${err.message}`, 'error');
                             } else {
@@ -199,21 +179,12 @@ class MqttController {
 
                     if (totalChangeCount > 0) {
                         const changeIntervalId = setInterval(() => {
-                            // 计算随机 Key 在变化上报中的配额
-                            // 如果自定义 Key 数量已经超过了变化上报的总数，那么只上报自定义 Key（或者部分？这里假设全部自定义 Key 都要上报）
-                            // 实际上，通常变化上报是上报 "发生变化" 的数据。
-                            // 这里简化逻辑：优先上报自定义 Key，剩余空间填随机 Key。
-
                             const randomChangeCount = Math.max(0, totalChangeCount - customKeyCount);
 
-                            let data = generateTypedData(schema, randomChangeCount); // 前 N% 的随机 Key
+                            // Use cached template (performance optimization)
+                            const msg = getOrCreateTemplate(schema, randomChangeCount, group.customKeys || []);
 
-                            // Merge custom keys if defined
-                            if (customKeyCount > 0) {
-                                data = mergeCustomKeys(data, group.customKeys);
-                            }
-
-                            client.publish(this.config.mqtt.topic, JSON.stringify(data), (err) => {
+                            client.publish(this.config.mqtt.topic, msg, (err) => {
                                 if (err) {
                                     this.log(`[${clientId}] 变化上报失败: ${err.message}`, 'error');
                                 } else {
@@ -299,6 +270,10 @@ class MqttController {
         }
 
         this.isRunning = false;
+
+        // Clear template cache to free memory
+        clearTemplateCache();
+
         if (typeof this.logCallback === 'function') {
             this.logCallback({ message: '[Controller] 正在停止所有模拟设备...', type: 'info', timestamp: new Date().toLocaleTimeString() });
             this.logCallback({ message: '[Controller] 所有设备已停止，模拟结束。', type: 'info', timestamp: new Date().toLocaleTimeString() });
