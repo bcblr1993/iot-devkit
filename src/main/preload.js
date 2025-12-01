@@ -12,10 +12,19 @@ contextBridge.exposeInMainWorld('api', {
     startSimulation: (config) => ipcRenderer.invoke('start-simulation', config),
     stopSimulation: () => ipcRenderer.invoke('stop-simulation'),
 
+    // Listen to MQTT logs from main process
+    onLog: (callback) => {
+        ipcRenderer.on('mqtt-log', (event, logObj) => {
+            callback(logObj);
+        });
+    },
+    onLogBatch: (callback) => {
+        ipcRenderer.on('mqtt-logs-batch', (event, logs) => {
+            callback(logs);
+        });
+    },
+
     // Config import/export
     saveConfig: (config) => ipcRenderer.invoke('save-config', config),
     loadConfig: () => ipcRenderer.invoke('load-config'),
-
-    // Listen to MQTT logs from main process
-    onLog: (callback) => ipcRenderer.on('mqtt-log', (event, logObj) => callback(logObj))
 });

@@ -51,12 +51,42 @@ ipcMain.handle('start-simulation', (event, config) => {
     const windowEntry = windows.find(w => w.window === window);
 
     if (windowEntry && windowEntry.controller) {
+        // Log buffer for batch transmission
+        let logBuffer = [];
+        let flushTimer = null;
+
+        // Batch flush function
+        const flushLogs = () => {
+            if (logBuffer.length > 0 && !window.isDestroyed()) {
+                window.webContents.send('mqtt-logs-batch', [...logBuffer]);
+                logBuffer = [];
+            }
+            flushTimer = null;
+        };
+
+        // Start simulation with batched log callback
         windowEntry.controller.start(config, (logObj) => {
-            // Send logs back to renderer
-            if (!window.isDestroyed()) {
-                window.webContents.send('mqtt-log', logObj);
+            logBuffer.push(logObj);
+
+            // Start timer (100ms) if not already started
+            if (!flushTimer) {
+                flushTimer = setTimeout(flushLogs, 100);
+            }
+
+            // Immediate flush if buffer is full (prevent memory overflow)
+            if (logBuffer.length >= 100) {
+                clearTimeout(flushTimer);
+                flushLogs();
             }
         });
+
+        // Store cleanup function for this window
+        windowEntry.logFlushCleanup = () => {
+            if (flushTimer) {
+                clearTimeout(flushTimer);
+                flushLogs(); // Final flush
+            }
+        };
     }
 });
 
@@ -65,6 +95,12 @@ ipcMain.handle('stop-simulation', (event) => {
     const windowEntry = windows.find(w => w.window === window);
 
     if (windowEntry && windowEntry.controller) {
+        // Cleanup log flush timer if exists
+        if (windowEntry.logFlushCleanup) {
+            windowEntry.logFlushCleanup();
+            delete windowEntry.logFlushCleanup;
+        }
+
         windowEntry.controller.stop();
     }
 });

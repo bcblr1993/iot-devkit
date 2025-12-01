@@ -74,9 +74,11 @@ class App {
             this.handleModeChangeRequest(e.detail);
         });
 
-        // Listen to MQTT logs from main process
-        window.api.onLog((logObj) => {
-            this.logger.addEntry(logObj);
+        // Listen to MQTT logs from main process (batched for performance)
+        window.api.onLogBatch((logs) => {
+            logs.forEach(logObj => {
+                this.logger.addEntry(logObj);
+            });
         });
     }
 
