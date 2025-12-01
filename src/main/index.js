@@ -17,9 +17,10 @@ function createWindow() {
             nodeIntegration: false,
             contextIsolation: true,
         },
+        icon: path.join(__dirname, '../../resources/icons/icon.png')
     });
 
-    mainWindow.loadFile('src/renderer/index.html');
+    mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
 
     // 打开开发者工具（用于调试）
     // mainWindow.webContents.openDevTools();
@@ -70,6 +71,12 @@ ipcMain.handle('stop-simulation', (event) => {
 
 
 app.whenReady().then(() => {
+    // Set icon for macOS Dock
+    if (process.platform === 'darwin') {
+        const iconPath = path.join(__dirname, '../../resources/icons/icon.png');
+        app.dock.setIcon(iconPath);
+    }
+
     createWindow();
 
     app.on('activate', () => {
