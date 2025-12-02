@@ -788,13 +788,35 @@ button {
 }
 
 .custom-key-item {
-    display: grid;
-    grid-template-columns: 2fr 1.2fr 1fr 1fr auto;
-    gap: 8px;
-    padding: 8px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    padding: 12px;
     background: #f8f9fa;
-    border-radius: 6px;
-    align-items: center;
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+.custom-key-item>div:nth-child(1) {
+    flex: 2;
+}
+
+.custom-key-item>div:nth-child(2) {
+    flex: 1;
+}
+
+.custom-key-item>div:nth-child(3),
+.custom-key-item>div:nth-child(4) {
+    flex: 1;
+}
+
+.min-max-container {
+    display: flex;
+    gap: 8px;
+}
+
+.min-max-container input {
+    flex: 1;
 }
 
 .custom-key-item>div {
@@ -807,24 +829,51 @@ button {
 .custom-key-item select {
     padding: 6px 8px;
     font-size: 13px;
+    width: 100%;
 }
 
 .custom-key-item label {
-    font-size: 11px;
-    color: #6c757d;
-    margin-bottom: 2px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #495057;
+}
+
+/* Range input containers for min/max fields */
+.range-input {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .btn-remove-key {
-    padding: 4px 8px;
-    background: #ff6b6b;
+    flex: 0 0 auto;
+    height: 32px;
+    margin-bottom: 1px;
+    background: #f03e3e;
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 11px;
+    font-size: 13px;
+    transition: background 0.2s;
+    padding: 0 16px;
 }
 
 .btn-remove-key:hover {
+    background: #fa5252;
+}
+
+.delete-key-btn {
+    background: #f03e3e;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.2s;
+}
+
+.delete-key-btn:hover {
     background: #fa5252;
 }

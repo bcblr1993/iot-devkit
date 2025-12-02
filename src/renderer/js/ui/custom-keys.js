@@ -11,7 +11,8 @@ export class CustomKeyManager {
         // Global functions for HTML onclick
         window.addCustomKeyToGroup = (groupId) => this.addKeyToGroup(groupId);
         window.toggleGroupKeyRangeInputs = (selectElement, groupId, keyId) => {
-            this.toggleRangeInputs(selectElement, groupId, keyId, 'group');
+            // Fix: correct parameter order - (selectElement, keyId, groupId, mode)
+            this.toggleRangeInputs(selectElement, keyId, groupId, 'group');
         };
         window.toggleRangeInputs = (selectElement, id, mode) => {
             this.toggleRangeInputs(selectElement, id, null, mode);
