@@ -137,6 +137,8 @@ class MqttController {
                     }
 
                     const msg = JSON.stringify(payload);
+                    const size = Buffer.byteLength(msg);
+                    this.statisticsCollector.setMessageSize(size);
 
                     client.publish(this.config.mqtt.topic, msg, (err) => {
                         if (err) {
@@ -312,7 +314,11 @@ class MqttController {
                             data = mergeCustomKeys(data, group.customKeys);
                         }
 
-                        client.publish(this.config.mqtt.topic, JSON.stringify(data), (err) => {
+                        const jsonString = JSON.stringify(data);
+                        const size = Buffer.byteLength(jsonString);
+                        this.statisticsCollector.setGroupMessageSize(group.name, size);
+
+                        client.publish(this.config.mqtt.topic, jsonString, (err) => {
                             if (err) {
                                 this.log(`[${clientId}] 发送数据失败: ${err.message}`, 'error');
                                 this.statisticsCollector.incrementFailure();
@@ -355,7 +361,12 @@ class MqttController {
                                 data = mergeCustomKeys(data, group.customKeys);
                             }
 
-                            client.publish(this.config.mqtt.topic, JSON.stringify(data), (err) => {
+                            const jsonString = JSON.stringify(data);
+                            // Note: Change report size might differ from full report, but we update the latest size
+                            const size = Buffer.byteLength(jsonString);
+                            this.statisticsCollector.setGroupMessageSize(group.name, size);
+
+                            client.publish(this.config.mqtt.topic, jsonString, (err) => {
                                 if (err) {
                                     this.log(`[${clientId}] 变化上报失败: ${err.message}`, 'error');
                                     this.statisticsCollector.incrementFailure();

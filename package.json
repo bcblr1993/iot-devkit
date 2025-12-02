@@ -1,6 +1,6 @@
 {
   "name": "mqtt-electron-simulator",
-  "version": "1.0.0-20251202-1114",
+  "version": "1.0.0-20251202-1346",
   "description": "一个用于模拟多设备发送MQTT数据的Electron应用",
   "main": "src/main/index.js",
   "author": "yannan.chen",

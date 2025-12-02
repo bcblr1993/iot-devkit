@@ -89,6 +89,7 @@ function createClient(deviceIndex, config) {
             }
 
             const msg = JSON.stringify(payload);
+            const size = Buffer.byteLength(msg);
 
             client.publish(config.topic, msg, (err) => {
                 if (err) {
@@ -105,7 +106,8 @@ function createClient(deviceIndex, config) {
                             type: 'stats',
                             data: {
                                 successCount: workerStats.successCount - workerStats.lastReportedSuccess,
-                                failureCount: workerStats.failureCount - workerStats.lastReportedFailure
+                                failureCount: workerStats.failureCount - workerStats.lastReportedFailure,
+                                messageSize: size // Report the size of the latest message
                             }
                         });
                         workerStats.lastReportedSuccess = workerStats.successCount;

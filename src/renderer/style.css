@@ -650,6 +650,52 @@ button {
     overflow-y: visible;
 }
 
+.stat-value-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 100px;
+    overflow-y: auto;
+    width: 100%;
+}
+
+.stat-sub-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #495057;
+    padding: 2px 0;
+    border-bottom: 1px dashed #e9ecef;
+}
+
+.stat-sub-item:last-child {
+    border-bottom: none;
+}
+
+.stat-sub-label {
+    font-weight: 500;
+}
+
+.stat-sub-value {
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 600;
+    color: #228be6;
+}
+
+/* Custom Scrollbar for stat list */
+.stat-value-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.stat-value-list::-webkit-scrollbar-track {
+    background: #f1f3f5;
+}
+
+.stat-value-list::-webkit-scrollbar-thumb {
+    background: #adb5bd;
+    border-radius: 2px;
+}
+
 /* Custom scrollbar for log data */
 .log-data::-webkit-scrollbar {
     width: 6px;

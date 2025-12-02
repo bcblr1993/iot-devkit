@@ -13,7 +13,9 @@ class StatisticsCollector {
             successCount: 0,            // 成功次数
             failureCount: 0,            // 失败次数
             totalLatency: 0,            // 总延迟(ms)
-            latencySamples: 0           // 延迟采样数
+            latencySamples: 0,          // 延迟采样数
+            messageSize: 0,             // 单个消息大小(bytes) - 基础模式
+            groupMessageSizes: {}       // 分组消息大小(bytes) - 高级模式 { groupName: size }
         };
 
         // 性能优化：每秒最多更新一次 UI
@@ -27,6 +29,25 @@ class StatisticsCollector {
      */
     setUpdateCallback(callback) {
         this.onUpdateCallback = callback;
+    }
+
+    /**
+     * 设置单个消息大小（基础模式）
+     * @param {number} size - 字节大小
+     */
+    setMessageSize(size) {
+        this.stats.messageSize = size;
+        this.scheduleUpdate();
+    }
+
+    /**
+     * 设置分组消息大小（高级模式）
+     * @param {string} groupName - 分组名称
+     * @param {number} size - 字节大小
+     */
+    setGroupMessageSize(groupName, size) {
+        this.stats.groupMessageSizes[groupName] = size;
+        this.scheduleUpdate();
     }
 
     /**
@@ -66,6 +87,10 @@ class StatisticsCollector {
         if (workerStats.failureCount) {
             this.stats.totalMessages += workerStats.failureCount;
             this.stats.failureCount += workerStats.failureCount;
+        }
+        // Worker 可能会上报消息大小
+        if (workerStats.messageSize) {
+            this.stats.messageSize = workerStats.messageSize;
         }
         this.scheduleUpdate();
     }
@@ -129,7 +154,9 @@ class StatisticsCollector {
             totalMessages: this.stats.totalMessages,
             successRate: total > 0 ? ((this.stats.successCount / total) * 100).toFixed(2) : '0.00',
             failureRate: total > 0 ? ((this.stats.failureCount / total) * 100).toFixed(2) : '0.00',
-            avgLatency: avgLatency
+            avgLatency: avgLatency,
+            messageSize: this.stats.messageSize,
+            groupMessageSizes: this.stats.groupMessageSizes
         };
     }
 
@@ -145,7 +172,9 @@ class StatisticsCollector {
             successCount: 0,
             failureCount: 0,
             totalLatency: 0,
-            latencySamples: 0
+            latencySamples: 0,
+            messageSize: 0,
+            groupMessageSizes: {}
         };
 
         if (this.updateTimer) {

@@ -58,6 +58,15 @@ class StatisticsUI {
                         <span class="stat-value" id="stat-latency">0.00ms</span>
                     </div>
                 </div>
+                <div class="stats-row" id="message-size-container">
+                    <div class="stat-item" style="flex: 2;">
+                        <span class="stat-icon">📦</span>
+                        <span class="stat-label">消息大小 (Bytes)</span>
+                        <div id="stat-message-sizes" class="stat-value-list">
+                            <span class="stat-value" id="stat-msg-size">0</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         `;
     }
@@ -82,6 +91,23 @@ class StatisticsUI {
         if (successEl) successEl.textContent = stats.successRate + '%';
         if (failureEl) failureEl.textContent = stats.failureRate + '%';
         if (latencyEl) latencyEl.textContent = stats.avgLatency + 'ms';
+
+        // Update Message Sizes
+        const msgSizesContainer = document.getElementById('stat-message-sizes');
+        if (msgSizesContainer) {
+            if (stats.groupMessageSizes && Object.keys(stats.groupMessageSizes).length > 0) {
+                // Advanced Mode: Show list of groups
+                let html = '';
+                for (const [groupName, size] of Object.entries(stats.groupMessageSizes)) {
+                    html += `<div class="stat-sub-item"><span class="stat-sub-label">${groupName}:</span> <span class="stat-sub-value">${size} B</span></div>`;
+                }
+                msgSizesContainer.innerHTML = html;
+            } else {
+                // Basic Mode: Show single value
+                const size = stats.messageSize || 0;
+                msgSizesContainer.innerHTML = `<span class="stat-value">${size}</span>`;
+            }
+        }
 
         // 根据成功率添加视觉反馈
         if (successEl) {
