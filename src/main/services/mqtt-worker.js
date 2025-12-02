@@ -69,12 +69,26 @@ function createClient(deviceIndex, config) {
         // 启动定时发送
         let sendCount = 0;
         const intervalId = setInterval(() => {
-            // 使用缓存模板
-            const msg = getBasicTemplate(
-                config.randomKeyCount,
-                config.format,
-                config.customKeys || []
-            );
+            // Generate fresh data each time to ensure random values
+            let payload;
+            switch (config.format) {
+                case 'tn':
+                    payload = require('./data-generator').generateTnPayload(config.randomKeyCount);
+                    break;
+                case 'tn-empty':
+                    payload = require('./data-generator').generateTnEmptyPayload();
+                    break;
+                default:
+                    payload = require('./data-generator').generateBatteryStatus(config.randomKeyCount);
+                    break;
+            }
+
+            // Merge custom keys if defined
+            if (config.customKeys && config.customKeys.length > 0) {
+                payload = require('./data-generator').mergeCustomKeys(payload, config.customKeys);
+            }
+
+            const msg = JSON.stringify(payload);
 
             client.publish(config.topic, msg, (err) => {
                 if (err) {

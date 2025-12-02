@@ -114,15 +114,29 @@ class MqttController {
                 let sendCount = 0; // Counter for log sampling
 
                 const intervalId = setInterval(() => {
-                    // Use cached template (performance optimization)
+                    // Generate fresh data each time (not cached) to ensure random values
                     const customKeyCount = (this.config.custom_keys && this.config.custom_keys.length) || 0;
                     const randomKeyCount = Math.max(0, this.config.data.data_point_count - customKeyCount);
 
-                    const msg = getBasicTemplate(
-                        randomKeyCount,
-                        this.config.data.format,
-                        this.config.custom_keys || []
-                    );
+                    let payload;
+                    switch (this.config.data.format) {
+                        case 'tn':
+                            payload = generateTnPayload(randomKeyCount);
+                            break;
+                        case 'tn-empty':
+                            payload = generateTnEmptyPayload();
+                            break;
+                        default:
+                            payload = generateBatteryStatus(randomKeyCount);
+                            break;
+                    }
+
+                    // Merge custom keys if defined
+                    if (customKeyCount > 0) {
+                        payload = mergeCustomKeys(payload, this.config.custom_keys);
+                    }
+
+                    const msg = JSON.stringify(payload);
 
                     client.publish(this.config.mqtt.topic, msg, (err) => {
                         if (err) {
@@ -274,10 +288,15 @@ class MqttController {
 
                     // 1. 全量上报定时器
                     const fullIntervalId = setInterval(() => {
-                        // Use cached template (performance optimization)
-                        const msg = getOrCreateTemplate(schema, randomKeyCount, group.customKeys || []);
+                        // Generate fresh data for random values
+                        let data = generateTypedData(schema, randomKeyCount);
 
-                        client.publish(this.config.mqtt.topic, msg, (err) => {
+                        // Merge custom keys if defined
+                        if (customKeyCount > 0) {
+                            data = mergeCustomKeys(data, group.customKeys);
+                        }
+
+                        client.publish(this.config.mqtt.topic, JSON.stringify(data), (err) => {
                             if (err) {
                                 this.log(`[${clientId}] 发送数据失败: ${err.message}`, 'error');
                             } else {
@@ -310,10 +329,15 @@ class MqttController {
                         const changeIntervalId = setInterval(() => {
                             const randomChangeCount = Math.max(0, totalChangeCount - customKeyCount);
 
-                            // Use cached template (performance optimization)
-                            const msg = getOrCreateTemplate(schema, randomChangeCount, group.customKeys || []);
+                            // Generate fresh data for random values
+                            let data = generateTypedData(schema, randomChangeCount);
 
-                            client.publish(this.config.mqtt.topic, msg, (err) => {
+                            // Merge custom keys if defined
+                            if (customKeyCount > 0) {
+                                data = mergeCustomKeys(data, group.customKeys);
+                            }
+
+                            client.publish(this.config.mqtt.topic, JSON.stringify(data), (err) => {
                                 if (err) {
                                     this.log(`[${clientId}] 变化上报失败: ${err.message}`, 'error');
                                 } else {

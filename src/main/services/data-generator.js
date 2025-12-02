@@ -30,8 +30,8 @@ function getRandomInt(min_v, max_v) {
  */
 function generateBatteryStatus(count) {
     const data = {
-        "wind1": 0,
-        "wind3": 0,
+        "wind1": getRandomFloat(0, 50, 2),
+        "wind3": getRandomFloat(0, 50, 2),
         "power": `${getRandomFloat(0, 100, 2)}`,
         "capacity": `${getRandomInt(50, 200)}Ah`,
         "charge_level": `${getRandomInt(0, 100)}%`,
