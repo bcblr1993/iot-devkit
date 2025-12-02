@@ -95,8 +95,8 @@ ipcMain.handle('start-simulation', (event, config) => {
             }
         });
 
-        // Reset statistics on start
-        windowEntry.controller.statisticsCollector.reset();
+        // Note: Don't reset here - let the controller set totalDevices first in start()
+        // The reset is now handled internally by the controller
     }
 });
 

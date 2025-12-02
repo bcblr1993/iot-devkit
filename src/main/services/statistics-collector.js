@@ -6,7 +6,9 @@
 class StatisticsCollector {
     constructor() {
         this.stats = {
+            totalDevices: 0,            // 总设备数
             onlineDevices: 0,           // 在线设备数
+            offlineDevices: 0,          // 离线设备数
             totalMessages: 0,           // 累计消息数
             successCount: 0,            // 成功次数
             failureCount: 0,            // 失败次数
@@ -69,10 +71,20 @@ class StatisticsCollector {
     }
 
     /**
+     * 设置总设备数
+     */
+    setTotalDevices(count) {
+        this.stats.totalDevices = count;
+        this.stats.offlineDevices = this.stats.totalDevices - this.stats.onlineDevices;
+        this.scheduleUpdate();
+    }
+
+    /**
      * 设置在线设备数
      */
     setOnlineDevices(count) {
         this.stats.onlineDevices = count;
+        this.stats.offlineDevices = this.stats.totalDevices - this.stats.onlineDevices;
         this.scheduleUpdate();
     }
 
@@ -111,7 +123,9 @@ class StatisticsCollector {
             : '0.00';
 
         return {
+            totalDevices: this.stats.totalDevices,
             onlineDevices: this.stats.onlineDevices,
+            offlineDevices: this.stats.offlineDevices,
             totalMessages: this.stats.totalMessages,
             successRate: total > 0 ? ((this.stats.successCount / total) * 100).toFixed(2) : '0.00',
             failureRate: total > 0 ? ((this.stats.failureCount / total) * 100).toFixed(2) : '0.00',
@@ -124,7 +138,9 @@ class StatisticsCollector {
      */
     reset() {
         this.stats = {
+            totalDevices: 0,
             onlineDevices: 0,
+            offlineDevices: 0,
             totalMessages: 0,
             successCount: 0,
             failureCount: 0,

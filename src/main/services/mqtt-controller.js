@@ -24,6 +24,9 @@ class MqttController {
 
         // Statistics
         this.statisticsCollector = new StatisticsCollector();
+
+        // Track connected devices to prevent duplicate counting
+        this.connectedDevices = new Set();
     }
 
     /**
@@ -76,12 +79,16 @@ class MqttController {
     }
 
     startBasicMode() {
-        const deviceCount = this.config.device_end_number - this.config.device_start_number + 1;
-        // Calculate padding length based on the end number
-        // User requested fixed padding of 2 (e.g. 1-100 -> c01...c100)
-        const paddingLength = 2;
+        this.log('[Controller] 启动基础模式...', 'info');
 
-        this.log(`[Controller] 启动基础模式, 设备范围: [${this.config.device_start_number} - ${this.config.device_end_number}], 共 ${deviceCount} 个设备...`, 'info');
+        const paddingLength = 2; // Fixed 2-digit padding
+
+        // 重置并设置总设备数
+        this.statisticsCollector.reset();
+        const totalDevices = this.config.device_end_number - this.config.device_start_number + 1;
+        this.statisticsCollector.setTotalDevices(totalDevices);
+
+        this.log(`[Controller] 启动基础模式, 设备范围: [${this.config.device_start_number} - ${this.config.device_end_number}], 共 ${totalDevices} 个设备...`, 'info');
 
         for (let i = this.config.device_start_number; i <= this.config.device_end_number; i++) {
             // Use root-level prefixes for basic mode
@@ -98,8 +105,11 @@ class MqttController {
                 const intervalSeconds = this.config.send_interval || 1;
                 this.log(`[${clientId}] 启动定时发送，间隔: ${intervalSeconds}秒`, 'info');
 
-                // 更新在线设备数
-                this.statisticsCollector.setOnlineDevices(this.clients.length);
+                // 添加到已连接设备集合
+                if (!this.connectedDevices.has(clientId)) {
+                    this.connectedDevices.add(clientId);
+                    this.statisticsCollector.setOnlineDevices(this.connectedDevices.size);
+                }
 
                 let sendCount = 0; // Counter for log sampling
 
@@ -139,6 +149,10 @@ class MqttController {
      */
     startWithWorkers() {
         const deviceCount = this.config.device_end_number - this.config.device_start_number + 1;
+
+        // 重置并设置总设备数
+        this.statisticsCollector.reset();
+        this.statisticsCollector.setTotalDevices(deviceCount);
 
         // 动态计算 Worker 数量
         // 1. 获取系统 CPU 核心数，预留 1 个核心给主进程/渲染进程
@@ -180,6 +194,10 @@ class MqttController {
                 } else if (msg.type === 'stats') {
                     // 聚合 Worker 统计数据
                     this.statisticsCollector.mergeWorkerStats(msg.data);
+                } else if (msg.type === 'device-online') {
+                    // 更新在线设备数
+                    const currentOnline = Math.max(0, this.statisticsCollector.stats.onlineDevices + msg.data.increment);
+                    this.statisticsCollector.setOnlineDevices(currentOnline);
                 }
             });
 
@@ -217,8 +235,9 @@ class MqttController {
             this.workers.push(worker);
         }
 
-        // 设置在线设备数（所有设备）
-        this.statisticsCollector.setOnlineDevices(deviceCount);
+        // 注意：Worker 模式下在线设备数将在 Worker 连接成功后逐步更新
+        // 初始设置为 0，等待 Worker 报告
+        this.statisticsCollector.setOnlineDevices(0);
     }
 
     startAdvancedMode() {
@@ -355,6 +374,12 @@ class MqttController {
         client.on('close', () => {
             this.log(`[${clientId}] 连接关闭。`, 'info');
             this.clearIntervals(clientId);
+
+            // 从已连接设备集合中移除
+            if (this.connectedDevices.has(clientId)) {
+                this.connectedDevices.delete(clientId);
+                this.statisticsCollector.setOnlineDevices(this.connectedDevices.size);
+            }
         });
     }
 
@@ -422,6 +447,9 @@ class MqttController {
         });
 
         this.clients = [];
+
+        // 清空已连接设备集合
+        this.connectedDevices.clear();
 
         if (typeof this.logCallback === 'function') {
             this.logCallback({ message: '[Controller] 所有设备已停止，模拟结束。', type: 'info', timestamp: new Date().toLocaleTimeString() });

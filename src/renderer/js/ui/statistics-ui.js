@@ -29,25 +29,30 @@ class StatisticsUI {
                         <span class="stat-value" id="stat-online">0</span>
                     </div>
                     <div class="stat-item">
+                        <span class="stat-icon">🔴</span>
+                        <span class="stat-label">离线设备</span>
+                        <span class="stat-value" id="stat-offline">0</span>
+                    </div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-item">
                         <span class="stat-icon">📤</span>
                         <span class="stat-label">总消息</span>
                         <span class="stat-value" id="stat-total">0</span>
                     </div>
-                </div>
-                <div class="stats-row">
                     <div class="stat-item">
                         <span class="stat-icon">✅</span>
                         <span class="stat-label">成功率</span>
                         <span class="stat-value" id="stat-success">0%</span>
                     </div>
+                </div>
+                <div class="stats-row">
                     <div class="stat-item">
                         <span class="stat-icon">❌</span>
                         <span class="stat-label">失败率</span>
                         <span class="stat-value" id="stat-failure">0%</span>
                     </div>
-                </div>
-                <div class="stats-row">
-                    <div class="stat-item stat-item--full">
+                    <div class="stat-item">
                         <span class="stat-icon">⏱️</span>
                         <span class="stat-label">平均延迟</span>
                         <span class="stat-value" id="stat-latency">0.00ms</span>
@@ -65,12 +70,14 @@ class StatisticsUI {
         if (!stats) return;
 
         const onlineEl = document.getElementById('stat-online');
+        const offlineEl = document.getElementById('stat-offline');
         const totalEl = document.getElementById('stat-total');
         const successEl = document.getElementById('stat-success');
         const failureEl = document.getElementById('stat-failure');
         const latencyEl = document.getElementById('stat-latency');
 
         if (onlineEl) onlineEl.textContent = stats.onlineDevices.toLocaleString();
+        if (offlineEl) offlineEl.textContent = stats.offlineDevices.toLocaleString();
         if (totalEl) totalEl.textContent = stats.totalMessages.toLocaleString();
         if (successEl) successEl.textContent = stats.successRate + '%';
         if (failureEl) failureEl.textContent = stats.failureRate + '%';
@@ -96,7 +103,9 @@ class StatisticsUI {
      */
     reset() {
         this.update({
+            totalDevices: 0,
             onlineDevices: 0,
+            offlineDevices: 0,
             totalMessages: 0,
             successRate: '0.00',
             failureRate: '0.00',

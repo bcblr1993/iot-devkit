@@ -60,6 +60,12 @@ function createClient(deviceIndex, config) {
     client.on('connect', () => {
         sendLog(`[${clientId}] 连接成功 (Worker ${workerData.workerId})`, 'success');
 
+        // 报告设备上线
+        parentPort.postMessage({
+            type: 'device-online',
+            data: { increment: 1 }
+        });
+
         // 启动定时发送
         let sendCount = 0;
         const intervalId = setInterval(() => {
@@ -109,6 +115,13 @@ function createClient(deviceIndex, config) {
 
     client.on('close', () => {
         sendLog(`[${clientId}] 连接关闭`, 'info');
+
+        // 报告设备下线
+        parentPort.postMessage({
+            type: 'device-online',
+            data: { increment: -1 }
+        });
+
         if (intervals.has(clientId)) {
             clearInterval(intervals.get(clientId));
             intervals.delete(clientId);
