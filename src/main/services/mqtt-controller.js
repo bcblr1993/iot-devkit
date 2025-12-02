@@ -3,6 +3,8 @@
  * 负责创建、管理所有虚拟设备，并处理它们的生命周期
  */
 const mqtt = require('mqtt');
+const { Worker } = require('worker_threads');
+const path = require('path');
 const { generateBatteryStatus, generateTnPayload, generateTnEmptyPayload, generateTypedData, mergeCustomKeys, getBasicTemplate, getOrCreateTemplate, clearTemplateCache } = require('./data-generator');
 const SchemaGenerator = require('./schema-generator');
 
@@ -14,6 +16,10 @@ class MqttController {
         this.clientIntervals = new Map();
         this.isRunning = false;
         this.logCallback = null;
+
+        // Worker Threads
+        this.workers = [];
+        this.useWorkers = false; // 可通过配置开启
     }
 
     /**
@@ -50,7 +56,15 @@ class MqttController {
         this.logCallback = logCallback;
         this.isRunning = true;
 
-        if (this.config.mode === 'advanced' && this.config.advanced && this.config.advanced.groups) {
+        // 判断是否使用 Worker 模式
+        // 基础模式 + 设备数量 >= 500 时自动启用 Worker
+        const deviceCount = this.config.device_end_number - this.config.device_start_number + 1;
+        const shouldUseWorkers = this.config.mode === 'basic' && deviceCount >= 500;
+
+        if (shouldUseWorkers) {
+            this.log(`[Controller] 设备数量 ${deviceCount}，启用 Worker 多线程模式`, 'info');
+            this.startWithWorkers();
+        } else if (this.config.mode === 'advanced' && this.config.advanced && this.config.advanced.groups) {
             this.startAdvancedMode();
         } else {
             this.startBasicMode();
@@ -108,6 +122,87 @@ class MqttController {
 
                 this.addInterval(clientId, intervalId);
             });
+        }
+    }
+
+    /**
+     * 使用 Worker Threads 启动模拟（基础模式）
+     */
+    startWithWorkers() {
+        const deviceCount = this.config.device_end_number - this.config.device_start_number + 1;
+
+        // 动态计算 Worker 数量
+        // 1. 获取系统 CPU 核心数，预留 1 个核心给主进程/渲染进程
+        const os = require('os');
+        const availableCores = Math.max(1, os.cpus().length - 1);
+
+        // 2. 每个 Worker 最多处理 250 个设备
+        // 3. Worker 数量上限为可用核心数
+        const workerCount = Math.min(availableCores, Math.ceil(deviceCount / 250));
+        const devicesPerWorker = Math.ceil(deviceCount / workerCount);
+
+        this.log(`[Controller] 创建 ${workerCount} 个 Worker 线程，每个处理约 ${devicesPerWorker} 个设备`, 'info');
+
+        // 计算自定义Key数量
+        const customKeyCount = (this.config.custom_keys && this.config.custom_keys.length) || 0;
+        const randomKeyCount = Math.max(0, this.config.data.data_point_count - customKeyCount);
+
+        for (let i = 0; i < workerCount; i++) {
+            const startIndex = this.config.device_start_number + i * devicesPerWorker;
+            const endIndex = Math.min(
+                startIndex + devicesPerWorker - 1,
+                this.config.device_end_number
+            );
+
+            // 创建 Worker
+            const worker = new Worker(path.join(__dirname, 'mqtt-worker.js'), {
+                workerData: { workerId: i }
+            });
+
+            // 监听 Worker 消息
+            worker.on('message', (msg) => {
+                if (msg.type === 'log') {
+                    // 防止 Worker 在停止后仍发送日志导致的竞态条件
+                    if (this.logCallback && typeof this.logCallback === 'function') {
+                        this.logCallback(msg.data);
+                    }
+                } else if (msg.type === 'ready') {
+                    this.log(`[Worker ${msg.workerId}] 已就绪`, 'success');
+                }
+            });
+
+            worker.on('error', (err) => {
+                if (this.logCallback && typeof this.logCallback === 'function') {
+                    this.log(`[Worker ${i}] 错误: ${err.message}`, 'error');
+                }
+            });
+
+            worker.on('exit', (code) => {
+                if (code !== 0) {
+                    this.log(`[Worker ${i}] 异常退出，代码: ${code}`, 'error');
+                }
+            });
+
+            // 发送启动命令
+            worker.postMessage({
+                type: 'start',
+                config: {
+                    startIndex,
+                    endIndex,
+                    host: this.config.mqtt.host,
+                    port: this.config.mqtt.port,
+                    topic: this.config.mqtt.topic,
+                    clientIdPrefix: this.config.client_id_prefix || this.config.username_prefix || 'device',
+                    usernamePrefix: this.config.username_prefix || 'device',
+                    passwordPrefix: this.config.password_prefix || 'device',
+                    sendInterval: this.config.send_interval || 1,
+                    format: this.config.data.format,
+                    randomKeyCount,
+                    customKeys: this.config.custom_keys || []
+                }
+            });
+
+            this.workers.push(worker);
         }
     }
 
@@ -271,12 +366,28 @@ class MqttController {
 
         this.isRunning = false;
 
-        // Clear template cache to free memory
+        // 清理模板缓存
         clearTemplateCache();
 
         if (typeof this.logCallback === 'function') {
             this.logCallback({ message: '[Controller] 正在停止所有模拟设备...', type: 'info', timestamp: new Date().toLocaleTimeString() });
-            this.logCallback({ message: '[Controller] 所有设备已停止，模拟结束。', type: 'info', timestamp: new Date().toLocaleTimeString() });
+        }
+
+        // 停止所有 Worker
+        if (this.workers.length > 0) {
+            this.log('[Controller] 正在停止所有 Worker 线程...', 'info');
+            this.workers.forEach((worker, index) => {
+                try {
+                    worker.postMessage({ type: 'stop' });
+                    // 给Worker 500ms时间优雅关闭，然后强制终止
+                    setTimeout(() => {
+                        worker.terminate();
+                    }, 500);
+                } catch (e) {
+                    console.error(`[Controller] 停止 Worker ${index} 错误: ${e.message}`);
+                }
+            });
+            this.workers = [];
         }
 
         // 清除所有定时器
@@ -296,6 +407,11 @@ class MqttController {
         });
 
         this.clients = [];
+
+        if (typeof this.logCallback === 'function') {
+            this.logCallback({ message: '[Controller] 所有设备已停止，模拟结束。', type: 'info', timestamp: new Date().toLocaleTimeString() });
+        }
+
         this.logCallback = null;
     }
 }
