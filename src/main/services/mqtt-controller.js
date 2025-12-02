@@ -257,6 +257,16 @@ class MqttController {
     startAdvancedMode() {
         this.log('[Controller] 启动高级模式...', 'info');
 
+        // 重置统计数据
+        this.statisticsCollector.reset();
+
+        // 计算总设备数
+        let totalDevices = 0;
+        this.config.advanced.groups.forEach(group => {
+            totalDevices += (group.end - group.start + 1);
+        });
+        this.statisticsCollector.setTotalDevices(totalDevices);
+
         this.config.advanced.groups.forEach(group => {
             const count = group.end - group.start + 1;
             // Calculate padding length based on the end number for this group
@@ -279,6 +289,12 @@ class MqttController {
                 };
 
                 this.createClient(i, mqttConfig, paddingLength, (client, clientId) => {
+                    // 添加到已连接设备集合
+                    if (!this.connectedDevices.has(clientId)) {
+                        this.connectedDevices.add(clientId);
+                        this.statisticsCollector.setOnlineDevices(this.connectedDevices.size);
+                    }
+
                     // Calculate effective count for random keys
                     const customKeyCount = (group.customKeys && group.customKeys.length) || 0;
                     const randomKeyCount = Math.max(0, group.keyCount - customKeyCount);
@@ -299,8 +315,10 @@ class MqttController {
                         client.publish(this.config.mqtt.topic, JSON.stringify(data), (err) => {
                             if (err) {
                                 this.log(`[${clientId}] 发送数据失败: ${err.message}`, 'error');
+                                this.statisticsCollector.incrementFailure();
                             } else {
                                 fullSendCount++;
+                                this.statisticsCollector.incrementSuccess();
                                 // Log sampling: only log every 10 successful full reports
                                 if (fullSendCount % 10 === 1) {
                                     this.log(`[${clientId}] 全量上报成功 (已发送${fullSendCount}次)`, 'success');
@@ -340,8 +358,10 @@ class MqttController {
                             client.publish(this.config.mqtt.topic, JSON.stringify(data), (err) => {
                                 if (err) {
                                     this.log(`[${clientId}] 变化上报失败: ${err.message}`, 'error');
+                                    this.statisticsCollector.incrementFailure();
                                 } else {
                                     changeSendCount++;
+                                    this.statisticsCollector.incrementSuccess();
                                     // Log sampling: only log every 10 successful change reports
                                     if (changeSendCount % 10 === 1) {
                                         this.log(`[${clientId}] 变化上报成功 (已发送${changeSendCount}次)`, 'success');
