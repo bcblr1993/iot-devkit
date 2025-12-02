@@ -5,16 +5,16 @@ const path = require('path');
 const packagePath = path.join(__dirname, '../package.json');
 const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
 
-// Get current timestamp in format: YYYYMMDD-HHMMSS
+// Get current timestamp in format:// 生成时间戳（格式：YYYYMMDD-HHMM）
 const now = new Date();
-const timestamp = now.getFullYear() +
-    String(now.getMonth() + 1).padStart(2, '0') +
-    String(now.getDate()).padStart(2, '0') +
-    '-' +
-    String(now.getHours()).padStart(2, '0') +
-    String(now.getMinutes()).padStart(2, '0') +
-    String(now.getSeconds()).padStart(2, '0');
+const year = now.getFullYear();
+const month = String(now.getMonth() + 1).padStart(2, '0');
+const day = String(now.getDate()).padStart(2, '0');
+const hours = String(now.getHours()).padStart(2, '0');
+const minutes = String(now.getMinutes()).padStart(2, '0');
 
+const timestamp = `${year}${month}${day}-${hours}${minutes}`;
+console.log(`Generated timestamp: ${timestamp}`);
 // Update version with timestamp
 const baseVersion = packageJson.version.split('-')[0]; // Get base version (e.g., "1.0.0")
 packageJson.version = `${baseVersion}-${timestamp}`;
