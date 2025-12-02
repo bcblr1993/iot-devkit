@@ -23,6 +23,11 @@ contextBridge.exposeInMainWorld('api', {
             callback(logs);
         });
     },
+    onStatistics: (callback) => {
+        ipcRenderer.on('mqtt-statistics', (event, stats) => {
+            callback(stats);
+        });
+    },
 
     // Config import/export
     saveConfig: (config) => ipcRenderer.invoke('save-config', config),

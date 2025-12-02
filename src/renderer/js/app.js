@@ -8,6 +8,7 @@ import { TabManager } from './ui/tabs.js';
 import { GroupManager } from './ui/groups.js';
 import { CustomKeyManager } from './ui/custom-keys.js';
 import { ConfigService } from './services/config-service.js';
+import StatisticsUI from './ui/statistics-ui.js';
 
 class App {
     constructor() {
@@ -20,6 +21,7 @@ class App {
     initializeComponents() {
         // Initialize UI components
         this.logger = new LoggerUI();
+        this.statistics = new StatisticsUI();
         // Use arrow function to preserve 'this' context
         this.tabManager = new TabManager(() => {
             // This callback is optional, mode changes are handled via events
@@ -79,6 +81,11 @@ class App {
             logs.forEach(logObj => {
                 this.logger.addEntry(logObj);
             });
+        });
+
+        // Listen to statistics updates
+        window.api.onStatistics((stats) => {
+            this.statistics.update(stats);
         });
     }
 

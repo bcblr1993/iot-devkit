@@ -12,6 +12,14 @@ let clients = [];
 let intervals = new Map();
 let isRunning = false;
 
+// Worker 统计数据
+let workerStats = {
+    successCount: 0,
+    failureCount: 0,
+    lastReportedSuccess: 0,
+    lastReportedFailure: 0
+};
+
 /**
  * 向主线程发送日志
  */
@@ -65,8 +73,25 @@ function createClient(deviceIndex, config) {
             client.publish(config.topic, msg, (err) => {
                 if (err) {
                     sendLog(`[${clientId}] 发送失败: ${err.message}`, 'error');
+                    workerStats.failureCount++;
                 } else {
                     sendCount++;
+                    workerStats.successCount++;
+
+                    // 每 100 条发送一次统计（批量上报）
+                    if (workerStats.successCount - workerStats.lastReportedSuccess >= 100 ||
+                        workerStats.failureCount - workerStats.lastReportedFailure >= 10) {
+                        parentPort.postMessage({
+                            type: 'stats',
+                            data: {
+                                successCount: workerStats.successCount - workerStats.lastReportedSuccess,
+                                failureCount: workerStats.failureCount - workerStats.lastReportedFailure
+                            }
+                        });
+                        workerStats.lastReportedSuccess = workerStats.successCount;
+                        workerStats.lastReportedFailure = workerStats.failureCount;
+                    }
+
                     // 日志采样
                     if (sendCount % 10 === 1) {
                         sendLog(`[${clientId}] 已发送 ${sendCount} 条消息`, 'success');

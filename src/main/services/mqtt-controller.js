@@ -7,6 +7,7 @@ const { Worker } = require('worker_threads');
 const path = require('path');
 const { generateBatteryStatus, generateTnPayload, generateTnEmptyPayload, generateTypedData, mergeCustomKeys, getBasicTemplate, getOrCreateTemplate, clearTemplateCache } = require('./data-generator');
 const SchemaGenerator = require('./schema-generator');
+const StatisticsCollector = require('./statistics-collector');
 
 class MqttController {
     constructor() {
@@ -20,6 +21,9 @@ class MqttController {
         // Worker Threads
         this.workers = [];
         this.useWorkers = false; // 可通过配置开启
+
+        // Statistics
+        this.statisticsCollector = new StatisticsCollector();
     }
 
     /**
@@ -94,6 +98,9 @@ class MqttController {
                 const intervalSeconds = this.config.send_interval || 1;
                 this.log(`[${clientId}] 启动定时发送，间隔: ${intervalSeconds}秒`, 'info');
 
+                // 更新在线设备数
+                this.statisticsCollector.setOnlineDevices(this.clients.length);
+
                 let sendCount = 0; // Counter for log sampling
 
                 const intervalId = setInterval(() => {
@@ -110,8 +117,10 @@ class MqttController {
                     client.publish(this.config.mqtt.topic, msg, (err) => {
                         if (err) {
                             this.log(`[${clientId}] 发送失败: ${err.message}`, 'error');
+                            this.statisticsCollector.incrementFailure();
                         } else {
                             sendCount++;
+                            this.statisticsCollector.incrementSuccess();
                             // Log sampling: only log every 10 successful sends to reduce memory usage
                             if (sendCount % 10 === 1) {
                                 this.log(`[${clientId}] 已发送 ${sendCount} 条消息`, 'success');
@@ -168,6 +177,9 @@ class MqttController {
                     }
                 } else if (msg.type === 'ready') {
                     this.log(`[Worker ${msg.workerId}] 已就绪`, 'success');
+                } else if (msg.type === 'stats') {
+                    // 聚合 Worker 统计数据
+                    this.statisticsCollector.mergeWorkerStats(msg.data);
                 }
             });
 
@@ -204,6 +216,9 @@ class MqttController {
 
             this.workers.push(worker);
         }
+
+        // 设置在线设备数（所有设备）
+        this.statisticsCollector.setOnlineDevices(deviceCount);
     }
 
     startAdvancedMode() {

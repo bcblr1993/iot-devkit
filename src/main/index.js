@@ -87,6 +87,16 @@ ipcMain.handle('start-simulation', (event, config) => {
                 flushLogs(); // Final flush
             }
         };
+
+        // Set statistics update callback
+        windowEntry.controller.statisticsCollector.setUpdateCallback((stats) => {
+            if (!window.isDestroyed()) {
+                window.webContents.send('mqtt-statistics', stats);
+            }
+        });
+
+        // Reset statistics on start
+        windowEntry.controller.statisticsCollector.reset();
     }
 });
 
