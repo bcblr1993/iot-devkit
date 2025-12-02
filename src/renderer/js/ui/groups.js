@@ -118,7 +118,7 @@ export class GroupManager {
 
                     <div>
                         <label>单个设备总点数</label>
-                        <input type="number" class="group-key-count" value="10">
+                        <input type="number" class="group-key-count" value="10" oninput="window.customKeyManager.handleTotalCountChange(${id})">
                     </div>
                     <div>
                         <label>突变百分比 (0-1)</label>

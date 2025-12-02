@@ -17,6 +17,15 @@ export class CustomKeyManager {
         window.toggleRangeInputs = (selectElement, id, mode) => {
             this.toggleRangeInputs(selectElement, id, null, mode);
         };
+        window.removeCustomKey = (type, groupId, keyId) => {
+            this.removeKey(type, groupId, keyId);
+        };
+
+        // Listen for changes in Basic Mode data point count
+        const basicCountInput = document.getElementById('data_point_count');
+        if (basicCountInput) {
+            basicCountInput.addEventListener('input', () => this.handleTotalCountChange(null));
+        }
     }
 
     addKeyToGroup(groupId) {
@@ -47,11 +56,12 @@ export class CustomKeyManager {
                     <label>最大值</label>
                     <input type="number" class="key-max" value="100" step="0.01">
                 </div>
-                <button type="button" class="btn-remove-key" onclick="document.getElementById('custom-key-group-${groupId}-${keyId}').remove()">删除</button>
+                <button type="button" class="btn-remove-key" onclick="window.removeCustomKey('group', ${groupId}, ${keyId})">删除</button>
             </div>
         `;
 
         container.insertAdjacentHTML('beforeend', keyHtml);
+        this.updateAddButtonState(groupId);
     }
 
     addKeyToBasic() {
@@ -82,11 +92,102 @@ export class CustomKeyManager {
                     <label>最大值</label>
                     <input type="number" class="key-max" value="100" step="0.01">
                 </div>
-                <button type="button" class="btn-remove-key" onclick="document.getElementById('custom-key-basic-${keyId}').remove()">删除</button>
+                <button type="button" class="btn-remove-key" onclick="window.removeCustomKey('basic', null, ${keyId})">删除</button>
             </div>
         `;
 
         container.insertAdjacentHTML('beforeend', keyHtml);
+        this.updateAddButtonState(null);
+    }
+
+    removeKey(type, groupId, keyId) {
+        const id = type === 'group' ? `custom-key-group-${groupId}-${keyId}` : `custom-key-basic-${keyId}`;
+        const element = document.getElementById(id);
+        if (element) {
+            element.remove();
+            this.updateAddButtonState(groupId);
+        }
+    }
+
+    updateAddButtonState(groupId) {
+        if (groupId !== null) {
+            // Advanced Mode (Group)
+            const groupEl = document.getElementById(`group-${groupId}`);
+            if (!groupEl) return;
+
+            const keyCountInput = groupEl.querySelector('.group-key-count');
+            const customKeysContainer = document.getElementById(`group-custom-keys-${groupId}`);
+            // The add button is in the header of the custom keys section
+            // We need to find the button that calls addCustomKeyToGroup(${groupId})
+            // It's inside .group-custom-keys .section-header .btn-add-small
+            const addButton = groupEl.querySelector('.group-custom-keys .btn-add-small');
+
+            if (keyCountInput && customKeysContainer && addButton) {
+                const totalPoints = parseInt(keyCountInput.value || 0, 10);
+                const currentKeys = customKeysContainer.querySelectorAll('.custom-key-item').length;
+
+                if (currentKeys >= totalPoints) {
+                    addButton.disabled = true;
+                    addButton.title = "自定义 Key 数量已达到上限 (不能超过总点数)";
+                } else {
+                    addButton.disabled = false;
+                    addButton.title = "";
+                }
+            }
+        } else {
+            // Basic Mode
+            const keyCountInput = document.getElementById('data_point_count');
+            const customKeysContainer = document.getElementById('custom-keys-basic-container');
+            const addButton = document.getElementById('add-custom-key-basic');
+
+            if (keyCountInput && customKeysContainer && addButton) {
+                const totalPoints = parseInt(keyCountInput.value || 0, 10);
+                const currentKeys = customKeysContainer.querySelectorAll('.custom-key-item').length;
+
+                if (currentKeys >= totalPoints) {
+                    addButton.disabled = true;
+                    addButton.title = "自定义 Key 数量已达到上限 (不能超过总点数)";
+                } else {
+                    addButton.disabled = false;
+                    addButton.title = "";
+                }
+            }
+        }
+    }
+
+    handleTotalCountChange(groupId) {
+        let totalPoints = 0;
+        let customKeysContainer;
+
+        if (groupId !== null) {
+            // Advanced Mode
+            const groupEl = document.getElementById(`group-${groupId}`);
+            if (!groupEl) return;
+            const keyCountInput = groupEl.querySelector('.group-key-count');
+            totalPoints = parseInt(keyCountInput.value || 0, 10);
+            customKeysContainer = document.getElementById(`group-custom-keys-${groupId}`);
+        } else {
+            // Basic Mode
+            const keyCountInput = document.getElementById('data_point_count');
+            totalPoints = parseInt(keyCountInput.value || 0, 10);
+            customKeysContainer = document.getElementById('custom-keys-basic-container');
+        }
+
+        if (customKeysContainer) {
+            const keyItems = customKeysContainer.querySelectorAll('.custom-key-item');
+            const currentKeys = keyItems.length;
+
+            if (currentKeys > totalPoints) {
+                // Remove excess keys from the end
+                const keysToRemove = currentKeys - totalPoints;
+                for (let i = 0; i < keysToRemove; i++) {
+                    // Remove the last element
+                    keyItems[currentKeys - 1 - i].remove();
+                }
+            }
+        }
+
+        this.updateAddButtonState(groupId);
     }
 
     toggleRangeInputs(selectElement, id, groupId, mode) {

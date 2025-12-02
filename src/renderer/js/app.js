@@ -30,6 +30,9 @@ class App {
         this.customKeyManager = new CustomKeyManager();
         this.configService = new ConfigService(this.tabManager, this.groupManager, this.customKeyManager);
 
+        // Expose customKeyManager for inline event handlers
+        window.customKeyManager = this.customKeyManager;
+
         // Get DOM elements
         this.startBtn = getElement('start-btn');
         this.stopBtn = getElement('stop-btn');
@@ -156,6 +159,26 @@ class App {
     handleStart() {
         const mode = this.tabManager.getCurrentMode();
         const config = this.collectConfig(mode);
+
+        // Validation: Custom Key Count < Total Data Points
+        if (mode === 'basic') {
+            const customKeyCount = config.custom_keys ? config.custom_keys.length : 0;
+            const totalPoints = config.data.data_point_count;
+            if (customKeyCount >= totalPoints) {
+                alert(`错误: 自定义 Key 数量 (${customKeyCount}) 必须小于数据点总数 (${totalPoints})！\n请增加数据点数或减少自定义 Key。`);
+                return;
+            }
+        } else {
+            // Advanced mode validation
+            for (const group of config.advanced.groups) {
+                const customKeyCount = group.customKeys ? group.customKeys.length : 0;
+                const totalPoints = group.keyCount;
+                if (customKeyCount >= totalPoints) {
+                    alert(`错误 (分组: ${group.name}): 自定义 Key 数量 (${customKeyCount}) 必须小于单个设备总点数 (${totalPoints})！\n请调整该分组配置。`);
+                    return;
+                }
+            }
+        }
 
         window.api.startSimulation(config);
         this.logger.addEntry({

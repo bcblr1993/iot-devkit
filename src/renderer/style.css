@@ -781,6 +781,15 @@ button {
     box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
+.btn-add-small:disabled {
+    background: #e9ecef;
+    color: #adb5bd;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    border-color: #dee2e6;
+}
+
 .custom-keys-container {
     display: flex;
     flex-direction: column;
