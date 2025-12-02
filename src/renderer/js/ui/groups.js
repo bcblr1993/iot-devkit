@@ -90,11 +90,11 @@ export class GroupManager {
                         <input type="text" class="group-name" value="Group ${letter}">
                     </div>
                     <div>
-                        <label>起始 ID</label>
+                        <label>起始设备编号</label>
                         <input type="number" class="group-start" value="10">
                     </div>
                     <div>
-                        <label>结束 ID</label>
+                        <label>结束设备编号</label>
                         <input type="number" class="group-end" value="20">
                     </div>
                     
@@ -104,7 +104,7 @@ export class GroupManager {
                         <input type="text" class="group-device-prefix" value="devices-">
                     </div>
                     <div>
-                        <label>Client ID 前缀</label>
+                        <label>ClientId 前缀</label>
                         <input type="text" class="group-client-id-prefix" value="devices-">
                     </div>
                     <div>
@@ -117,36 +117,36 @@ export class GroupManager {
                     </div>
 
                     <div>
-                        <label>Key 数量</label>
+                        <label>单个设备总点数</label>
                         <input type="number" class="group-key-count" value="10">
                     </div>
                     <div>
-                        <label>变化比例 (0-1)</label>
+                        <label>突变百分比 (0-1)</label>
                         <input type="number" class="group-change-ratio" value="0.3" step="0.1" max="1" min="0">
                     </div>
                     <div>
-                        <label>变化上报间隔 (秒)</label>
+                        <label>变化频率 (秒)</label>
                         <input type="number" class="group-change-interval" value="1">
                     </div>
                     <div>
-                        <label>全量上报间隔 (秒)</label>
+                        <label>全量频率 (秒)</label>
                         <input type="number" class="group-full-interval" value="300">
                     </div>
                     
                     <div class="ratio-input">
-                        <label>浮点占比</label>
+                        <label>单设备浮点类型百分比</label>
                         <input type="number" class="ratio-float" value="0.25" step="0.01">
                     </div>
                     <div class="ratio-input">
-                        <label>整数占比</label>
+                        <label>单设备整数类型百分比</label>
                         <input type="number" class="ratio-int" value="0.25" step="0.01">
                     </div>
                     <div class="ratio-input">
-                        <label>字符串占比</label>
+                        <label>单设备字符串类型百分比</label>
                         <input type="number" class="ratio-string" value="0.25" step="0.01">
                     </div>
                     <div class="ratio-input">
-                        <label>布尔占比</label>
+                        <label>单设备布尔类型百分比</label>
                         <input type="number" class="ratio-bool" value="0.25" step="0.01">
                     </div>
                     
