@@ -38,7 +38,7 @@ function sendLog(message, type = 'info') {
  * 创建单个设备客户端
  */
 function createClient(deviceIndex, config) {
-    const paddingLength = 2; // 固定2位填充
+    const paddingLength = 1; // Fixed 1-digit (no padding): c1, c2, c3...
     const indexStr = String(deviceIndex).padStart(paddingLength, '0');
 
     const clientId = `${config.clientIdPrefix}${indexStr}`;

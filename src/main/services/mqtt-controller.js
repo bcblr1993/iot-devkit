@@ -81,9 +81,7 @@ class MqttController {
     startBasicMode() {
         this.log('[Controller] 启动基础模式...', 'info');
 
-        const paddingLength = 2; // Fixed 2-digit padding
-
-        // 重置并设置总设备数
+        const paddingLength = 1; // Fixed 1-digit (no padding): c1, c2, c3...      // 重置并设置总设备数
         this.statisticsCollector.reset();
         const totalDevices = this.config.device_end_number - this.config.device_start_number + 1;
         this.statisticsCollector.setTotalDevices(totalDevices);
@@ -244,7 +242,8 @@ class MqttController {
                     sendInterval: this.config.send_interval || 1,
                     format: this.config.data.format,
                     randomKeyCount,
-                    customKeys: this.config.custom_keys || []
+                    customKeys: this.config.custom_keys || [],
+                    paddingLength: 1  // Fixed 1-digit (no padding): c1, c2, c3...
                 }
             });
 
@@ -271,9 +270,8 @@ class MqttController {
 
         this.config.advanced.groups.forEach(group => {
             const count = group.end - group.start + 1;
-            // Calculate padding length based on the end number for this group
-            // User requested fixed padding of 2
-            const paddingLength = 2;
+            // Fixed 1-digit (no padding): c1, c2, c3...
+            const paddingLength = 1;
 
             this.log(`[Controller] 启动分组 "${group.name}": 设备 [${group.start} - ${group.end}], Key数量: ${group.keyCount}`, 'info');
 
