@@ -4,6 +4,8 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 const MqttController = require('./services/mqtt-controller');
 
+const { createMenu } = require('./menu');
+
 // 【修改】将 mainWindow 和 mqttController 的管理放入一个数组中，以便管理多个实例
 let windows = [];
 let controllers = [];
@@ -19,6 +21,9 @@ function createWindow() {
         },
         icon: path.join(__dirname, '../../resources/icons/icon.png')
     });
+
+    // Create application menu
+    createMenu(mainWindow);
 
     mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
 

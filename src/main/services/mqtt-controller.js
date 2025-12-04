@@ -405,7 +405,7 @@ class MqttController {
             username,
             password,
             clean: true,
-            connectTimeout: 4000,
+            connectTimeout: 30000,
             reconnectPeriod: 5000
         };
 
