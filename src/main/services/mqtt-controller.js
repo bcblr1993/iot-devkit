@@ -5,7 +5,7 @@
 const mqtt = require('mqtt');
 const { Worker } = require('worker_threads');
 const path = require('path');
-const { generateBatteryStatus, generateTnPayload, generateTnEmptyPayload, generateTypedData, mergeCustomKeys, getBasicTemplate, getOrCreateTemplate, clearTemplateCache, resetKey1Counter } = require('./data-generator');
+const { generateBatteryStatus, generateTnPayload, generateTnEmptyPayload, generateTypedData, mergeCustomKeys, getBasicTemplate, getOrCreateTemplate, clearTemplateCache, resetKey1Counter, resetCustomKeyCounters } = require('./data-generator');
 const SchemaGenerator = require('./schema-generator');
 const StatisticsCollector = require('./statistics-collector');
 
@@ -81,8 +81,9 @@ class MqttController {
     startBasicMode() {
         this.log('[Controller] 启动基础模式...', 'info');
 
-        // 重置 key_1 计数器
+        // 重置计数器
         resetKey1Counter();
+        resetCustomKeyCounters();
 
         const paddingLength = 1; // Fixed 1-digit (no padding): c1, c2, c3...
 
@@ -263,8 +264,9 @@ class MqttController {
     startAdvancedMode() {
         this.log('[Controller] 启动高级模式...', 'info');
 
-        // 重置 key_1 计数器
+        // 重置计数器
         resetKey1Counter();
+        resetCustomKeyCounters();
 
         // 重置统计数据
         this.statisticsCollector.reset();

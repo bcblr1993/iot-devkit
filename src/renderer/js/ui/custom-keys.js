@@ -20,12 +20,50 @@ export class CustomKeyManager {
         window.removeCustomKey = (type, groupId, keyId) => {
             this.removeKey(type, groupId, keyId);
         };
+        window.toggleValueModeInputs = (selectElement, type, groupId, keyId) => {
+            this.toggleValueModeInputs(selectElement, type, groupId, keyId);
+        };
 
         // Listen for changes in Basic Mode data point count
         const basicCountInput = document.getElementById('data_point_count');
         if (basicCountInput) {
             basicCountInput.addEventListener('input', () => this.handleTotalCountChange(null));
         }
+    }
+
+    /**
+     * 根据值模式切换显示相应的输入框
+     */
+    toggleValueModeInputs(selectElement, type, groupId, keyId) {
+        let container;
+        if (type === 'group') {
+            container = document.getElementById(`custom-key-group-${groupId}-${keyId}`);
+        } else {
+            container = document.getElementById(`custom-key-basic-${keyId}`);
+        }
+
+        if (!container) return;
+
+        const mode = selectElement.value;
+        const rangeInputs = container.querySelectorAll('.range-input');
+        const staticInput = container.querySelector('.static-value-input');
+
+        // 隐藏所有可选输入
+        rangeInputs.forEach(el => el.style.display = 'none');
+        if (staticInput) staticInput.style.display = 'none';
+
+        // 根据模式显示对应的输入
+        if (mode === 'random') {
+            // 随机模式：显示最小值/最大值
+            const keyType = container.querySelector('.key-type')?.value;
+            if (keyType === 'int' || keyType === 'float') {
+                rangeInputs.forEach(el => el.style.display = type === 'basic' ? 'block' : 'flex');
+            }
+        } else if (mode === 'static') {
+            // 静态值模式：显示静态值输入
+            if (staticInput) staticInput.style.display = type === 'basic' ? 'block' : 'flex';
+        }
+        // increment 和 toggle 模式不需要额外输入
     }
 
     addKeyToGroup(groupId) {
@@ -48,6 +86,15 @@ export class CustomKeyManager {
                         <option value="bool">布尔</option>
                     </select>
                 </div>
+                <div>
+                    <label>值模式</label>
+                    <select class="key-value-mode" onchange="window.toggleValueModeInputs(this, 'group', ${groupId}, ${keyId})">
+                        <option value="random">随机</option>
+                        <option value="static">静态值</option>
+                        <option value="increment">自增</option>
+                        <option value="toggle">0/1切换</option>
+                    </select>
+                </div>
                 <div class="range-input">
                     <label>最小值</label>
                     <input type="number" class="key-min" value="0" step="0.01">
@@ -55,6 +102,10 @@ export class CustomKeyManager {
                 <div class="range-input">
                     <label>最大值</label>
                     <input type="number" class="key-max" value="100" step="0.01">
+                </div>
+                <div class="static-value-input" style="display: none;">
+                    <label>静态值</label>
+                    <input type="text" class="key-static-value" value="" placeholder="固定值">
                 </div>
                 <button type="button" class="btn-remove-key" onclick="window.removeCustomKey('group', ${groupId}, ${keyId})">删除</button>
             </div>
@@ -84,6 +135,15 @@ export class CustomKeyManager {
                         <option value="bool">布尔</option>
                     </select>
                 </div>
+                <div>
+                    <label>值模式</label>
+                    <select class="key-value-mode" onchange="window.toggleValueModeInputs(this, 'basic', null, ${keyId})">
+                        <option value="random">随机</option>
+                        <option value="static">静态值</option>
+                        <option value="increment">自增</option>
+                        <option value="toggle">0/1切换</option>
+                    </select>
+                </div>
                 <div class="range-input">
                     <label>最小值</label>
                     <input type="number" class="key-min" value="0" step="0.01">
@@ -91,6 +151,10 @@ export class CustomKeyManager {
                 <div class="range-input">
                     <label>最大值</label>
                     <input type="number" class="key-max" value="100" step="0.01">
+                </div>
+                <div class="static-value-input" style="display: none;">
+                    <label>静态值</label>
+                    <input type="text" class="key-static-value" value="" placeholder="固定值">
                 </div>
                 <button type="button" class="btn-remove-key" onclick="window.removeCustomKey('basic', null, ${keyId})">删除</button>
             </div>
@@ -224,13 +288,18 @@ export class CustomKeyManager {
         keyElements.forEach(keyEl => {
             const name = keyEl.querySelector('.key-name')?.value;
             const type = keyEl.querySelector('.key-type')?.value;
+            const valueMode = keyEl.querySelector('.key-value-mode')?.value || 'random';
 
             if (name) {
-                const keyDef = { name, type };
-                if (type === 'int' || type === 'float') {
+                const keyDef = { name, type, valueMode };
+
+                if (valueMode === 'random' && (type === 'int' || type === 'float')) {
                     keyDef.min = parseFloat(keyEl.querySelector('.key-min')?.value || 0);
                     keyDef.max = parseFloat(keyEl.querySelector('.key-max')?.value || 100);
+                } else if (valueMode === 'static') {
+                    keyDef.staticValue = keyEl.querySelector('.key-static-value')?.value || '';
                 }
+
                 keys.push(keyDef);
             }
         });

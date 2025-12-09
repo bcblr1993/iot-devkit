@@ -185,13 +185,18 @@ export class GroupManager {
         keyElements.forEach(keyEl => {
             const name = keyEl.querySelector('.key-name')?.value;
             const type = keyEl.querySelector('.key-type')?.value;
+            const valueMode = keyEl.querySelector('.key-value-mode')?.value || 'random';
 
             if (name) {
-                const keyDef = { name, type };
-                if (type === 'int' || type === 'float') {
+                const keyDef = { name, type, valueMode };
+
+                if (valueMode === 'random' && (type === 'int' || type === 'float')) {
                     keyDef.min = parseFloat(keyEl.querySelector('.key-min')?.value || 0);
                     keyDef.max = parseFloat(keyEl.querySelector('.key-max')?.value || 100);
+                } else if (valueMode === 'static') {
+                    keyDef.staticValue = keyEl.querySelector('.key-static-value')?.value || '';
                 }
+
                 keys.push(keyDef);
             }
         });

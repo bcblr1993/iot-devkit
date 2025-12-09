@@ -167,10 +167,58 @@ function generateTypedData(schema, count) {
 
 /**
  * 生成单个自定义 key 的值
- * @param {object} keyDef - key 定义 { name, type, min, max }
+ * @param {object} keyDef - key 定义 { name, type, min, max, valueMode, staticValue }
  * @returns {any} 生成的值
  */
 function generateCustomKeyValue(keyDef) {
+    const valueMode = keyDef.valueMode || 'random';
+
+    // 处理不同的值模式
+    switch (valueMode) {
+        case 'static':
+            // 静态值模式：返回用户设置的固定值
+            return parseStaticValue(keyDef.staticValue, keyDef.type);
+
+        case 'increment':
+            // 自增模式：使用独立计数器
+            return getCustomKeyIncrementValue(keyDef.name);
+
+        case 'toggle':
+            // 0/1切换模式
+            return getCustomKeyToggleValue(keyDef.name);
+
+        case 'random':
+        default:
+            // 随机模式（默认）
+            return generateRandomValue(keyDef);
+    }
+}
+
+/**
+ * 解析静态值为指定类型
+ */
+function parseStaticValue(value, type) {
+    if (value === undefined || value === '') {
+        return null;
+    }
+
+    switch (type) {
+        case 'int':
+            return parseInt(value, 10) || 0;
+        case 'float':
+            return parseFloat(value) || 0;
+        case 'bool':
+            return value === 'true' || value === '1' || value === true;
+        case 'string':
+        default:
+            return String(value);
+    }
+}
+
+/**
+ * 生成随机值（原有逻辑）
+ */
+function generateRandomValue(keyDef) {
     switch (keyDef.type) {
         case 'int':
             const min = keyDef.min !== undefined ? keyDef.min : 0;
@@ -187,6 +235,51 @@ function generateCustomKeyValue(keyDef) {
         default:
             return null;
     }
+}
+
+// ======================== 自定义 Key 计数器 ========================
+/**
+ * 自定义 Key 的自增计数器Map
+ * Key: keyName, Value: currentCount
+ */
+const customKeyCounters = new Map();
+const CUSTOM_KEY_MAX_VALUE = 9007199254740991;
+
+/**
+ * 获取自定义 Key 的自增值
+ */
+function getCustomKeyIncrementValue(keyName) {
+    let current = customKeyCounters.get(keyName) || 0;
+    current++;
+    if (current > CUSTOM_KEY_MAX_VALUE) {
+        current = 1;
+    }
+    customKeyCounters.set(keyName, current);
+    return current;
+}
+
+/**
+ * 自定义 Key 的切换状态Map
+ * Key: keyName, Value: currentState (0 or 1)
+ */
+const customKeyToggleStates = new Map();
+
+/**
+ * 获取自定义 Key 的 0/1 切换值
+ */
+function getCustomKeyToggleValue(keyName) {
+    let current = customKeyToggleStates.get(keyName) || 0;
+    const newValue = current === 0 ? 1 : 0;
+    customKeyToggleStates.set(keyName, newValue);
+    return newValue;
+}
+
+/**
+ * 重置所有自定义 Key 的计数器和切换状态（模拟开始时调用）
+ */
+function resetCustomKeyCounters() {
+    customKeyCounters.clear();
+    customKeyToggleStates.clear();
 }
 
 /**
@@ -349,6 +442,7 @@ module.exports = {
     getBasicTemplate,
     clearTemplateCache,
     getCacheStats,
-    // key_1 计数器
-    resetKey1Counter
+    // 计数器重置
+    resetKey1Counter,
+    resetCustomKeyCounters
 };
