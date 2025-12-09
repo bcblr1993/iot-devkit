@@ -276,8 +276,9 @@ class MqttController {
             this.log(`[Controller] 启动分组 "${group.name}": 设备 [${group.start} - ${group.end}], Key数量: ${group.keyCount}`, 'info');
 
             for (let i = group.start; i <= group.end; i++) {
-                // 为每个设备生成固定的 Schema
-                const schema = SchemaGenerator.generate(group.keyCount, group.typeRatio);
+                // 为每个设备生成固定的 Schema（使用默认类型比例：各25%）
+                const defaultTypeRatio = { float: 0.25, int: 0.25, string: 0.25, bool: 0.25 };
+                const schema = SchemaGenerator.generate(group.keyCount, defaultTypeRatio);
 
                 // 使用组特定的前缀配置
                 const mqttConfig = {

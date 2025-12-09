@@ -133,23 +133,6 @@ export class GroupManager {
                         <input type="number" class="group-full-interval" value="300">
                     </div>
                     
-                    <div class="ratio-input">
-                        <label>单设备浮点类型百分比</label>
-                        <input type="number" class="ratio-float" value="0.25" step="0.01">
-                    </div>
-                    <div class="ratio-input">
-                        <label>单设备整数类型百分比</label>
-                        <input type="number" class="ratio-int" value="0.25" step="0.01">
-                    </div>
-                    <div class="ratio-input">
-                        <label>单设备字符串类型百分比</label>
-                        <input type="number" class="ratio-string" value="0.25" step="0.01">
-                    </div>
-                    <div class="ratio-input">
-                        <label>单设备布尔类型百分比</label>
-                        <input type="number" class="ratio-bool" value="0.25" step="0.01">
-                    </div>
-                    
                     <!-- Custom Keys for this group -->
                     <div class="group-custom-keys" style="grid-column: 1 / -1;">
                         <div class="section-header">
@@ -186,12 +169,6 @@ export class GroupManager {
                 fullInterval: parseInt(el.querySelector('.group-full-interval').value, 10),
                 changeInterval: parseInt(el.querySelector('.group-change-interval').value, 10),
                 changeRatio: parseFloat(el.querySelector('.group-change-ratio').value),
-                typeRatio: {
-                    float: parseFloat(el.querySelector('.ratio-float').value),
-                    int: parseFloat(el.querySelector('.ratio-int').value),
-                    string: parseFloat(el.querySelector('.ratio-string').value),
-                    bool: parseFloat(el.querySelector('.ratio-bool').value),
-                },
                 customKeys
             });
         });
