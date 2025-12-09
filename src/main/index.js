@@ -94,7 +94,9 @@ function loadLastConfig() {
 function createWindow() {
     const mainWindow = new BrowserWindow({
         width: 1200,
-        height: 800,
+        height: 670,  // 日志折叠后初始高度更紧凑
+        minHeight: 670,
+        minWidth: 900,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: false,

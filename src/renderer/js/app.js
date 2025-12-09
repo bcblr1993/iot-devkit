@@ -79,6 +79,17 @@ class App {
             this.handleModeChangeRequest(e.detail);
         });
 
+        // Log section toggle (collapse/expand)
+        const logHeaderToggle = document.getElementById('log-header-toggle');
+        if (logHeaderToggle) {
+            logHeaderToggle.addEventListener('click', () => {
+                const logSection = document.getElementById('log-section');
+                if (logSection) {
+                    logSection.classList.toggle('collapsed');
+                }
+            });
+        }
+
         // Listen to MQTT logs from main process (batched for performance)
         window.api.onLogBatch((logs) => {
             logs.forEach(logObj => {
