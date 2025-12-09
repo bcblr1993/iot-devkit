@@ -23,6 +23,36 @@ function getRandomInt(min_v, max_v) {
     return Math.floor(Math.random() * (max_v - min_v + 1)) + min_v;
 }
 
+// ======================== key_1 递增计数器 ========================
+/**
+ * key_1 的递增计数器
+ * - 每次生成数据时递增
+ * - 达到最大值后循环
+ * - 模拟开始时重置为 1
+ */
+let key1Counter = 1;
+const KEY1_MAX_VALUE = 9007199254740991; // JavaScript 安全整数最大值 (2^53 - 1)
+
+/**
+ * 获取并递增 key_1 的值
+ * @returns {number} 当前计数值
+ */
+function getKey1Value() {
+    const currentValue = key1Counter;
+    key1Counter++;
+    if (key1Counter > KEY1_MAX_VALUE) {
+        key1Counter = 1; // 循环
+    }
+    return currentValue;
+}
+
+/**
+ * 重置 key_1 计数器（模拟开始时调用）
+ */
+function resetKey1Counter() {
+    key1Counter = 1;
+}
+
 /**
  * 生成 "default" 格式的数据负载
  * @param {number} count 需要生成的字段数量
@@ -32,21 +62,26 @@ function generateBatteryStatus(count) {
     const data = {};
 
     for (let i = 1; i <= count; i++) {
-        // 循环生成不同类型的值，保持多样性
-        const typeIndex = i % 4;
-        switch (typeIndex) {
-            case 1:
-                data[`key_${i}`] = getRandomFloat(0, 100, 2);
-                break;
-            case 2:
-                data[`key_${i}`] = getRandomInt(0, 1000);
-                break;
-            case 3:
-                data[`key_${i}`] = `str_val_${getRandomInt(0, 100)}`;
-                break;
-            case 0:
-                data[`key_${i}`] = getRandomInt(0, 1) === 1;
-                break;
+        if (i === 1) {
+            // key_1 使用递增计数器（long 类型）
+            data[`key_${i}`] = getKey1Value();
+        } else {
+            // 其他 key 使用随机值
+            const typeIndex = i % 4;
+            switch (typeIndex) {
+                case 1:
+                    data[`key_${i}`] = getRandomFloat(0, 100, 2);
+                    break;
+                case 2:
+                    data[`key_${i}`] = getRandomInt(0, 1000);
+                    break;
+                case 3:
+                    data[`key_${i}`] = `str_val_${getRandomInt(0, 100)}`;
+                    break;
+                case 0:
+                    data[`key_${i}`] = getRandomInt(0, 1) === 1;
+                    break;
+            }
         }
     }
 
@@ -313,5 +348,7 @@ module.exports = {
     getOrCreateTemplate,
     getBasicTemplate,
     clearTemplateCache,
-    getCacheStats
+    getCacheStats,
+    // key_1 计数器
+    resetKey1Counter
 };
