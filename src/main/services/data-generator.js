@@ -178,11 +178,11 @@ function generateCustomKeys(customKeys) {
  * 合并自定义 keys 和生成的数据
  * @param {object} generatedData - 生成的数据
  * @param {Array} customKeys - 自定义 key 定义数组
- * @returns {object} 合并后的数据
+ * @returns {object} 合并后的数据（自定义 Key 在前）
  */
 function mergeCustomKeys(generatedData, customKeys) {
     const customData = generateCustomKeys(customKeys);
-    return { ...generatedData, ...customData };
+    return { ...customData, ...generatedData };  // 自定义 Key 排在前面
 }
 
 // ======================== 模板缓存优化 ========================
