@@ -17,63 +17,69 @@ body {
 /* ==================== Statistics Panel ==================== */
 #statistics-panel {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 8px;
-    padding: 10px;
-    margin-bottom: 10px;
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
     color: white;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
 }
 
 .stats-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-}
-
-.stats-title {
-    font-size: 16px;
-    font-weight: 600;
+    display: none;
+    /* 隐藏标题，让面板更紧凑 */
 }
 
 .stats-content {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    align-items: center;
 }
 
 .stats-row {
-    display: flex;
-    gap: 12px;
+    display: contents;
+    /* 让子元素直接参与 flex 布局 */
 }
 
 .stat-item {
-    flex: 1;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 6px;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 5px 8px;
-    border-radius: 6px;
-    font-size: 12px;
+    gap: 4px;
+    background: rgba(255, 255, 255, 0.12);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    white-space: nowrap;
+}
+
+.stat-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
 }
 
 .stat-item--full {
-    flex: 1;
+    flex: none;
 }
 
 .stat-icon {
-    font-size: 18px;
+    font-size: 14px;
 }
 
 .stat-label {
-    opacity: 0.9;
-    font-size: 12px;
+    opacity: 0.85;
+    font-size: 11px;
+    font-weight: 500;
 }
 
 .stat-value {
     font-weight: 700;
-    font-size: 15px;
-    margin-left: auto;
+    font-size: 12px;
+    margin-left: 2px;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .stat-value--good {
