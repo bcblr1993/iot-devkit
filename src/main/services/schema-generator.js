@@ -49,19 +49,19 @@ class SchemaGenerator {
         // 按顺序生成，保证类型分布均匀（或者按块生成也可以，这里简单起见按块生成）
         // 1. Float Keys
         for (let i = 0; i < counts.float; i++) {
-            schema.push({ name: `float_key_${keyIndex++}`, type: 'float' });
+            schema.push({ name: `key_${keyIndex++}`, type: 'float' });
         }
         // 2. Int Keys
         for (let i = 0; i < counts.int; i++) {
-            schema.push({ name: `int_key_${keyIndex++}`, type: 'int' });
+            schema.push({ name: `key_${keyIndex++}`, type: 'int' });
         }
         // 3. String Keys
         for (let i = 0; i < counts.string; i++) {
-            schema.push({ name: `str_key_${keyIndex++}`, type: 'string' });
+            schema.push({ name: `key_${keyIndex++}`, type: 'string' });
         }
         // 4. Bool Keys
         for (let i = 0; i < counts.bool; i++) {
-            schema.push({ name: `bool_key_${keyIndex++}`, type: 'bool' });
+            schema.push({ name: `key_${keyIndex++}`, type: 'bool' });
         }
 
         return schema;

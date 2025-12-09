@@ -25,39 +25,31 @@ function getRandomInt(min_v, max_v) {
 
 /**
  * 生成 "default" 格式的数据负载
- * @param {number} count 需要补齐的随机键数量
+ * @param {number} count 需要生成的字段数量
  * @returns {object}
  */
 function generateBatteryStatus(count) {
-    const data = {
-        "wind1": getRandomFloat(0, 50, 2),
-        "wind3": getRandomFloat(0, 50, 2),
-        "power": `${getRandomFloat(0, 100, 2)}`,
-        "capacity": `${getRandomInt(50, 200)}Ah`,
-        "charge_level": `${getRandomInt(0, 100)}%`,
-        "health_status": getRandomInt(0, 1) ? "Good" : "Poor",
-        "temperature": `${getRandomInt(-20, 45)}C`,
-        "cycle_count": getRandomInt(0, 500),
-        "remaining_life": `${getRandomInt(0, 100)}%`,
-        "charge_rate": `${getRandomFloat(0, 5, 2)}A`
-    };
+    const data = {};
 
-    const base_len = Object.keys(data).length;
-
-    // 如果请求的数量小于基础数量，截取前 count 个
-    if (count < base_len) {
-        const slicedData = {};
-        const keys = Object.keys(data);
-        for (let i = 0; i < count; i++) {
-            slicedData[keys[i]] = data[keys[i]];
+    for (let i = 1; i <= count; i++) {
+        // 循环生成不同类型的值，保持多样性
+        const typeIndex = i % 4;
+        switch (typeIndex) {
+            case 1:
+                data[`key_${i}`] = getRandomFloat(0, 100, 2);
+                break;
+            case 2:
+                data[`key_${i}`] = getRandomInt(0, 1000);
+                break;
+            case 3:
+                data[`key_${i}`] = `str_val_${getRandomInt(0, 100)}`;
+                break;
+            case 0:
+                data[`key_${i}`] = getRandomInt(0, 1) === 1;
+                break;
         }
-        return slicedData;
     }
 
-    // 如果请求的数量大于基础数量，补齐随机键
-    for (let i = base_len + 1; i <= count; i++) {
-        data[`random_key_${i}`] = getRandomInt(0, 1000);
-    }
     return data;
 }
 
