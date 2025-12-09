@@ -51,6 +51,46 @@ process.on('unhandledRejection', (reason, promise) => {
 let windows = [];
 let controllers = [];
 
+// ======================== 配置持久化 ========================
+/**
+ * 获取配置文件路径
+ */
+function getConfigFilePath() {
+    return path.join(app.getPath('userData'), 'last-config.json');
+}
+
+/**
+ * 保存配置到文件
+ * @param {object} config - 配置对象
+ */
+function saveLastConfig(config) {
+    try {
+        const configPath = getConfigFilePath();
+        fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
+        console.log('[Config] 配置已保存:', configPath);
+    } catch (error) {
+        console.error('[Config] 保存配置失败:', error);
+    }
+}
+
+/**
+ * 加载上次保存的配置
+ * @returns {object|null} 配置对象，如果不存在则返回 null
+ */
+function loadLastConfig() {
+    try {
+        const configPath = getConfigFilePath();
+        if (fs.existsSync(configPath)) {
+            const data = fs.readFileSync(configPath, 'utf-8');
+            console.log('[Config] 配置已加载:', configPath);
+            return JSON.parse(data);
+        }
+    } catch (error) {
+        console.error('[Config] 加载配置失败:', error);
+    }
+    return null;
+}
+
 function createWindow() {
     const mainWindow = new BrowserWindow({
         width: 1200,
@@ -97,6 +137,8 @@ ipcMain.handle('start-simulation', (event, config) => {
     const windowEntry = windows.find(w => w.window === window);
 
     if (windowEntry && windowEntry.controller) {
+        // 保存配置供下次启动使用
+        saveLastConfig(config);
         // Log buffer for batch transmission
         let logBuffer = [];
         let flushTimer = null;
@@ -180,8 +222,17 @@ app.whenReady().then(() => {
     });
 });
 
-// 这个IPC是全局的,用于加载初始配置，可以保持不变
+// 这个IPC是全局的,用于加载初始配置
+// 优先加载上次保存的配置，如果不存在则使用默认配置
 ipcMain.handle('get-initial-config', () => {
+    // 首先尝试加载上次保存的配置
+    const lastConfig = loadLastConfig();
+    if (lastConfig) {
+        console.log('[Config] 使用上次保存的配置');
+        return lastConfig;
+    }
+
+    // 如果没有保存的配置，使用默认配置
     try {
         const configPath = path.join(app.getAppPath(), 'resources/config/default-config.yaml');
         const fileContents = fs.readFileSync(configPath, 'utf8');
