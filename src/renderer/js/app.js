@@ -96,28 +96,129 @@ class App {
         try {
             const config = await window.api.getInitialConfig();
 
-            //Fill basic config
-            this.setElementValue('host', config.mqtt.host);
-            this.setElementValue('port', config.mqtt.port);
-            this.setElementValue('topic', config.mqtt.topic);
-            this.setElementValue('device_start_number', config.mqtt.device_start_number !== undefined ? config.mqtt.device_start_number : 1);
-            this.setElementValue('device_end_number', config.mqtt.device_end_number !== undefined ? config.mqtt.device_end_number : (config.mqtt.device_count || 10));
-            this.setElementValue('device_prefix', config.mqtt.device_prefix || 'c');
-            this.setElementValue('client_id_prefix', config.mqtt.client_id_prefix || config.mqtt.username_prefix || 'c');
-            this.setElementValue('username_prefix', config.mqtt.username_prefix || 'c');
-            this.setElementValue('password_prefix', config.mqtt.password_prefix || 'c');
-            this.setElementValue('send_interval', config.mqtt.send_interval);
-            this.setElementValue('format', config.data.format);
-            this.setElementValue('data_point_count', config.data.data_point_count);
+            // 检查是否是保存的配置格式（包含 mode 字段）
+            const isSavedConfig = config.mode !== undefined;
 
-            // Initialize with one default group if empty
-            const groupsContainer = getElement('groups-container');
-            if (groupsContainer && groupsContainer.children.length === 0) {
-                this.groupManager.addGroup();
+            if (isSavedConfig) {
+                // 从保存的配置恢复
+                this.restoreSavedConfig(config);
+            } else {
+                // 使用默认配置格式
+                this.setElementValue('host', config.mqtt.host);
+                this.setElementValue('port', config.mqtt.port);
+                this.setElementValue('topic', config.mqtt.topic);
+                this.setElementValue('device_start_number', config.mqtt.device_start_number !== undefined ? config.mqtt.device_start_number : 1);
+                this.setElementValue('device_end_number', config.mqtt.device_end_number !== undefined ? config.mqtt.device_end_number : (config.mqtt.device_count || 10));
+                this.setElementValue('device_prefix', config.mqtt.device_prefix || 'c');
+                this.setElementValue('client_id_prefix', config.mqtt.client_id_prefix || config.mqtt.username_prefix || 'c');
+                this.setElementValue('username_prefix', config.mqtt.username_prefix || 'c');
+                this.setElementValue('password_prefix', config.mqtt.password_prefix || 'c');
+                this.setElementValue('send_interval', config.mqtt.send_interval);
+                this.setElementValue('format', config.data.format);
+                this.setElementValue('data_point_count', config.data.data_point_count);
+
+                // Initialize with one default group if empty
+                const groupsContainer = getElement('groups-container');
+                if (groupsContainer && groupsContainer.children.length === 0) {
+                    this.groupManager.addGroup();
+                }
             }
         } catch (error) {
             console.error('Failed to load initial config:', error);
         }
+    }
+
+    /**
+     * 从保存的配置恢复 UI 状态
+     */
+    restoreSavedConfig(config) {
+        // 恢复 MQTT 基础配置
+        this.setElementValue('host', config.mqtt?.host || 'localhost');
+        this.setElementValue('port', config.mqtt?.port || 1883);
+        this.setElementValue('topic', config.mqtt?.topic || 'v1/devices/me/telemetry');
+
+        // 恢复基础模式配置
+        this.setElementValue('device_start_number', config.device_start_number || 1);
+        this.setElementValue('device_end_number', config.device_end_number || 10);
+        this.setElementValue('device_prefix', config.device_prefix || 'c');
+        this.setElementValue('client_id_prefix', config.client_id_prefix || 'c');
+        this.setElementValue('username_prefix', config.username_prefix || 'c');
+        this.setElementValue('password_prefix', config.password_prefix || 'c');
+        this.setElementValue('send_interval', config.send_interval || 1);
+        this.setElementValue('format', config.data?.format || 'default');
+        this.setElementValue('data_point_count', config.data?.data_point_count || 10);
+
+        // 根据保存的模式切换到对应的 Tab
+        if (config.mode === 'advanced' && config.advanced?.groups) {
+            // 切换到高级模式
+            this.tabManager.switchTab('advanced');
+
+            // 恢复分组配置
+            this.restoreAdvancedGroups(config.advanced.groups);
+        } else {
+            // 基础模式 - 恢复自定义 Keys
+            if (config.custom_keys && config.custom_keys.length > 0) {
+                this.restoreBasicCustomKeys(config.custom_keys);
+            }
+        }
+
+        console.log('[App] 已恢复上次保存的配置');
+    }
+
+    /**
+     * 恢复高级模式分组配置
+     */
+    restoreAdvancedGroups(groups) {
+        // 清空现有分组
+        const container = getElement('groups-container');
+        if (container) {
+            container.innerHTML = '';
+        }
+
+        // 逐个添加分组（这里只添加基础分组，自定义 Key 暂不恢复）
+        groups.forEach((group, index) => {
+            this.groupManager.addGroup();
+
+            // 获取刚添加的分组元素
+            const groupElements = document.querySelectorAll('.group-item');
+            const groupEl = groupElements[groupElements.length - 1];
+
+            if (groupEl) {
+                // 恢复分组配置
+                const nameInput = groupEl.querySelector('.group-name');
+                const startInput = groupEl.querySelector('.group-start');
+                const endInput = groupEl.querySelector('.group-end');
+                const keyCountInput = groupEl.querySelector('.group-key-count');
+                const devicePrefixInput = groupEl.querySelector('.group-device-prefix');
+                const clientIdPrefixInput = groupEl.querySelector('.group-client-id-prefix');
+                const usernamePrefixInput = groupEl.querySelector('.group-username-prefix');
+                const passwordPrefixInput = groupEl.querySelector('.group-password-prefix');
+                const fullIntervalInput = groupEl.querySelector('.group-full-interval');
+                const changeIntervalInput = groupEl.querySelector('.group-change-interval');
+                const changeRatioInput = groupEl.querySelector('.group-change-ratio');
+
+                if (nameInput) nameInput.value = group.name || `Group ${String.fromCharCode(65 + index)}`;
+                if (startInput) startInput.value = group.start || 1;
+                if (endInput) endInput.value = group.end || 10;
+                if (keyCountInput) keyCountInput.value = group.keyCount || 10;
+                if (devicePrefixInput) devicePrefixInput.value = group.devicePrefix || 'devices-';
+                if (clientIdPrefixInput) clientIdPrefixInput.value = group.clientIdPrefix || 'devices-';
+                if (usernamePrefixInput) usernamePrefixInput.value = group.usernamePrefix || 'devices-';
+                if (passwordPrefixInput) passwordPrefixInput.value = group.passwordPrefix || 'devices-';
+                if (fullIntervalInput) fullIntervalInput.value = group.fullInterval || 300;
+                if (changeIntervalInput) changeIntervalInput.value = group.changeInterval || 1;
+                if (changeRatioInput) changeRatioInput.value = group.changeRatio || 0.3;
+            }
+        });
+    }
+
+    /**
+     * 恢复基础模式自定义 Keys（简化版，不恢复复杂的自定义 Key）
+     */
+    restoreBasicCustomKeys(customKeys) {
+        // 简化实现：只打印提示，不实际恢复
+        // 因为自定义 Key 涉及动态 DOM 操作，完整恢复较复杂
+        console.log('[App] 基础模式自定义 Keys 数量:', customKeys.length);
     }
 
     setElementValue(id, value) {
