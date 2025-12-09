@@ -6,6 +6,47 @@ const MqttController = require('./services/mqtt-controller');
 
 const { createMenu } = require('./menu');
 
+// ======================== 全局错误处理 ========================
+/**
+ * 捕获未处理的异常，防止应用崩溃弹出对话框
+ * 常见场景：MQTT connack timeout
+ */
+process.on('uncaughtException', (error) => {
+    console.error('[Main Process] Uncaught Exception:', error.message);
+    console.error('[Main Process] Stack:', error.stack);
+
+    // 通知所有窗口显示错误日志
+    windows.forEach(w => {
+        if (w.window && !w.window.isDestroyed()) {
+            w.window.webContents.send('mqtt-logs-batch', [{
+                message: `[系统错误] ${error.message}`,
+                type: 'error',
+                timestamp: new Date().toLocaleTimeString()
+            }]);
+        }
+    });
+
+    // 不退出应用，仅记录错误
+});
+
+/**
+ * 捕获未处理的 Promise rejection
+ */
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('[Main Process] Unhandled Rejection:', reason);
+
+    // 通知所有窗口显示错误日志
+    windows.forEach(w => {
+        if (w.window && !w.window.isDestroyed()) {
+            w.window.webContents.send('mqtt-logs-batch', [{
+                message: `[系统错误] Promise 未处理: ${reason}`,
+                type: 'error',
+                timestamp: new Date().toLocaleTimeString()
+            }]);
+        }
+    });
+});
+
 // 【修改】将 mainWindow 和 mqttController 的管理放入一个数组中，以便管理多个实例
 let windows = [];
 let controllers = [];
