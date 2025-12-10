@@ -313,8 +313,8 @@ class MqttController {
                     let fullSendCount = 0; // Counter for full report sampling
                     let changeSendCount = 0; // Counter for change report sampling
 
-                    // 1. 全量上报定时器
-                    const fullIntervalId = setInterval(() => {
+                    // 1. 全量上报逻辑封装
+                    const sendFullReport = () => {
                         // Generate fresh data for random values
                         let data = generateTypedData(schema, randomKeyCount, clientId);
 
@@ -340,7 +340,13 @@ class MqttController {
                                 }
                             }
                         });
-                    }, group.fullInterval * 1000);
+                    };
+
+                    // 立即执行一次全量上报
+                    sendFullReport();
+
+                    // 启动全量上报定时器
+                    const fullIntervalId = setInterval(sendFullReport, group.fullInterval * 1000);
                     this.addInterval(clientId, fullIntervalId);
 
                     // 2. 变化上报定时器
