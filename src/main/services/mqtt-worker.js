@@ -67,62 +67,67 @@ function createClient(deviceIndex, config) {
         });
 
         // 启动定时发送
-        let sendCount = 0;
-        const intervalId = setInterval(() => {
-            // Generate fresh data each time to ensure random values
-            let payload;
-            switch (config.format) {
-                case 'tn':
-                    payload = require('./data-generator').generateTnPayload(config.randomKeyCount);
-                    break;
-                case 'tn-empty':
-                    payload = require('./data-generator').generateTnEmptyPayload();
-                    break;
-                default:
-                    payload = require('./data-generator').generateBatteryStatus(config.randomKeyCount, clientId);
-                    break;
-            }
+        // 增加 0-1000ms 的随机延迟，防止 Worker 内部定时器拥塞
+        const staggerDelay = Math.floor(Math.random() * 1000);
 
-            // Merge custom keys if defined
-            if (config.customKeys && config.customKeys.length > 0) {
-                payload = require('./data-generator').mergeCustomKeys(payload, config.customKeys);
-            }
-
-            const msg = JSON.stringify(payload);
-            const size = Buffer.byteLength(msg);
-
-            client.publish(config.topic, msg, (err) => {
-                if (err) {
-                    sendLog(`[${clientId}] 发送失败: ${err.message}`, 'error');
-                    workerStats.failureCount++;
-                } else {
-                    sendCount++;
-                    workerStats.successCount++;
-
-                    // 每 100 条发送一次统计（批量上报）
-                    if (workerStats.successCount - workerStats.lastReportedSuccess >= 100 ||
-                        workerStats.failureCount - workerStats.lastReportedFailure >= 10) {
-                        parentPort.postMessage({
-                            type: 'stats',
-                            data: {
-                                successCount: workerStats.successCount - workerStats.lastReportedSuccess,
-                                failureCount: workerStats.failureCount - workerStats.lastReportedFailure,
-                                messageSize: size // Report the size of the latest message
-                            }
-                        });
-                        workerStats.lastReportedSuccess = workerStats.successCount;
-                        workerStats.lastReportedFailure = workerStats.failureCount;
-                    }
-
-                    // 日志采样
-                    if (sendCount % 10 === 1) {
-                        sendLog(`[${clientId}] 已发送 ${sendCount} 条消息`, 'success');
-                    }
+        setTimeout(() => {
+            let sendCount = 0;
+            const intervalId = setInterval(() => {
+                // Generate fresh data each time to ensure random values
+                let payload;
+                switch (config.format) {
+                    case 'tn':
+                        payload = require('./data-generator').generateTnPayload(config.randomKeyCount);
+                        break;
+                    case 'tn-empty':
+                        payload = require('./data-generator').generateTnEmptyPayload();
+                        break;
+                    default:
+                        payload = require('./data-generator').generateBatteryStatus(config.randomKeyCount, clientId);
+                        break;
                 }
-            });
-        }, config.sendInterval * 1000);
 
-        intervals.set(clientId, intervalId);
+                // Merge custom keys if defined
+                if (config.customKeys && config.customKeys.length > 0) {
+                    payload = require('./data-generator').mergeCustomKeys(payload, config.customKeys);
+                }
+
+                const msg = JSON.stringify(payload);
+                const size = Buffer.byteLength(msg);
+
+                client.publish(config.topic, msg, (err) => {
+                    if (err) {
+                        sendLog(`[${clientId}] 发送失败: ${err.message}`, 'error');
+                        workerStats.failureCount++;
+                    } else {
+                        sendCount++;
+                        workerStats.successCount++;
+
+                        // 每 100 条发送一次统计（批量上报）
+                        if (workerStats.successCount - workerStats.lastReportedSuccess >= 100 ||
+                            workerStats.failureCount - workerStats.lastReportedFailure >= 10) {
+                            parentPort.postMessage({
+                                type: 'stats',
+                                data: {
+                                    successCount: workerStats.successCount - workerStats.lastReportedSuccess,
+                                    failureCount: workerStats.failureCount - workerStats.lastReportedFailure,
+                                    messageSize: size // Report the size of the latest message
+                                }
+                            });
+                            workerStats.lastReportedSuccess = workerStats.successCount;
+                            workerStats.lastReportedFailure = workerStats.failureCount;
+                        }
+
+                        // 日志采样
+                        if (sendCount % 10 === 1) {
+                            sendLog(`[${clientId}] 已发送 ${sendCount} 条消息`, 'success');
+                        }
+                    }
+                });
+            }, config.sendInterval * 1000);
+
+            intervals.set(clientId, intervalId);
+        }, staggerDelay);
     });
 
     client.on('error', (err) => {

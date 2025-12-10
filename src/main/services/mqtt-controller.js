@@ -434,7 +434,11 @@ class MqttController {
             this.clearIntervals(clientId);
 
             // 执行连接后的回调（启动定时器）
-            onConnect(client, clientId);
+            // 增加 0-1000ms 的随机延迟，防止所有设备定时器在同一时刻触发导致 Event Loop 阻塞
+            const staggerDelay = Math.floor(Math.random() * 1000);
+            setTimeout(() => {
+                onConnect(client, clientId);
+            }, staggerDelay);
         });
 
         client.on('error', (err) => {
