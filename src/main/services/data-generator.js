@@ -30,27 +30,48 @@ function getRandomInt(min_v, max_v) {
  * - 达到最大值后循环
  * - 模拟开始时重置为 1
  */
-let key1Counter = 1;
+// ======================== key_1 递增计数器 ========================
+/**
+ * key_1 的递增计数器 Map
+ * Key: clientId, Value: currentCount
+ * - 每次生成数据时递增
+ * - 达到最大值后循环
+ * - 模拟开始时重置
+ */
+const key1Counters = new Map();
 const KEY1_MAX_VALUE = 9007199254740991; // JavaScript 安全整数最大值 (2^53 - 1)
 
 /**
- * 获取并递增 key_1 的值
+ * 获取并递增指定设备的 key_1 的值
+ * @param {string} clientId - 设备ID
  * @returns {number} 当前计数值
  */
-function getKey1Value() {
-    const currentValue = key1Counter;
-    key1Counter++;
-    if (key1Counter > KEY1_MAX_VALUE) {
-        key1Counter = 1; // 循环
+function getKey1Value(clientId) {
+    // 如果没有提供 clientId，使用默认 key
+    const safeKey = clientId || '__default__';
+
+    let current = key1Counters.get(safeKey);
+    if (current === undefined) {
+        current = 1;
     }
-    return currentValue;
+
+    const returnValue = current;
+
+    // 更新计数器
+    current++;
+    if (current > KEY1_MAX_VALUE) {
+        current = 1; // 循环
+    }
+    key1Counters.set(safeKey, current);
+
+    return returnValue;
 }
 
 /**
  * 重置 key_1 计数器（模拟开始时调用）
  */
 function resetKey1Counter() {
-    key1Counter = 1;
+    key1Counters.clear();
 }
 
 /**
@@ -58,13 +79,13 @@ function resetKey1Counter() {
  * @param {number} count 需要生成的字段数量
  * @returns {object}
  */
-function generateBatteryStatus(count) {
+function generateBatteryStatus(count, clientId) {
     const data = {};
 
     for (let i = 1; i <= count; i++) {
         if (i === 1) {
-            // key_1 使用递增计数器（long 类型）
-            data[`key_${i}`] = getKey1Value();
+            // key_1 使用递增计数器（long 类型），基于设备隔离
+            data[`key_${i}`] = getKey1Value(clientId);
         } else {
             // 其他 key 使用随机值
             const typeIndex = i % 4;
@@ -137,14 +158,22 @@ function generateTnEmptyPayload(count) {
  * 根据 Schema 生成特定类型的数据
  * @param {Array} schema - Schema 数组
  * @param {number} count - 需要生成的数量（从头开始截取）
+ * @param {string} clientId - 设备ID（用于 key_1 独立计数）
  * @returns {object} 数据对象
  */
-function generateTypedData(schema, count) {
+function generateTypedData(schema, count, clientId) {
     const data = {};
     const effectiveCount = Math.min(count, schema.length);
 
     for (let i = 0; i < effectiveCount; i++) {
         const item = schema[i];
+
+        // 特殊处理 key_1: 使用每设备独立的自增计数器
+        if (item.name === 'key_1') {
+            data[item.name] = getKey1Value(clientId);
+            continue;
+        }
+
         switch (item.type) {
             case 'float':
                 data[item.name] = getRandomFloat(0, 100, 2);

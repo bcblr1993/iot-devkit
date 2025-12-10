@@ -79,7 +79,7 @@ function createClient(deviceIndex, config) {
                     payload = require('./data-generator').generateTnEmptyPayload();
                     break;
                 default:
-                    payload = require('./data-generator').generateBatteryStatus(config.randomKeyCount);
+                    payload = require('./data-generator').generateBatteryStatus(config.randomKeyCount, clientId);
                     break;
             }
 

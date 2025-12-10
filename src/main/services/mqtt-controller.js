@@ -131,7 +131,7 @@ class MqttController {
                             payload = generateTnEmptyPayload();
                             break;
                         default:
-                            payload = generateBatteryStatus(randomKeyCount);
+                            payload = generateBatteryStatus(randomKeyCount, clientId);
                             break;
                     }
 
@@ -316,7 +316,7 @@ class MqttController {
                     // 1. 全量上报定时器
                     const fullIntervalId = setInterval(() => {
                         // Generate fresh data for random values
-                        let data = generateTypedData(schema, randomKeyCount);
+                        let data = generateTypedData(schema, randomKeyCount, clientId);
 
                         // Merge custom keys if defined
                         if (customKeyCount > 0) {
@@ -363,7 +363,7 @@ class MqttController {
                             const randomChangeCount = Math.max(0, totalChangeCount - customKeyCount);
 
                             // Generate fresh data for random values
-                            let data = generateTypedData(schema, randomChangeCount);
+                            let data = generateTypedData(schema, randomChangeCount, clientId);
 
                             // Merge custom keys if defined
                             if (customKeyCount > 0) {
