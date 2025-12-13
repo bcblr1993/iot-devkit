@@ -19,8 +19,19 @@ export class TabManager {
         });
     }
 
-    switchTab(btn) {
-        const targetMode = btn.dataset.tab;
+    switchTab(btnOrMode) {
+        let targetMode;
+        let btn;
+
+        if (typeof btnOrMode === 'string') {
+            targetMode = btnOrMode;
+            btn = Array.from(this.tabBtns).find(b => b.dataset.tab === targetMode);
+        } else {
+            btn = btnOrMode;
+            targetMode = btn.dataset.tab;
+        }
+
+        if (!btn) return;
 
         // If already on this tab, do nothing
         if (targetMode === this.currentMode) {
