@@ -9,6 +9,7 @@ import { GroupManager } from './ui/groups.js';
 import { CustomKeyManager } from './ui/custom-keys.js';
 import { ConfigService } from './services/config-service.js';
 import StatisticsUI from './ui/statistics-ui.js';
+import { TimestampTool } from './ui/timestamp-tool.js';
 
 class App {
     constructor() {
@@ -29,6 +30,10 @@ class App {
         this.groupManager = new GroupManager();
         this.customKeyManager = new CustomKeyManager();
         this.configService = new ConfigService(this.tabManager, this.groupManager, this.customKeyManager);
+
+        // Initialize timestamp tool
+        this.timestampTool = new TimestampTool();
+        this.currentPanel = 'simulator'; // 当前激活的面板
 
         // Expose customKeyManager for inline event handlers
         window.customKeyManager = this.customKeyManager;
@@ -101,6 +106,9 @@ class App {
         window.api.onStatistics((stats) => {
             this.statistics.update(stats);
         });
+
+        // Setup main navigation panel switching
+        this.setupPanelSwitching();
     }
 
     async loadInitialConfig() {
@@ -458,6 +466,56 @@ class App {
         if (this.groupManager) {
             this.groupManager.updateButtonState();
         }
+    }
+
+    /**
+     * Setup panel switching between simulator and timestamp tool
+     */
+    setupPanelSwitching() {
+        const navButtons = document.querySelectorAll('.nav-btn');
+
+        navButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetPanel = btn.dataset.panel;
+                this.switchPanel(targetPanel);
+            });
+        });
+    }
+
+    /**
+     * Switch between main panels
+     */
+    switchPanel(panelName) {
+        if (this.currentPanel === panelName) return;
+
+        // Deactivate old panel
+        if (this.currentPanel === 'timestamp') {
+            this.timestampTool.stop();
+        }
+
+        // Hide all panels and deactivate all nav buttons
+        document.querySelectorAll('.main-panel').forEach(panel => {
+            panel.classList.remove('active');
+        });
+
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+
+        // Activate target panel
+        const targetPanelEl = document.getElementById(`${panelName}-panel`);
+        const targetNavBtn = document.querySelector(`.nav-btn[data-panel="${panelName}"]`);
+
+        if (targetPanelEl) targetPanelEl.classList.add('active');
+        if (targetNavBtn) targetNavBtn.classList.add('active');
+
+        // Start timestamp tool if switched to it
+        if (panelName === 'timestamp') {
+            this.timestampTool.start();
+        }
+
+        this.currentPanel = panelName;
+        console.log(`[App] 切换到面板: ${panelName}`);
     }
 }
 

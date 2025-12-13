@@ -973,3 +973,312 @@ button {
 .delete-key-btn:hover {
     background: #fa5252;
 }
+
+/* ==================== Main Navigation ==================== */
+.main-nav {
+    display: flex;
+    gap: 12px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.nav-btn {
+    flex: 1;
+    padding: 12px 24px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.5);
+    transform: translateY(-2px);
+}
+
+.nav-btn.active {
+    background: white;
+    color: #667eea;
+    border-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ==================== Main Panels ==================== */
+.main-panel {
+    display: none;
+}
+
+.main-panel.active {
+    display: block;
+}
+
+/* ==================== Timestamp Tool Container ==================== */
+.timestamp-tool-container {
+    padding: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+/* ==================== Tool Section ==================== */
+.tool-section {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.tool-section:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.tool-section h2 {
+    color: #667eea;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f1f3f5;
+}
+
+/* ==================== Current Time Display - Compact ==================== */
+.current-time-compact {
+    display: flex;
+    justify-content: space-between;
+    /* 左右分布 */
+    align-items: center;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+    border-radius: 8px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.time-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.time-item-right {
+    margin-left: auto;
+    /* 确保靠右 */
+}
+
+.time-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #667eea;
+}
+
+.time-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: #495057;
+}
+
+.timestamp-value {
+    font-family: "JetBrains Mono", "Fira Code", "Courier New", monospace;
+    font-size: 14px;
+    color: #228be6;
+}
+
+.btn-copy-small {
+    padding: 4px 8px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: 4px;
+}
+
+.btn-copy-small:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+}
+
+.btn-copy-small.copied {
+    background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
+}
+
+
+/* ==================== Converter Form ==================== */
+.converter-form {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    /* 禁止换行 */
+    gap: 12px;
+    align-items: center;
+    overflow-x: auto;
+    /* 如果内容过宽，允许水平滚动而不是换行 */
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    /* 防止内部元素换行 */
+}
+
+.form-row label {
+    font-weight: 600;
+    font-size: 13px;
+    color: #495057;
+    white-space: nowrap;
+    flex-shrink: 0;
+    /* 标签不收缩 */
+}
+
+.form-row input[type="text"],
+.form-row input[type="date"],
+.form-row input[type="time"],
+.form-row input[type="datetime-local"] {
+    padding: 8px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 13px;
+    transition: all 0.3s ease;
+    width: 240px;
+    /* 固定宽度 */
+    flex-shrink: 0;
+    /* 不收缩 */
+}
+
+.form-row select {
+    padding: 8px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 13px;
+    transition: all 0.3s ease;
+    width: 160px;
+    /* 减小宽度 */
+    flex-shrink: 0;
+}
+
+.form-row input:focus,
+.form-row select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+/* ==================== Result Display ==================== */
+.result-row {
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
+    margin: 0;
+    flex: 0 0 auto;
+    /* 不自动增长 */
+    min-width: auto;
+    /* 移除最小宽度限制 */
+}
+
+.result-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.result-text {
+    flex: 0 1 auto;
+    /* 允许收缩但不自动增长 */
+    font-size: 13px;
+    /* 减小字号 */
+    font-weight: 600;
+    color: #228be6;
+    font-family: "JetBrains Mono", "Fira Code", "Courier New", monospace;
+    padding: 8px 10px;
+    background: #f8f9fa;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    word-break: break-all;
+    min-height: 36px;
+    /* 减小高度 */
+    display: flex;
+    align-items: center;
+    min-width: 180px;
+    /* 减小最小宽度 */
+    max-width: 250px;
+    /* 添加最大宽度 */
+}
+
+.result-text.error {
+    color: #ff6b6b;
+    border-color: #ff6b6b;
+    background: #fff5f5;
+}
+
+/* ==================== Copy Button ==================== */
+.btn-copy {
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    flex-shrink: 0;
+}
+
+.btn-copy:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-copy.copied {
+    background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
+}
+
+/* ==================== Responsive Design ==================== */
+@media (max-width: 768px) {
+    .current-time-display {
+        grid-template-columns: 1fr;
+    }
+
+    .converter-form {
+        flex-direction: column;
+    }
+
+    .form-row {
+        width: 100%;
+    }
+
+    .form-row input[type="text"],
+    .form-row input[type="date"],
+    .form-row input[type="time"],
+    .form-row input[type="datetime-local"],
+    .form-row select {
+        width: 100%;
+    }
+
+    .result-row {
+        width: 100%;
+    }
+
+    .main-nav {
+        flex-direction: column;
+        gap: 8px;
+    }
+}

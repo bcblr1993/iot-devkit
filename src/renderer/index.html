@@ -14,117 +14,199 @@
             <p class="subtitle">高性能物联网设备模拟测试工具</p>
         </header>
 
+        <!-- 顶层功能导航 -->
+        <nav class="main-nav">
+            <button class="nav-btn active" data-panel="simulator">📊 数据模拟</button>
+            <button class="nav-btn" data-panel="timestamp">🕐 时间转换</button>
+        </nav>
+
         <main>
-            <!-- 配置区域 -->
-            <section class="config-section">
-                <!-- 统计面板 -->
-                <div id="statistics-panel"></div>
+            <!-- 模拟器面板 -->
+            <div id="simulator-panel" class="main-panel active">
+                <!-- 配置区域 -->
+                <section class="config-section">
+                    <!-- 统计面板 -->
+                    <div id="statistics-panel"></div>
 
-                <div class="config-panel">
-                    <!-- 公共MQTT设置 -->
-                    <div class="common-settings">
-                        <h2>📡 MQTT 连接配置</h2>
-                        <div class="form-grid">
-                            <label for="host">Host:</label>
-                            <input type="text" id="host" value="127.0.0.1" placeholder="MQTT Broker 地址">
+                    <div class="config-panel">
+                        <!-- 公共MQTT设置 -->
+                        <div class="common-settings">
+                            <h2>📡 MQTT 连接配置</h2>
+                            <div class="form-grid">
+                                <label for="host">Host:</label>
+                                <input type="text" id="host" value="127.0.0.1" placeholder="MQTT Broker 地址">
 
-                            <label for="port">端口:</label>
-                            <input type="number" id="port" value="1883" placeholder="1883">
+                                <label for="port">端口:</label>
+                                <input type="number" id="port" value="1883" placeholder="1883">
 
-                            <label for="topic">主题:</label>
-                            <input type="text" id="topic" placeholder="v1/devices/me/telemetry">
-                        </div>
-                    </div>
-
-                    <!-- 模式切换 -->
-                    <div class="tabs">
-                        <button class="tab-btn active" data-tab="basic">📊 基础模式</button>
-                        <button class="tab-btn" data-tab="advanced">⚙️ 高级模式</button>
-                    </div>
-
-                    <!-- 基础模式 -->
-                    <div id="basic-panel" class="tab-content active">
-                        <div class="form-grid">
-                            <label for="device_start_number">设备起始编号:</label>
-                            <input type="number" id="device_start_number" value="1">
-
-                            <label for="device_end_number">设备结束编号:</label>
-                            <input type="number" id="device_end_number" value="100">
-
-                            <label for="device_prefix">设备名称前缀:</label>
-                            <input type="text" id="device_prefix" value="c" placeholder="例如: c">
-
-                            <label for="client_id_prefix">Client ID 前缀:</label>
-                            <input type="text" id="client_id_prefix" value="c" placeholder="例如: c">
-
-                            <label for="username_prefix">用户名前缀:</label>
-                            <input type="text" id="username_prefix" value="c" placeholder="例如: c">
-
-                            <label for="password_prefix">密码前缀:</label>
-                            <input type="text" id="password_prefix" value="c" placeholder="例如: c">
-
-                            <label for="send_interval">发送间隔 (秒):</label>
-                            <input type="number" id="send_interval" value="1">
-
-                            <label for="format">数据格式:</label>
-                            <select id="format">
-                                <option value="default">Default</option>
-                                <option value="tn">TN</option>
-                                <option value="tn-empty">TN-Empty</option>
-                            </select>
-
-                            <label for="data_point_count">数据点数:</label>
-                            <input type="number" id="data_point_count" value="10">
-                        </div>
-
-                        <!-- Custom Keys Section -->
-                        <div class="custom-keys-section">
-                            <div class="section-header">
-                                <h4>📌 自定义 Key</h4>
-                                <button type="button" id="add-custom-key-basic" class="btn-add-small">+ 添加</button>
-                            </div>
-                            <div id="custom-keys-basic-container" class="custom-keys-container">
-                                <!-- Custom keys will be added here -->
+                                <label for="topic">主题:</label>
+                                <input type="text" id="topic" placeholder="v1/devices/me/telemetry">
                             </div>
                         </div>
-                    </div>
 
-                    <!-- 高级模式 -->
-                    <div id="advanced-panel" class="tab-content">
-                        <div class="advanced-header">
-                            <h3>📋 分组管理</h3>
-                            <button id="add-group-btn" class="btn-add">+ 添加分组</button>
+                        <!-- 模式切换 -->
+                        <div class="tabs">
+                            <button class="tab-btn active" data-tab="basic">📊 基础模式</button>
+                            <button class="tab-btn" data-tab="advanced">⚙️ 高级模式</button>
                         </div>
-                        <div id="groups-container" class="groups-container">
-                            <!-- 分组列表将在这里动态生成 -->
-                        </div>
-                    </div>
 
-                    <!-- 控制区 -->
-                    <div class="controls">
-                        <button id="start-btn" class="btn btn-primary">🚀 开始模拟</button>
-                        <button id="stop-btn" class="btn btn-danger">⏹ 停止模拟</button>
-                        <button id="export-config-btn" class="btn btn-secondary">💾 导出配置</button>
-                        <button id="import-config-btn" class="btn btn-secondary">📂 导入配置</button>
+                        <!-- 基础模式 -->
+                        <div id="basic-panel" class="tab-content active">
+                            <div class="form-grid">
+                                <label for="device_start_number">设备起始编号:</label>
+                                <input type="number" id="device_start_number" value="1">
+
+                                <label for="device_end_number">设备结束编号:</label>
+                                <input type="number" id="device_end_number" value="100">
+
+                                <label for="device_prefix">设备名称前缀:</label>
+                                <input type="text" id="device_prefix" value="c" placeholder="例如: c">
+
+                                <label for="client_id_prefix">Client ID 前缀:</label>
+                                <input type="text" id="client_id_prefix" value="c" placeholder="例如: c">
+
+                                <label for="username_prefix">用户名前缀:</label>
+                                <input type="text" id="username_prefix" value="c" placeholder="例如: c">
+
+                                <label for="password_prefix">密码前缀:</label>
+                                <input type="text" id="password_prefix" value="c" placeholder="例如: c">
+
+                                <label for="send_interval">发送间隔 (秒):</label>
+                                <input type="number" id="send_interval" value="1">
+
+                                <label for="format">数据格式:</label>
+                                <select id="format">
+                                    <option value="default">Default</option>
+                                    <option value="tn">TN</option>
+                                    <option value="tn-empty">TN-Empty</option>
+                                </select>
+
+                                <label for="data_point_count">数据点数:</label>
+                                <input type="number" id="data_point_count" value="10">
+                            </div>
+
+                            <!-- Custom Keys Section -->
+                            <div class="custom-keys-section">
+                                <div class="section-header">
+                                    <h4>📌 自定义 Key</h4>
+                                    <button type="button" id="add-custom-key-basic" class="btn-add-small">+ 添加</button>
+                                </div>
+                                <div id="custom-keys-basic-container" class="custom-keys-container">
+                                    <!-- Custom keys will be added here -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 高级模式 -->
+                        <div id="advanced-panel" class="tab-content">
+                            <div class="advanced-header">
+                                <h3>📋 分组管理</h3>
+                                <button id="add-group-btn" class="btn-add">+ 添加分组</button>
+                            </div>
+                            <div id="groups-container" class="groups-container">
+                                <!-- 分组列表将在这里动态生成 -->
+                            </div>
+                        </div>
+
+                        <!-- 控制区 -->
+                        <div class="controls">
+                            <button id="start-btn" class="btn btn-primary">🚀 开始模拟</button>
+                            <button id="stop-btn" class="btn btn-danger">⏹ 停止模拟</button>
+                            <button id="export-config-btn" class="btn btn-secondary">💾 导出配置</button>
+                            <button id="import-config-btn" class="btn btn-secondary">📂 导入配置</button>
+                        </div>
                     </div>
+                </section>
+
+                <!-- 日志区域 -->
+                <section class="log-section collapsed" id="log-section">
+                    <!-- Log Panel -->
+                    <div class="log-panel">
+                        <div class="log-header" id="log-header-toggle">
+                            <h3><span class="toggle-icon">▶</span> 📋 运行日志</h3>
+                            <div class="log-controls">
+                                <input type="text" id="log-search" class="log-search-input"
+                                    placeholder="🔍 搜索日志 (设备ID、消息内容...)">
+                                <button id="clear-btn" class="btn btn-warning">🗑️ 清空日志</button>
+                            </div>
+                        </div>
+                        <div id="log-container" class="log-container"></div>
+                    </div>
+                </section>
+            </div>
+            <!-- 模拟器面板结束 -->
+
+            <!-- 时间戳工具面板 -->
+            <div id="timestamp-panel" class="main-panel">
+                <div class="timestamp-tool-container">
+                    <!-- 当前时间显示 -->
+                    <section class="tool-section current-time-section">
+                        <h2>⏰ 当前时间</h2>
+                        <div class="current-time-compact">
+                            <div class="time-item">
+                                <span class="time-label">日期时间:</span>
+                                <span class="time-value" id="current-date">2025-12-13</span>
+                                <span class="time-value" id="current-time">21:00:00</span>
+                                <button class="btn-copy-small" id="copy-current-datetime">📋</button>
+                            </div>
+                            <div class="time-item time-item-right">
+                                <span class="time-label">时间戳:</span>
+                                <span class="time-value timestamp-value" id="current-timestamp">1734094800000</span>
+                                <button class="btn-copy-small" id="copy-current-timestamp">📋</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 时间戳转日期 -->
+                    <section class="tool-section">
+                        <h2>🔄 时间戳 → 日期</h2>
+                        <div class="converter-form">
+                            <div class="form-row">
+                                <label for="ts-input">输入时间戳:</label>
+                                <input type="text" id="ts-input" placeholder="支持10位(秒)或13位(毫秒)" />
+                            </div>
+                            <div class="form-row">
+                                <label for="ts-timezone">选择时区:</label>
+                                <select id="ts-timezone">
+                                    <option value="Asia/Shanghai">UTC+8 北京/上海</option>
+                                </select>
+                            </div>
+                            <div class="form-row result-row">
+                                <label>转换结果:</label>
+                                <div class="result-display">
+                                    <span id="ts-result" class="result-text"></span>
+                                    <button class="btn-copy" id="copy-ts-result">📋 复制</button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- 日期转时间戳 -->
+                    <section class="tool-section">
+                        <h2>📅 日期 → 时间戳</h2>
+                        <div class="converter-form">
+                            <div class="form-row">
+                                <label for="datetime-input">日期时间:</label>
+                                <input type="text" id="datetime-input" placeholder="2025-12-13 21:00:00 或粘贴任意时间格式" />
+                            </div>
+                            <div class="form-row">
+                                <label for="dt-timezone">选择时区:</label>
+                                <select id="dt-timezone">
+                                    <option value="Asia/Shanghai">UTC+8 北京/上海</option>
+                                </select>
+                            </div>
+                            <div class="form-row result-row">
+                                <label>时间戳:</label>
+                                <div class="result-display">
+                                    <span id="dt-result-ms" class="result-text timestamp-value"></span>
+                                    <button class="btn-copy" id="copy-dt-ms">📋 复制</button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
-            </section>
-
-            <!-- 日志区域 -->
-            <section class="log-section collapsed" id="log-section">
-                <!-- Log Panel -->
-                <div class="log-panel">
-                    <div class="log-header" id="log-header-toggle">
-                        <h3><span class="toggle-icon">▶</span> 📋 运行日志</h3>
-                        <div class="log-controls">
-                            <input type="text" id="log-search" class="log-search-input"
-                                placeholder="🔍 搜索日志 (设备ID、消息内容...)">
-                            <button id="clear-btn" class="btn btn-warning">🗑️ 清空日志</button>
-                        </div>
-                    </div>
-                    <div id="log-container" class="log-container"></div>
-                </div>
-            </section>
+            </div>
+            <!-- 时间戳工具面板结束 -->
         </main>
     </div>
 
