@@ -4,7 +4,7 @@ const fs = require('fs');
 const yaml = require('js-yaml');
 const MqttController = require('./services/mqtt-controller');
 
-const { createMenu } = require('./menu');
+const { createMenu, loadTheme } = require('./menu');
 
 // ======================== 全局错误处理 ========================
 /**
@@ -250,6 +250,11 @@ ipcMain.handle('get-initial-config', () => {
             data: { format: 'default', data_point_count: 100 }
         };
     }
+});
+
+// IPC: 获取当前主题
+ipcMain.handle('get-current-theme', () => {
+    return loadTheme();
 });
 
 // IPC: 保存配置到文件

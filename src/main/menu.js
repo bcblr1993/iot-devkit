@@ -1,9 +1,55 @@
 const { app, Menu, shell, dialog } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
 const isMac = process.platform === 'darwin';
 
+// ======================== Theme Configuration ========================
+const THEMES = [
+    { id: 'classic', label: '经典白' },
+    { id: 'purple', label: '梦幻紫' },
+    { id: 'ocean', label: '海洋蓝' },
+    { id: 'emerald', label: '翡翠绿' },
+    { id: 'dark', label: '暗夜黑' },
+    { id: 'sunset', label: '暖阳橙' },
+    { id: 'rose', label: '玫瑰粉' },
+];
+
+// Theme config file path
+function getThemeConfigPath() {
+    return path.join(app.getPath('userData'), 'theme-config.json');
+}
+
+// Save theme preference
+function saveTheme(themeId) {
+    try {
+        fs.writeFileSync(getThemeConfigPath(), JSON.stringify({ theme: themeId }), 'utf-8');
+        console.log(`[Theme] 主题已保存: ${themeId}`);
+    } catch (error) {
+        console.error('[Theme] 保存主题失败:', error);
+    }
+}
+
+// Load saved theme
+function loadTheme() {
+    try {
+        const configPath = getThemeConfigPath();
+        if (fs.existsSync(configPath)) {
+            const data = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+            return data.theme || 'classic';
+        }
+    } catch (error) {
+        console.error('[Theme] 加载主题失败:', error);
+    }
+    return 'classic';
+}
+
+// Current theme
+let currentTheme = null;
+
 function createMenu(mainWindow) {
+    // Load saved theme
+    currentTheme = loadTheme();
     const template = [
         // { role: 'appMenu' }
         ...(isMac ? [{
@@ -87,6 +133,23 @@ function createMenu(mainWindow) {
                 ])
             ]
         },
+        // Theme Menu
+        {
+            label: '主题',
+            submenu: THEMES.map(theme => ({
+                label: theme.label,
+                type: 'radio',
+                checked: theme.id === currentTheme,
+                click: () => {
+                    currentTheme = theme.id;
+                    saveTheme(theme.id);
+                    // Send theme change to renderer
+                    if (mainWindow && !mainWindow.isDestroyed()) {
+                        mainWindow.webContents.send('theme-change', theme.id);
+                    }
+                }
+            }))
+        },
         {
             role: 'help',
             label: '帮助',
@@ -122,4 +185,4 @@ function createMenu(mainWindow) {
     Menu.setApplicationMenu(menu);
 }
 
-module.exports = { createMenu };
+module.exports = { createMenu, loadTheme };

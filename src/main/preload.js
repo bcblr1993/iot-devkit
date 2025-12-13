@@ -32,4 +32,12 @@ contextBridge.exposeInMainWorld('api', {
     // Config import/export
     saveConfig: (config) => ipcRenderer.invoke('save-config', config),
     loadConfig: () => ipcRenderer.invoke('load-config'),
+
+    // Theme API
+    onThemeChange: (callback) => {
+        ipcRenderer.on('theme-change', (event, themeName) => {
+            callback(themeName);
+        });
+    },
+    getCurrentTheme: () => ipcRenderer.invoke('get-current-theme'),
 });

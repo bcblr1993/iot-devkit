@@ -1,3 +1,157 @@
+/* ==================== CSS Variables & Theme System ==================== */
+:root {
+    /* 默认配置 - 经典白主题 */
+    --primary-start: #f8f9fa;
+    --primary-end: #e9ecef;
+    --primary-gradient: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    --primary-color: #343a40;
+    /* 修正为深色，确保标题文字为黑色 */
+
+    /* 强调色 - 用于激活状态 */
+    --accent-color: #dee2e6;
+    --accent-gradient: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+
+    /* 背景色 */
+    --bg-body: #f8f9fa;
+    --bg-container: #ffffff;
+    --bg-card: #ffffff;
+    --bg-input: #ffffff;
+    --bg-hover: #e9ecef;
+    /* 稍微加深以在浅色背景可见 */
+
+    /* 文字颜色 */
+    --text-primary: #212529;
+    --text-secondary: #495057;
+    --text-muted: #868e96;
+    --text-on-primary: #212529;
+    /* 浅色背景上的深色文字 */
+
+    /* 边框和阴影 */
+    --border-color: #dee2e6;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.08);
+    /* 稍微加深阴影 */
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.08);
+
+    /* 状态色 */
+    --success: #10b981;
+    --error: #ef4444;
+    --warning: #f59e0b;
+    --info: #3b82f6;
+
+    /* 交互色 */
+    --focus-ring: rgba(0, 0, 0, 0.1);
+}
+
+/* 经典白 - Classic Theme (显式定义) */
+[data-theme="classic"] {
+    --primary-start: #f8f9fa;
+    --primary-end: #e9ecef;
+    --primary-gradient: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    --primary-color: #343a40;
+    /* 修正为深色 */
+    --accent-color: #dee2e6;
+    --accent-gradient: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+    --bg-body: #f8f9fa;
+    --bg-container: #ffffff;
+    --bg-card: #ffffff;
+    --bg-input: #ffffff;
+    --bg-hover: #e9ecef;
+    --text-primary: #212529;
+    --text-secondary: #495057;
+    --text-on-primary: #212529;
+    --border-color: #dee2e6;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.08);
+    --focus-ring: rgba(0, 0, 0, 0.1);
+}
+
+/* 梦幻紫 - Purple Theme */
+[data-theme="purple"] {
+    --primary-start: #667eea;
+    --primary-end: #764ba2;
+    --primary-gradient: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
+    --primary-color: #667eea;
+    --bg-body: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --bg-container: #fff;
+    --bg-card: #f8f9fa;
+    --bg-input: #fff;
+    --text-primary: #333;
+    --text-secondary: #495057;
+    --text-on-primary: #fff;
+    --border-color: #e0e0e0;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 12px rgba(102, 126, 234, 0.2);
+    --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.3);
+    --focus-ring: rgba(102, 126, 234, 0.1);
+}
+
+/* 海洋蓝 - Ocean Theme */
+[data-theme="ocean"] {
+    --primary-start: #0ea5e9;
+    --primary-end: #2563eb;
+    --primary-gradient: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
+    --primary-color: #0ea5e9;
+    --shadow-md: 0 4px 12px rgba(14, 165, 233, 0.2);
+    --focus-ring: rgba(14, 165, 233, 0.1);
+}
+
+/* 翡翠绿 - Emerald Theme */
+[data-theme="emerald"] {
+    --primary-start: #10b981;
+    --primary-end: #059669;
+    --primary-gradient: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
+    --primary-color: #10b981;
+    --shadow-md: 0 4px 12px rgba(16, 185, 129, 0.2);
+    --focus-ring: rgba(16, 185, 129, 0.1);
+}
+
+/* 暗夜黑 - Dark Theme */
+[data-theme="dark"] {
+    --primary-start: #4a4a5a;
+    --primary-end: #2a2a3a;
+    --primary-gradient: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
+    --primary-color: #a0a0b0;
+    /* 强调色与主色保持一致 - 深灰色 */
+    --accent-color: #4a4a5a;
+    --accent-gradient: linear-gradient(135deg, #5a5a6a 0%, #3a3a4a 100%);
+    --bg-body: #0f0f1a;
+    --bg-container: #1a1a2e;
+    --bg-card: #252540;
+    --bg-input: #1a1a2e;
+    --bg-hover: rgba(255, 255, 255, 0.1);
+    --text-primary: #f0f0f0;
+    --text-secondary: #b0b0c0;
+    --text-muted: #808090;
+    --text-on-primary: #ffffff;
+    --border-color: #3a3a5a;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.6);
+    --focus-ring: rgba(160, 160, 176, 0.25);
+}
+
+/* 暖阳橙 - Sunset Theme */
+[data-theme="sunset"] {
+    --primary-start: #f97316;
+    --primary-end: #ea580c;
+    --primary-gradient: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
+    --primary-color: #f97316;
+    --shadow-md: 0 4px 12px rgba(249, 115, 22, 0.2);
+    --focus-ring: rgba(249, 115, 22, 0.1);
+}
+
+/* 玫瑰粉 - Rose Theme */
+[data-theme="rose"] {
+    --primary-start: #ec4899;
+    --primary-end: #db2777;
+    --primary-gradient: linear-gradient(135deg, var(--primary-start) 0%, var(--primary-end) 100%);
+    --primary-color: #ec4899;
+    --shadow-md: 0 4px 12px rgba(236, 72, 153, 0.2);
+    --focus-ring: rgba(236, 72, 153, 0.1);
+}
+
 /* ==================== Reset & Base Styles ==================== */
 * {
     margin: 0;
@@ -7,21 +161,21 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--bg-body);
     min-height: 100vh;
     padding: 8px;
-    color: #333;
+    color: var(--text-primary);
     font-size: 13px;
 }
 
 /* ==================== Statistics Panel ==================== */
 #statistics-panel {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary-gradient);
     border-radius: 10px;
     padding: 8px 12px;
     margin-bottom: 8px;
-    color: white;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
+    color: var(--text-on-primary);
+    box-shadow: var(--shadow-md);
 }
 
 .stats-header {
@@ -93,18 +247,18 @@ body {
 
 /* ==================== Container ==================== */
 .container {
-    max-width: 1400px;
-    margin: 0 auto;
-    background-color: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 100%;
+    min-height: calc(100vh - 16px);
+    background: var(--bg-container);
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
     overflow: hidden;
 }
 
 /* ==================== Header ==================== */
 header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: var(--primary-gradient);
+    color: var(--text-on-primary);
     padding: 10px 20px;
     text-align: center;
 }
@@ -132,12 +286,12 @@ main {
 /* ==================== Config Section ==================== */
 .config-section {
     padding: 12px 16px;
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #e0e0e0;
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .config-panel h2 {
-    color: #667eea;
+    color: var(--primary-color);
     font-size: 16px;
     font-weight: 600;
     margin-bottom: 12px;
@@ -148,11 +302,11 @@ main {
 
 /* ==================== Common Settings ==================== */
 .common-settings {
-    background: white;
+    background: var(--bg-container);
     padding: 10px;
     border-radius: 8px;
     margin-bottom: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-sm);
 }
 
 /* ==================== Form Grid ==================== */
@@ -171,25 +325,26 @@ main {
 label {
     font-weight: 600;
     font-size: 12px;
-    color: #495057;
+    color: var(--text-secondary);
 }
 
 input,
 select {
     padding: 6px 10px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--border-color);
     border-radius: 6px;
     font-size: 12px;
     transition: all 0.3s ease;
     width: 100%;
-    background: white;
+    background: var(--bg-input);
+    color: var(--text-primary);
 }
 
 input:focus,
 select:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 input::placeholder {
@@ -226,18 +381,18 @@ input::placeholder {
 }
 
 .tab-btn.active {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    background: var(--primary-gradient);
+    color: var(--text-on-primary);
+    box-shadow: var(--shadow-md);
 }
 
 /* ==================== Tab Content ==================== */
 .tab-content {
     display: none;
-    background: white;
+    background: var(--bg-container);
     padding: 10px;
     border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-sm);
     margin-bottom: 10px;
 }
 
@@ -334,8 +489,8 @@ input::placeholder {
 }
 
 .group-item:hover {
-    border-color: #667eea;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+    border-color: var(--primary-color);
+    box-shadow: var(--shadow-md);
 }
 
 .group-header {
@@ -420,14 +575,14 @@ button {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #51cf66 0%, #37b24d 100%);
-    color: white;
-    box-shadow: 0 4px 12px rgba(81, 207, 102, 0.4);
+    background: var(--primary-gradient);
+    color: var(--text-on-primary);
+    box-shadow: var(--shadow-md);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(81, 207, 102, 0.5);
+    box-shadow: var(--shadow-md);
 }
 
 .btn-primary:disabled {
@@ -458,27 +613,27 @@ button {
 }
 
 .btn-secondary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    background: var(--primary-gradient);
+    color: var(--text-on-primary);
+    box-shadow: var(--shadow-md);
 }
 
 .btn-secondary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+    box-shadow: var(--shadow-md);
 }
 
 .btn-add {
     padding: 8px 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: var(--primary-gradient);
+    color: var(--text-on-primary);
     font-size: 13px;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: var(--shadow-md);
 }
 
 .btn-add:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: var(--shadow-md);
 }
 
 .btn-add:disabled {
@@ -524,7 +679,7 @@ button {
 }
 
 .log-section .log-header:hover h3 {
-    color: #667eea;
+    color: var(--primary-color);
 }
 
 .toggle-icon {
@@ -678,7 +833,7 @@ button {
     border-radius: 4px;
     white-space: pre-wrap;
     word-break: break-all;
-    border-left: 3px solid #667eea;
+    border-left: 3px solid var(--primary-color);
 
     /* Collapsible styles */
     max-height: 120px;
@@ -845,8 +1000,8 @@ button {
 
 .log-search-input:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--focus-ring);
 }
 
 .log-search-input::placeholder {
@@ -855,8 +1010,8 @@ button {
 
 .btn-add-small {
     padding: 4px 12px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: var(--primary-gradient);
+    color: var(--text-on-primary);
     font-size: 12px;
     border: none;
     border-radius: 6px;
@@ -865,7 +1020,7 @@ button {
 
 .btn-add-small:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: var(--shadow-md);
 }
 
 .btn-add-small:disabled {
@@ -979,7 +1134,7 @@ button {
     display: flex;
     gap: 12px;
     padding: 16px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: var(--primary-gradient);
     border-bottom: 2px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -988,7 +1143,7 @@ button {
     padding: 12px 24px;
     border: 2px solid rgba(255, 255, 255, 0.3);
     background: rgba(255, 255, 255, 0.1);
-    color: white;
+    color: var(--text-on-primary);
     border-radius: 8px;
     cursor: pointer;
     font-size: 15px;
@@ -1004,9 +1159,9 @@ button {
 }
 
 .nav-btn.active {
-    background: white;
-    color: #667eea;
-    border-color: white;
+    background: var(--bg-container);
+    color: var(--primary-color);
+    border-color: var(--bg-container);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
@@ -1028,11 +1183,11 @@ button {
 
 /* ==================== Tool Section ==================== */
 .tool-section {
-    background: white;
+    background: var(--bg-container);
     border-radius: 12px;
     padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
     transition: all 0.3s ease;
 }
 
@@ -1042,7 +1197,7 @@ button {
 }
 
 .tool-section h2 {
-    color: #667eea;
+    color: var(--primary-color);
     font-size: 18px;
     font-weight: 600;
     margin-bottom: 20px;
@@ -1060,9 +1215,9 @@ button {
     /* 左右分布 */
     align-items: center;
     padding: 12px 16px;
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 100%);
+    background: var(--bg-card);
     border-radius: 8px;
-    border: 1px solid rgba(102, 126, 234, 0.2);
+    border: 1px solid var(--border-color);
 }
 
 .time-item {
@@ -1079,25 +1234,25 @@ button {
 .time-label {
     font-size: 13px;
     font-weight: 600;
-    color: #667eea;
+    color: var(--primary-color);
 }
 
 .time-value {
     font-size: 15px;
     font-weight: 700;
-    color: #495057;
+    color: var(--text-secondary);
 }
 
 .timestamp-value {
     font-family: "JetBrains Mono", "Fira Code", "Courier New", monospace;
     font-size: 14px;
-    color: #228be6;
+    color: var(--primary-color);
 }
 
 .btn-copy-small {
     padding: 4px 8px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: var(--primary-gradient);
+    color: var(--text-on-primary);
     border: none;
     border-radius: 4px;
     font-size: 12px;
@@ -1108,7 +1263,7 @@ button {
 
 .btn-copy-small:hover {
     transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+    box-shadow: var(--shadow-md);
 }
 
 .btn-copy-small.copied {
@@ -1174,8 +1329,8 @@ button {
 
 .form-row input:focus,
 .form-row select:focus {
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--focus-ring);
     outline: none;
 }
 
@@ -1229,8 +1384,8 @@ button {
 /* ==================== Copy Button ==================== */
 .btn-copy {
     padding: 8px 16px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: var(--primary-gradient);
+    color: var(--text-on-primary);
     border: none;
     border-radius: 6px;
     font-size: 12px;
@@ -1238,13 +1393,13 @@ button {
     cursor: pointer;
     transition: all 0.3s ease;
     white-space: nowrap;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    box-shadow: var(--shadow-md);
     flex-shrink: 0;
 }
 
 .btn-copy:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    box-shadow: var(--shadow-md);
 }
 
 .btn-copy.copied {

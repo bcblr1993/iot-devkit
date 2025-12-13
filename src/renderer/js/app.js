@@ -10,6 +10,7 @@ import { CustomKeyManager } from './ui/custom-keys.js';
 import { ConfigService } from './services/config-service.js';
 import StatisticsUI from './ui/statistics-ui.js';
 import { TimestampTool } from './ui/timestamp-tool.js';
+import { ThemeManager } from './ui/theme-manager.js';
 
 class App {
     constructor() {
@@ -34,6 +35,9 @@ class App {
         // Initialize timestamp tool
         this.timestampTool = new TimestampTool();
         this.currentPanel = 'simulator'; // 当前激活的面板
+
+        // Initialize theme manager
+        this.themeManager = new ThemeManager();
 
         // Expose customKeyManager for inline event handlers
         window.customKeyManager = this.customKeyManager;
