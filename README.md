@@ -1,8 +1,8 @@
-# MQTT 设备模拟器
+# IoT DevKit
 
 <div align="center">
 
-📡 一个功能强大的 Electron 桌面应用，用于模拟大量物联网设备通过 MQTT 协议发送遥测数据
+🚀 物联网开发工具箱 - 集成 MQTT 设备模拟和时间戳转换功能的强大桌面应用
 
 [![Electron](https://img.shields.io/badge/Electron-28.3.3-blue.svg)](https://www.electronjs.org/)
 [![License](https://img.shields.io/badge/License-ISC-green.svg)](LICENSE)
@@ -11,7 +11,7 @@
 
 ## ✨ 功能特性
 
-### 🎯 核心功能
+### 📊 MQTT 数据模拟
 - **双模式支持**：基础模式（快速配置）+ 高级模式（分组管理，最多10组）
 - **高并发模拟**：利用 Node.js 异步特性，轻松模拟数百个设备
 - **实时日志系统**：
@@ -24,6 +24,12 @@
   - 配置面板锁定（模拟运行时防止误操作）
 - **多数据格式**：支持 `default`、`tn`、`tn-empty` 三种数据格式
 - **自定义Key**：支持添加自定义数据字段（整数、浮点、字符串、布尔）
+
+### 🕐 时间转换工具
+- **当前时间显示**：实时显示当前日期时间和对应时间戳
+- **时间戳转日期**：支持秒级/毫秒级时间戳转换，多时区支持
+- **日期转时间戳**：智能解析多种日期格式，快速复制转换结果
+- **一键复制**：所有转换结果均支持一键复制到剪贴板
 
 ### 🚀 性能优化
 - **内存管理**：DOM元素自动清理（最多500条），防止长时间运行白屏
@@ -71,9 +77,9 @@ npm run build:all
 ```
 
 **打包产物示例**：
-- Windows: `MQTT设备模拟器-1.0.0-20251201135545-win-x64.exe`
-- macOS: `MQTT设备模拟器-1.0.0-20251201135545-mac-universal.dmg`
-- Linux: `MQTT设备模拟器-1.0.0-20251201135545-linux-x64.AppImage`
+- Windows: `IoT DevKit-1.0.0-20251213-win-x64.exe`
+- macOS: `IoT DevKit-1.0.0-20251213-mac-universal.dmg`
+- Linux: `IoT DevKit-1.0.0-20251213-linux-x64.AppImage`
 
 ## 🎮 使用指南
 
