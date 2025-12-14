@@ -107,6 +107,22 @@ body {
     border-radius: 12px;
     box-shadow: var(--shadow-lg);
     overflow: hidden;
+    position: relative;
+    border: 1px solid var(--border-color);
+}
+
+.timestamp-tool-container {
+    width: 100%;
+    /* Max width removed for full responsiveness */
+    /* max-width: 800px; */
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    /* background: var(--bg-container); */
+    /* border-radius: 12px; */
+    /* box-shadow: var(--shadow-lg); */
+    /* overflow: hidden; */
 }
 
 /* ==================== Header ==================== */
@@ -147,10 +163,27 @@ main {
     display: none;
     flex: 1;
     flex-direction: column;
-    overflow: hidden;
     height: 100%;
-    /* Ensure it fills parent */
-    min-height: 0;
+    /* Fill vertical space */
+    width: 100%;
+    /* Fill horizontal space */
+    box-sizing: border-box;
+    overflow: hidden;
+    /* Default to hidden, specific panels override */
+}
+
+/* Panels that need scrolling */
+#timestamp-panel,
+#simulator-panel,
+#settings-panel {
+    overflow-y: auto;
+    padding: 20px;
+}
+
+/* JSON Panel needs no padding and no outer scroll */
+#json-panel {
+    padding: 0;
+    overflow: hidden;
 }
 
 .main-panel.active {
@@ -1395,12 +1428,105 @@ button {
     display: flex;
     flex-direction: column;
     height: 100%;
+    width: 100%;
     background: var(--bg-card);
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-sm);
+    /* Remove borders/margins for full-screen feel */
+    border: none;
+    border-radius: 0;
+    margin: 0;
+    box-shadow: none;
     overflow: hidden;
-    transition: all 0.3s ease;
+}
+
+/* ==================== Timestamp Tool Responsiveness ==================== */
+/* Using Flexbox for maximum compatibility and fluidity */
+.tool-section .form-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    /* Force single line on wide screens */
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.tool-section .form-grid label {
+    flex-shrink: 0;
+    /* Never shrink labels */
+    white-space: nowrap;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* Inputs and Results share the available space */
+.tool-section .form-grid input,
+.tool-section .form-grid select,
+.tool-section .form-grid .result-display {
+    flex: 1;
+    /* Grow to fill space */
+    width: auto !important;
+    /* Allow flex to control width */
+    min-width: 120px;
+    /* Prevent collapse */
+    max-width: none !important;
+}
+
+/* Give input slightly more weight */
+.tool-section .form-grid input {
+    flex: 1.5;
+}
+
+/* Result text inside the result display */
+.tool-section .form-grid .result-display {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tool-section .form-grid .result-display .result-text {
+    flex: 1;
+    width: 100%;
+    min-width: 50px;
+}
+
+/* Responsive Wrap for smaller screens */
+@media (max-width: 1280px) {
+    .tool-section .form-grid {
+        flex-wrap: wrap;
+        /* Allow wrapping */
+    }
+
+    /* When wrapped, expand items to fill lines */
+    .tool-section .form-grid input,
+    .tool-section .form-grid select,
+    .tool-section .form-grid .result-display {
+        flex: 1 0 200px;
+        /* Grow, don't shrink below 200px */
+    }
+}
+
+@media (max-width: 768px) {
+    .tool-section .form-grid {
+        flex-direction: column;
+        /* Stack vertically on mobile */
+        align-items: stretch;
+    }
+
+    .tool-section .form-grid label {
+        margin-top: 8px;
+        align-self: flex-start;
+    }
+
+    .tool-section .form-grid input,
+    .tool-section .form-grid select,
+    .tool-section .form-grid .result-display {
+        width: 100% !important;
+        flex: none;
+    }
+}
+
+.result-display.full-width .result-text {
+    flex: 1;
+    width: 100%;
 }
 
 .json-tool-section:hover {
@@ -1412,8 +1538,12 @@ button {
 
 /* Split View Layout */
 .json-editor-container.split-view {
-    flex: 1;
     display: flex;
+    flex: 1;
+    /* Grow to fill remaining space */
+    height: 100%;
+    /* Explicit height */
+    width: 100%;
     flex-direction: row;
     position: relative;
     background: var(--bg-body);
@@ -1425,15 +1555,22 @@ button {
     flex: 1;
     display: flex;
     flex-direction: column;
+    height: 100%;
+    /* Force pane to full height */
     min-width: 0;
     overflow: hidden;
     position: relative;
+    /* For absolute children if needed */
 }
 
+/* Specific styling for Panes */
 .json-pane.input-pane {
     border-right: 1px solid var(--border-color);
     background: var(--bg-body);
-    /* Standardize background */
+}
+
+.json-pane.tree-pane {
+    background: var(--bg-card);
 }
 
 /* Custom Scrollbar for Panes */
@@ -1459,17 +1596,19 @@ button {
 
 .json-textarea {
     flex: 1;
+    /* Fills remaining space below header */
     width: 100%;
     height: 100%;
+    /* Force height */
     background: transparent;
     border: none;
-    color: var(--json-text-color, #e0e0e0);
-    /* Themed text color */
-    font-family: 'Fira Code', 'Menlo', 'Monaco', 'Courier New', monospace;
-    font-size: 13px;
-    line-height: 1.6;
-    padding: 16px;
     resize: none;
+    /* Disable manual resize handle */
+    padding: 12px;
+    font-family: "JetBrains Mono", "Fira Code", monospace;
+    font-size: 13px;
+    color: var(--json-text-color);
+    line-height: 1.5;
     outline: none;
     white-space: pre;
     overflow: auto;
