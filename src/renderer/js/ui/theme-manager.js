@@ -9,7 +9,9 @@
 export class ThemeManager {
     static THEMES = {
         classic: '经典白',
-        dark: '暗夜黑'
+        dark: '暗夜黑',
+        'navy-blue': '知性蓝',
+        'pro-black': '专业黑'
     };
 
     static DEFAULT_THEME = 'classic';

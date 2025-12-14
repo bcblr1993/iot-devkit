@@ -1,0 +1,32 @@
+/* ==================== 知性蓝主题 (Navy Blue) ==================== */
+[data-theme="navy-blue"] {
+    --primary-gradient: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+    --primary-color: #ffffff;
+
+    --accent-color: #f97316;  /* 橙色按钮高亮 */
+    --accent-gradient: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+    --accent-text: #ffffff;
+
+    --bg-body: #f8fafc;
+    --bg-container: #ffffff;
+    --bg-card: #ffffff;
+    --bg-input: #f1f5f9;
+    --bg-hover: #e2e8f0;
+
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --text-on-primary: #ffffff;
+    --text-on-accent: #ffffff;
+
+    --border-color: #cbd5e1;
+    --shadow-sm: 0 1px 3px rgba(30, 64, 175, 0.1);
+    --shadow-md: 0 4px 6px rgba(30, 64, 175, 0.12);
+    --shadow-lg: 0 10px 15px rgba(30, 64, 175, 0.1);
+    --focus-ring: rgba(30, 64, 175, 0.3);
+
+    --success: #22c55e;
+    --error: #ef4444;
+    --warning: #f59e0b;
+    --info: #3b82f6;
+}

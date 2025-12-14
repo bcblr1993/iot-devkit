@@ -1,0 +1,32 @@
+/* ==================== 专业黑主题 (Professional Black) ==================== */
+[data-theme="pro-black"] {
+    --primary-gradient: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    --primary-color: #ffffff;
+
+    --accent-color: #6b7280;
+    --accent-gradient: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+    --accent-text: #ffffff;
+
+    --bg-body: #f9fafb;
+    --bg-container: #ffffff;
+    --bg-card: #ffffff;
+    --bg-input: #f3f4f6;
+    --bg-hover: #e5e7eb;
+
+    --text-primary: #111827;
+    --text-secondary: #374151;
+    --text-muted: #6b7280;
+    --text-on-primary: #ffffff;
+    --text-on-accent: #ffffff;
+
+    --border-color: #d1d5db;
+    --shadow-sm: 0 1px 3px rgba(31, 41, 55, 0.1);
+    --shadow-md: 0 4px 6px rgba(31, 41, 55, 0.12);
+    --shadow-lg: 0 10px 15px rgba(31, 41, 55, 0.1);
+    --focus-ring: rgba(107, 114, 128, 0.3);
+
+    --success: #22c55e;
+    --error: #ef4444;
+    --warning: #f59e0b;
+    --info: #6b7280;
+}
