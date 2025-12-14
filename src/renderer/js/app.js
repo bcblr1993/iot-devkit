@@ -11,6 +11,7 @@ import { ConfigService } from './services/config-service.js';
 import StatisticsUI from './ui/statistics-ui.js';
 import { TimestampTool } from './ui/timestamp-tool.js';
 import { ThemeManager } from './ui/theme-manager.js';
+import { JsonFormatterUI } from './ui/json-formatter.js';
 
 class App {
     constructor() {
@@ -32,8 +33,10 @@ class App {
         this.customKeyManager = new CustomKeyManager();
         this.configService = new ConfigService(this.tabManager, this.groupManager, this.customKeyManager);
 
-        // Initialize timestamp tool
+        // Initialize tools
         this.timestampTool = new TimestampTool();
+        this.jsonFormatter = new JsonFormatterUI();
+
         this.currentPanel = 'simulator'; // 当前激活的面板
 
         // Initialize theme manager

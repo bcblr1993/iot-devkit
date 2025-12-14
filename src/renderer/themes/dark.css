@@ -30,4 +30,19 @@
     --shadow-md: 0 4px 12px rgba(239, 68, 68, 0.2);
     --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.8);
     --focus-ring: rgba(239, 68, 68, 0.4);
+
+    /* JSON Syntax Highlighting (Dark - Neon) */
+    --jv-key: #9cdcfe;
+    --jv-string: #ce9178;
+    --jv-number: #b5cea8;
+    --jv-boolean: #569cd6;
+    --jv-null: #569cd6;
+    --jv-punctuation: #858585;
+    --tree-guide-line: rgba(255, 255, 255, 0.08);
+    --search-match-bg: rgba(255, 165, 0, 0.4);
+    --search-match-current-bg: #f59e0b;
+    --bg-input-mini: rgba(0, 0, 0, 0.2);
+    --border-input-mini: rgba(255, 255, 255, 0.1);
+    --json-text-color: #e0e0e0;
+    /* Light text for Dark theme */
 }

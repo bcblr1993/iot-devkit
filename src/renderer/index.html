@@ -24,6 +24,7 @@
         <nav class="main-nav">
             <button class="nav-btn active" data-panel="simulator">📊 数据模拟</button>
             <button class="nav-btn" data-panel="timestamp">🕐 时间转换</button>
+            <button class="nav-btn" data-panel="json">{} JSON 工具</button>
         </nav>
 
         <main>
@@ -205,6 +206,56 @@
                 </div>
             </div>
             <!-- 时间戳工具面板结束 -->
+
+            <!-- JSON 工具面板 -->
+            <div id="json-panel" class="main-panel">
+                <section class="json-tool-section">
+                    <div class="json-editor-container split-view">
+                        <!-- Input Pane -->
+                        <div class="json-pane input-pane">
+                            <div class="pane-header">
+                                <div class="pane-title">JSON Input</div>
+                                <div class="pane-toolbar">
+                                    <button id="json-format-btn" class="btn-icon-sm" title="格式化">✨</button>
+                                    <button id="json-minify-btn" class="btn-icon-sm" title="压缩">📦</button>
+                                    <div class="separator"></div>
+                                    <button id="json-copy-btn" class="btn-icon-sm" title="复制">📋</button>
+                                    <button id="json-clear-btn" class="btn-icon-sm" title="清空">🗑️</button>
+                                </div>
+                            </div>
+                            <textarea id="json-input" class="json-textarea" placeholder="在此粘贴 JSON 内容..."></textarea>
+                        </div>
+
+                        <!-- Tree Pane -->
+                        <div class="json-pane tree-pane">
+                            <!-- Pane Toolbar -->
+                            <div class="pane-header">
+                                <div class="pane-title">Tree View</div>
+                                <div class="pane-toolbar">
+                                    <div class="search-box-mini">
+                                        <input type="text" id="json-search-input" placeholder="🔍 Search..." />
+                                        <span id="json-search-count" class="search-count"></span>
+                                    </div>
+                                    <button id="json-search-prev" class="btn-icon-sm" title="Previous">⬆</button>
+                                    <button id="json-search-next" class="btn-icon-sm" title="Next">⬇</button>
+                                    <div class="separator"></div>
+                                    <button id="btn-expand-all" class="btn-icon-sm" title="Expand All">📖</button>
+                                    <button id="btn-collapse-all" class="btn-icon-sm" title="Collapse All">📕</button>
+                                </div>
+                            </div>
+                            <div id="json-tree-view" class="json-tree-view">
+                                <div class="placeholder-text">请在左侧输入 JSON 数据</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="json-status-bar" class="status-bar">
+                        <span class="status-icon">ℹ️</span>
+                        <span class="status-text">Ready</span>
+                    </div>
+                </section>
+            </div>
+            <!-- JSON 工具面板结束 -->
         </main>
     </div>
 

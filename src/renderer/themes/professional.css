@@ -29,4 +29,23 @@
     --error: #ef4444;
     --warning: #f59e0b;
     --info: #6b7280;
+
+    /* JSON Syntax Highlighting */
+    --jv-key: #111827;
+    /* Near Black */
+    --jv-string: #4b5563;
+    /* Grey */
+    --jv-number: #059669;
+    /* Emerald */
+    --jv-boolean: #2563eb;
+    /* Blue */
+    --jv-null: #4b5563;
+    --jv-punctuation: #6b7280;
+    --tree-guide-line: rgba(0, 0, 0, 0.1);
+    --search-match-bg: rgba(107, 114, 128, 0.3);
+    --search-match-current-bg: #9ca3af;
+    --bg-input-mini: rgba(0, 0, 0, 0.05);
+    --border-input-mini: rgba(0, 0, 0, 0.15);
+    --json-text-color: #111827;
+    /* Gray-900 for Professional theme */
 }

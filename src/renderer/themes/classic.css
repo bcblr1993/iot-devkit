@@ -37,6 +37,27 @@
     --error: #ef4444;
     --warning: #f59e0b;
     --info: #3b82f6;
+
+    /* JSON Syntax Highlighting (Light Theme - IDEA/Eclipse Style) */
+    --jv-key: #0c5460;
+    /* Dark Teal */
+    --jv-string: #a31515;
+    /* Red */
+    --jv-number: #098658;
+    /* Green */
+    --jv-boolean: #0000ff;
+    /* Blue */
+    --jv-null: #0000ff;
+    /* Blue */
+    --jv-punctuation: #333333;
+    /* Dark Grey */
+    --tree-guide-line: rgba(0, 0, 0, 0.1);
+    --search-match-bg: rgba(255, 215, 0, 0.5);
+    --search-match-current-bg: #ffd700;
+    --bg-input-mini: rgba(0, 0, 0, 0.05);
+    --border-input-mini: rgba(0, 0, 0, 0.15);
+    --json-text-color: #333333;
+    /* Dark text for light theme */
 }
 
 /* Classic theme when explicitly set */
@@ -70,4 +91,25 @@
     --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.08);
     --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.08);
     --focus-ring: rgba(59, 130, 246, 0.25);
+
+    /* JSON Syntax Highlighting (Light Theme - IDEA/Eclipse Style) */
+    --jv-key: #0c5460;
+    /* Dark Teal */
+    --jv-string: #a31515;
+    /* Red */
+    --jv-number: #098658;
+    /* Green */
+    --jv-boolean: #0000ff;
+    /* Blue */
+    --jv-null: #0000ff;
+    /* Blue */
+    --jv-punctuation: #333333;
+    /* Dark Grey */
+    --tree-guide-line: rgba(0, 0, 0, 0.1);
+    --search-match-bg: rgba(255, 215, 0, 0.5);
+    --search-match-current-bg: #ffd700;
+    --bg-input-mini: rgba(0, 0, 0, 0.05);
+    --border-input-mini: rgba(0, 0, 0, 0.15);
+    --json-text-color: #333333;
+    /* Dark text for light theme */
 }

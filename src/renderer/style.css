@@ -100,7 +100,9 @@ body {
 /* ==================== Container ==================== */
 .container {
     max-width: 100%;
-    min-height: calc(100vh - 16px);
+    height: calc(100vh - 16px);
+    display: flex;
+    flex-direction: column;
     background: var(--bg-container);
     border-radius: 12px;
     box-shadow: var(--shadow-lg);
@@ -133,6 +135,26 @@ main {
     display: flex;
     flex-direction: column;
     gap: 0;
+    flex: 1;
+    /* Allow main to fill remaining space */
+    min-height: 0;
+    /* Enable scrolling for flex children */
+    overflow: hidden;
+    /* Prevent main scrollbar */
+}
+
+.main-panel {
+    display: none;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+    /* Ensure it fills parent */
+    min-height: 0;
+}
+
+.main-panel.active {
+    display: flex;
 }
 
 /* ==================== Config Section ==================== */
@@ -1366,4 +1388,392 @@ button {
         flex-direction: column;
         gap: 8px;
     }
+}
+
+/* ==================== JSON Formatter Panel (Premium Style) ==================== */
+.json-tool-section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--bg-card);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.json-tool-section:hover {
+    box-shadow: var(--shadow-md);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Toolbar styles removed as they are now integrated into panes */
+
+/* Split View Layout */
+.json-editor-container.split-view {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    position: relative;
+    background: var(--bg-body);
+    /* Slightly darker than card */
+    overflow: hidden;
+}
+
+.json-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.json-pane.input-pane {
+    border-right: 1px solid var(--border-color);
+    background: var(--bg-body);
+    /* Standardize background */
+}
+
+/* Custom Scrollbar for Panes */
+.json-pane ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.json-pane ::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.json-pane ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+.json-pane ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.json-textarea {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    color: var(--json-text-color, #e0e0e0);
+    /* Themed text color */
+    font-family: 'Fira Code', 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    padding: 16px;
+    resize: none;
+    outline: none;
+    white-space: pre;
+    overflow: auto;
+    caret-color: var(--accent-color, #60a5fa);
+}
+
+.json-textarea::placeholder {
+    color: rgba(255, 255, 255, 0.15);
+    font-style: italic;
+}
+
+/* Tree View Styling (IDE Style) */
+.json-tree-view {
+    flex: 1;
+    overflow: auto;
+    padding: 16px;
+    font-family: 'Fira Code', 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #d4d4d4;
+    background: transparent;
+}
+
+/* Search Controls (Removed from main bar, specific styles below) */
+
+/* Pane Header */
+.pane-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-header);
+    border-bottom: 1px solid var(--border-color);
+    padding: 6px 12px;
+    height: 40px;
+    flex-shrink: 0;
+}
+
+.pane-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.pane-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Mini Search Box */
+.search-box-mini {
+    display: flex;
+    align-items: center;
+    background: var(--bg-input-mini, rgba(0, 0, 0, 0.2));
+    border: 1px solid var(--border-input-mini, rgba(255, 255, 255, 0.1));
+    border-radius: 4px;
+    padding: 2px 6px;
+    width: 140px;
+    transition: all 0.2s;
+}
+
+.search-box-mini:focus-within {
+    border-color: var(--primary-color);
+    width: 160px;
+}
+
+.search-box-mini input {
+    border: none;
+    background: transparent;
+    padding: 2px;
+    font-size: 11px;
+    width: 100%;
+    color: var(--text-primary);
+    outline: none;
+    box-shadow: none;
+    height: auto;
+    /* Reset global input height */
+}
+
+.btn-icon-sm {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-secondary);
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 4px;
+    font-size: 14px;
+    line-height: 1;
+    transition: all 0.2s;
+    display: flex;
+    /* alignment */
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+}
+
+.btn-icon-sm:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.separator {
+    width: 1px;
+    height: 16px;
+    background: var(--border-color);
+    margin: 0 4px;
+}
+
+/* Adjust Tree View container for header */
+.json-pane.tree-pane {
+    background: var(--bg-body);
+}
+
+/* Tree View Lines & Hover */
+details>div {
+    margin-left: 6px;
+    padding-left: 12px;
+    border-left: 1px solid var(--tree-guide-line, rgba(255, 255, 255, 0.08));
+    /* Tree Guide Line */
+    position: relative;
+}
+
+details>div:hover {
+    border-left-color: var(--text-secondary);
+    /* Highlight line on hover */
+}
+
+/* Search Highlight */
+.search-match {
+    background-color: var(--search-match-bg, rgba(255, 165, 0, 0.4));
+    /* Orange dim */
+    border-radius: 2px;
+    color: #fff;
+    padding: 0 1px;
+}
+
+.search-match.current {
+    background-color: var(--search-match-current-bg, #f59e0b);
+    /* Bright Orange */
+    color: #000;
+    padding: 0 2px;
+    font-weight: bold;
+    box-shadow: 0 0 0 1px #fff;
+}
+
+/* Tree Row Alignment */
+.tree-row {
+    display: inline-block;
+    /* Changed from block to let details indent work properly? No, block is better usually for row hover. Let's stick to inline styling context or flex. */
+    /* details summary is block by default. content inside is inline */
+    padding: 1px 0;
+}
+
+/* Adjust scrollbar z-index */
+.json-pane ::-webkit-scrollbar {
+    z-index: 10;
+}
+
+.placeholder-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-muted);
+    font-style: italic;
+    opacity: 0.6;
+}
+
+/* Tree Structure */
+.tree-row {
+    position: relative;
+    cursor: default;
+    border-radius: 4px;
+    padding: 1px 4px;
+    transition: background 0.1s;
+}
+
+.tree-row:hover {
+    background-color: var(--bg-hover);
+}
+
+/* Collapsible Details */
+details {
+    position: relative;
+}
+
+summary {
+    cursor: pointer;
+    outline: none;
+    list-style: none;
+    padding: 1px 4px;
+    border-radius: 4px;
+    user-select: none;
+}
+
+summary:hover {
+    background-color: var(--bg-hover);
+}
+
+summary::-webkit-details-marker {
+    display: none;
+}
+
+/* Arrow Icon */
+summary::before {
+    content: '▸';
+    display: inline-block;
+    width: 14px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-secondary);
+    transition: transform 0.15s ease;
+    margin-right: 2px;
+}
+
+details[open]>summary::before {
+    transform: rotate(90deg);
+    color: var(--text-primary);
+}
+
+/* Indentation Guide (Optional visual cue) */
+details>div {
+    margin-left: 8px;
+    /* Indent content */
+    border-left: 1px solid var(--tree-guide-line, rgba(255, 255, 255, 0.05));
+    /* Guide line */
+    padding-left: 10px;
+}
+
+/* Syntax Highlighting (VS Code Dark Theme) */
+.jv-key {
+    color: var(--jv-key, #9cdcfe);
+    font-weight: normal;
+}
+
+/* Property Key */
+.jv-string {
+    color: var(--jv-string, #ce9178);
+}
+
+/* String value */
+.jv-number {
+    color: var(--jv-number, #b5cea8);
+}
+
+/* Number */
+.jv-boolean {
+    color: var(--jv-boolean, #569cd6);
+}
+
+/* Boolean */
+.jv-null {
+    color: var(--jv-null, #569cd6);
+    font-style: italic;
+}
+
+/* Null */
+.jv-punctuation {
+    color: var(--jv-punctuation, #858585);
+}
+
+/* Brackets, colons */
+
+/* Size Hint */
+.jv-size-hint {
+    color: var(--text-muted);
+    font-size: 11px;
+    margin-left: 8px;
+    font-style: italic;
+}
+
+/* Status Bar */
+.status-bar {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    background: var(--bg-header);
+    border-top: 1px solid var(--border-color);
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Fira Code', monospace;
+    transition: all 0.3s;
+}
+
+.status-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.status-bar.success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #34d399;
+    border-top-color: rgba(16, 185, 129, 0.2);
+}
+
+.status-bar.error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    border-top-color: rgba(239, 68, 68, 0.2);
 }
