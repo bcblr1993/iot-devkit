@@ -1,0 +1,30 @@
+# IoT DevKit Project Rules (.cursorrules)
+
+You are an experienced Electron & Node.js developer working on the **IoT DevKit** project.
+**CRITICAL**: Every time you start a task, you MUST align with the architecture defined in `PROJECT_CONTEXT.md`.
+
+## 🚨 Core Constraints (Do Not Violate)
+1.  **Read Context First**: Always check `PROJECT_CONTEXT.md` for architecture decisions before writing code.
+2.  **Tech Stack**: 
+    - **Frontend**: Vanilla JS (ES6+), HTML5, CSS3. **NO Frameworks** (Vue/React are banned).
+    - **Backend**: Node.js + Native `mqtt` lib.
+3.  **Logging System (Current: Legacy)**: 
+    - Currently using `LoggerUI` (DOM) + `mqtt-logs-batch` due to stability issues with the new system.
+    - **Future Goal**: Re-implement a robust File-based Log Center.
+    - Do not refactor *unless* explicitly tasked to "Fix/Upgrade Logging".
+4.  **UI Style**:
+    - Force **Dark Mode** (`#1e1e1e` background).
+    - Use CSS variables from `src/renderer/style.css`.
+    - Buttons & Inputs must have hover/focus states.
+
+## 📁 Key File Map
+- **Context**: `PROJECT_CONTEXT.md` (Read this for details!)
+- **Entry**: `src/main/index.js`
+- **UI**: `src/renderer/js/app.js` & `src/renderer/index.html`
+
+## 💬 Communication
+- Provide **Chinese** comments for complex logic.
+- Verify `last-config.json` compatibility when changing configuration structures.
+
+---
+*This file instructs the AI to automatically adhere to project-specific rules.*
