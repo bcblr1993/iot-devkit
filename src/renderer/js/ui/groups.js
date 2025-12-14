@@ -22,6 +22,27 @@ export class GroupManager {
         document.addEventListener('group-deleted', () => {
             this.updateButtonState();
         });
+
+        // Event delegation for group header toggle
+        if (this.container) {
+            this.container.addEventListener('click', (e) => {
+                const header = e.target.closest('.group-header');
+                if (header && !e.target.closest('.delete-group-btn')) {
+                    this.toggleGroup(header);
+                }
+            });
+        }
+    }
+
+    toggleGroup(header) {
+        const groupId = header.dataset.groupId;
+        const groupForm = document.querySelector(`[data-group-form="${groupId}"]`);
+        const toggleIcon = header.querySelector('.group-toggle-icon');
+
+        if (groupForm && toggleIcon) {
+            groupForm.classList.toggle('collapsed');
+            toggleIcon.classList.toggle('rotated');
+        }
     }
 
     setupGlobalHandlers() {
@@ -80,11 +101,12 @@ export class GroupManager {
     getGroupTemplate(id, number, letter) {
         return `
             <div class="group-item" id="group-${id}">
-                <div class="group-header">
-                    <span>分组 #${number}</span>
-                    <button class="delete-group-btn" onclick="window.deleteGroup(${id})">删除</button>
+                <div class="group-header" data-group-id="${id}">
+                    <span class="group-toggle-icon">▼</span>
+                    <span class="group-title">分组 #${number}</span>
+                    <button class="delete-group-btn" onclick="event.stopPropagation(); window.deleteGroup(${id})">删除</button>
                 </div>
-                <div class="group-form">
+                <div class="group-form" data-group-form="${id}">
                     <div>
                         <label>分组名称</label>
                         <input type="text" class="group-name" value="Group ${letter}">
