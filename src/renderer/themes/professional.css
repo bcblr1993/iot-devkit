@@ -1,51 +1,62 @@
-/* ==================== 专业黑主题 (Professional Black) ==================== */
-[data-theme="pro-black"] {
-    --primary-gradient: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-    --primary-color: #ffffff;
+/* ==================== Professional Black（纯黑灰专业体系） ==================== */
+[data-theme="professional"] {
 
-    --accent-color: #6b7280;
+    /* Primary: 顶栏 - 冷静黑灰渐变 */
+    --primary-gradient: linear-gradient(135deg, #1f2937 0%, #0f172a 100%);
+    --primary-color: #e5e7eb;
+
+    /* Accent: 中性灰（无情绪） */
+    --accent-color: #9ca3af;
     --accent-gradient: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
-    --accent-text: #ffffff;
+    --accent-text: #111827;
 
-    --bg-body: #f9fafb;
-    --bg-container: #ffffff;
-    --bg-card: #ffffff;
-    --bg-input: #f3f4f6;
-    --bg-hover: #e5e7eb;
+    /* Backgrounds - 全暗灰层次 */
+    --bg-body: #0b0f14;
+    --bg-container: #111827;
+    --bg-card: #1f2937;
+    --bg-input: #111827;
 
-    --text-primary: #111827;
-    --text-secondary: #374151;
+    /* Hover / Active */
+    --bg-hover: rgba(255, 255, 255, 0.06);
+
+    /* Text - 专业级对比 */
+    --text-primary: #e5e7eb;
+    --text-secondary: #9ca3af;
     --text-muted: #6b7280;
     --text-on-primary: #ffffff;
-    --text-on-accent: #ffffff;
+    --text-on-accent: #111827;
 
-    --border-color: #d1d5db;
-    --shadow-sm: 0 1px 3px rgba(31, 41, 55, 0.1);
-    --shadow-md: 0 4px 6px rgba(31, 41, 55, 0.12);
-    --shadow-lg: 0 10px 15px rgba(31, 41, 55, 0.1);
-    --focus-ring: rgba(107, 114, 128, 0.3);
+    /* Borders & Shadows */
+    --border-color: #374151;
 
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.75);
+    --shadow-lg: 0 32px 64px rgba(0, 0, 0, 0.9);
+
+    /* Focus Ring - 灰阶 */
+    --focus-ring: rgba(156, 163, 175, 0.4);
+
+    /* 状态色（弱化存在感） */
     --success: #22c55e;
     --error: #ef4444;
     --warning: #f59e0b;
-    --info: #6b7280;
+    --info: #9ca3af;
 
-    /* JSON Syntax Highlighting */
-    --jv-key: #111827;
-    /* Near Black */
-    --jv-string: #4b5563;
-    /* Grey */
-    --jv-number: #059669;
-    /* Emerald */
-    --jv-boolean: #2563eb;
-    /* Blue */
-    --jv-null: #4b5563;
+    /* JSON Syntax Highlighting（黑灰专业版） */
+    --jv-key: #e5e7eb;
+    --jv-string: #9ca3af;
+    --jv-number: #86efac;
+    --jv-boolean: #60a5fa;
+    --jv-null: #9ca3af;
     --jv-punctuation: #6b7280;
-    --tree-guide-line: rgba(0, 0, 0, 0.1);
-    --search-match-bg: rgba(107, 114, 128, 0.3);
+
+    --tree-guide-line: rgba(255, 255, 255, 0.08);
+
+    --search-match-bg: rgba(156, 163, 175, 0.35);
     --search-match-current-bg: #9ca3af;
-    --bg-input-mini: rgba(0, 0, 0, 0.05);
-    --border-input-mini: rgba(0, 0, 0, 0.15);
-    --json-text-color: #111827;
-    /* Gray-900 for Professional theme */
+
+    --bg-input-mini: rgba(0, 0, 0, 0.35);
+    --border-input-mini: rgba(255, 255, 255, 0.12);
+
+    --json-text-color: #e5e7eb;
 }

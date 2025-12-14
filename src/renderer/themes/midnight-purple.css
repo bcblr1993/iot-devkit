@@ -1,0 +1,29 @@
+/* ==================== Midnight Purple（夜紫暗色） ==================== */
+[data-theme="midnight-purple"] {
+    --primary-gradient: linear-gradient(135deg, #2e1065 0%, #1e1b4b 100%);
+    --primary-color: #ede9fe;
+
+    --accent-color: #a78bfa;
+    --accent-gradient: linear-gradient(135deg, #c4b5fd 0%, #8b5cf6 100%);
+    --accent-text: #1e1b4b;
+
+    --bg-body: #0b0616;
+    --bg-container: #1e1b4b;
+    --bg-card: #312e81;
+    --bg-input: #1e1b4b;
+    --bg-hover: rgba(167, 139, 250, 0.12);
+
+    --text-primary: #ede9fe;
+    --text-secondary: #c4b5fd;
+    --text-muted: #a78bfa;
+
+    --border-color: #4338ca;
+    --focus-ring: rgba(167, 139, 250, 0.45);
+
+    --jv-key: #ddd6fe;
+    --jv-string: #fde68a;
+    --jv-number: #86efac;
+    --jv-boolean: #a5b4fc;
+    --jv-null: #a5b4fc;
+    --jv-punctuation: #c4b5fd;
+}

@@ -1,0 +1,29 @@
+/* ==================== Obsidian（黑曜石） ==================== */
+[data-theme="obsidian"] {
+    --primary-gradient: linear-gradient(135deg, #09090b 0%, #000000 100%);
+    --primary-color: #fafafa;
+
+    --accent-color: #e11d48;
+    --accent-gradient: linear-gradient(135deg, #fb7185 0%, #be123c 100%);
+    --accent-text: #ffffff;
+
+    --bg-body: #000000;
+    --bg-container: #09090b;
+    --bg-card: #18181b;
+    --bg-input: #09090b;
+    --bg-hover: rgba(225, 29, 72, 0.12);
+
+    --text-primary: #fafafa;
+    --text-secondary: #d4d4d8;
+    --text-muted: #a1a1aa;
+
+    --border-color: #27272a;
+    --focus-ring: rgba(225, 29, 72, 0.45);
+
+    --jv-key: #f5f5f5;
+    --jv-string: #fda4af;
+    --jv-number: #86efac;
+    --jv-boolean: #fb7185;
+    --jv-null: #fb7185;
+    --jv-punctuation: #a1a1aa;
+}

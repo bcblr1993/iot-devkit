@@ -10,14 +10,18 @@ export class ThemeManager {
     static THEMES = {
         classic: '经典白',
         dark: '暗夜黑',
-        'navy-blue': '知性蓝',
-        'pro-black': '专业黑'
+        navy: '海军蓝',
+        professional: '专业黑',
+        carbon: '石墨黑',
+        obsidian: '黑曜石',
+        'emerald-dark': '森之绿',
+        'midnight-purple': '夜之紫'
     };
 
     static DEFAULT_THEME = 'classic';
 
     constructor() {
-        this.currentTheme = ThemeManager.DEFAULT_THEME;
+        this.currentTheme = localStorage.getItem('app-theme') || ThemeManager.DEFAULT_THEME;
         this.init();
     }
 
@@ -25,23 +29,30 @@ export class ThemeManager {
      * 初始化主题管理器
      */
     init() {
-        // 监听主进程发来的主题变更消息
+        // 1. 初始化下拉菜单监听
+        const themeSelect = document.getElementById('theme-select');
+        if (themeSelect) {
+            // 设置初始值
+            themeSelect.value = this.currentTheme;
+            
+            // 监听变更
+            themeSelect.addEventListener('change', (e) => {
+                const newTheme = e.target.value;
+                this.apply(newTheme);
+            });
+        }
+
+        // 2. 应用初始主题
+        this.apply(this.currentTheme);
+
+        // 3. 兼容旧的 IPC 监听 (如果有)
         if (window.api && window.api.onThemeChange) {
             window.api.onThemeChange((themeName) => {
                 this.apply(themeName);
             });
         }
 
-        // 获取保存的主题（从主进程）
-        if (window.api && window.api.getCurrentTheme) {
-            window.api.getCurrentTheme().then((themeName) => {
-                if (themeName) {
-                    this.apply(themeName);
-                }
-            });
-        }
-
-        console.log('[ThemeManager] 已初始化');
+        console.log('[ThemeManager] 已初始化，当前主题:', this.currentTheme);
     }
 
     /**
@@ -50,13 +61,22 @@ export class ThemeManager {
      */
     apply(themeName) {
         if (!ThemeManager.THEMES[themeName]) {
-            console.warn(`[ThemeManager] 未知主题: ${themeName}`);
+            console.warn(`[ThemeManager] 未知主题: ${themeName}，回退到默认`);
             themeName = ThemeManager.DEFAULT_THEME;
         }
 
         // 设置 data-theme 属性
         document.documentElement.setAttribute('data-theme', themeName);
         this.currentTheme = themeName;
+        
+        // 保存到本地存储
+        localStorage.setItem('app-theme', themeName);
+        
+        // 同步下拉菜单状态 (如果是通过 IPC 变更)
+        const themeSelect = document.getElementById('theme-select');
+        if (themeSelect && themeSelect.value !== themeName) {
+            themeSelect.value = themeName;
+        }
 
         console.log(`[ThemeManager] 已应用主题: ${ThemeManager.THEMES[themeName]} (${themeName})`);
     }

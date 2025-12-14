@@ -6,10 +6,14 @@ const isMac = process.platform === 'darwin';
 
 // ======================== Theme Configuration ========================
 const THEMES = [
-    { id: 'classic', label: '经典白' },
-    { id: 'dark', label: '暗夜黑' },
-    { id: 'navy-blue', label: '知性蓝' },
-    { id: 'pro-black', label: '专业黑' }
+    { id: 'classic', label: '🌞 经典白' },
+    { id: 'dark', label: '🌑 暗夜黑' },
+    { id: 'navy', label: '🌊 海军蓝' },
+    { id: 'professional', label: '💼 专业黑' },
+    { id: 'carbon', label: '⚫ 石墨黑' },
+    { id: 'obsidian', label: '💎 黑曜石' },
+    { id: 'emerald-dark', label: '🌲 森之绿' },
+    { id: 'midnight-purple', label: '💜 夜之紫' }
 ];
 
 // Theme config file path

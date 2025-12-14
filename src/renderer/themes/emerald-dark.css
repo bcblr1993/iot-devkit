@@ -1,0 +1,29 @@
+/* ==================== Emerald Dark（深绿暗色） ==================== */
+[data-theme="emerald-dark"] {
+    --primary-gradient: linear-gradient(135deg, #064e3b 0%, #022c22 100%);
+    --primary-color: #ecfdf5;
+
+    --accent-color: #34d399;
+    --accent-gradient: linear-gradient(135deg, #6ee7b7 0%, #10b981 100%);
+    --accent-text: #022c22;
+
+    --bg-body: #021c16;
+    --bg-container: #022c22;
+    --bg-card: #064e3b;
+    --bg-input: #022c22;
+    --bg-hover: rgba(52, 211, 153, 0.12);
+
+    --text-primary: #ecfdf5;
+    --text-secondary: #a7f3d0;
+    --text-muted: #6ee7b7;
+
+    --border-color: #065f46;
+    --focus-ring: rgba(52, 211, 153, 0.45);
+
+    --jv-key: #a7f3d0;
+    --jv-string: #fde68a;
+    --jv-number: #86efac;
+    --jv-boolean: #34d399;
+    --jv-null: #34d399;
+    --jv-punctuation: #6ee7b7;
+}

@@ -9,6 +9,11 @@
     <link rel="stylesheet" href="themes/dark.css">
     <link rel="stylesheet" href="themes/navy.css">
     <link rel="stylesheet" href="themes/professional.css">
+    <!-- New Themes -->
+    <link rel="stylesheet" href="themes/carbon.css">
+    <link rel="stylesheet" href="themes/obsidian.css">
+    <link rel="stylesheet" href="themes/emerald-dark.css">
+    <link rel="stylesheet" href="themes/midnight-purple.css">
     <!-- Main styles -->
     <link rel="stylesheet" href="style.css">
 </head>
@@ -16,8 +21,22 @@
 <body>
     <div class="container">
         <header>
-            <h1>🚀 IoT DevKit</h1>
-            <p class="subtitle">物联网开发工具箱 - MQTT 模拟 & 时间转换等工具集</p>
+            <div class="header-content">
+                <h1>🚀 IoT DevKit</h1>
+                <p class="subtitle">物联网开发工具箱 - MQTT 模拟 & 时间转换等工具集</p>
+            </div>
+            <div class="header-controls">
+                <select id="theme-select" class="theme-select">
+                    <option value="classic">🌞 经典白</option>
+                    <option value="dark">🌑 暗夜黑</option>
+                    <option value="navy">🌊 海军蓝</option>
+                    <option value="professional">💼 专业黑</option>
+                    <option value="carbon">⚫ 石墨黑</option>
+                    <option value="obsidian">💎 黑曜石</option>
+                    <option value="emerald-dark">🌲 森之绿</option>
+                    <option value="midnight-purple">💜 夜之紫</option>
+                </select>
+            </div>
         </header>
 
         <!-- 顶层功能导航 -->

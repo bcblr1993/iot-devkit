@@ -1,52 +1,66 @@
-/* ==================== 知性蓝主题 (Navy Blue) ==================== */
-[data-theme="navy-blue"] {
-    --primary-gradient: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-    --primary-color: #ffffff;
+/* ==================== Navy Dark（深蓝暗黑体系） ==================== */
+[data-theme="navy"] {
 
+    /* Primary: 顶栏 - 深蓝渐变 */
+    --primary-gradient: linear-gradient(135deg, #0f1c3f 0%, #0b1228 100%);
+    --primary-color: #e5e7eb;
+
+    /* Accent: 橙色，仅用于强提示 / CTA */
     --accent-color: #f97316;
-    /* 橙色按钮高亮 */
-    --accent-gradient: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+    --accent-gradient: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
     --accent-text: #ffffff;
 
-    --bg-body: #f8fafc;
-    --bg-container: #ffffff;
-    --bg-card: #ffffff;
-    --bg-input: #f1f5f9;
-    --bg-hover: #e2e8f0;
+    /* Backgrounds - 全暗蓝层次 */
+    --bg-body: #0b1020;
+    /* 最深背景 */
+    --bg-container: #0f172a;
+    /* 页面容器 */
+    --bg-card: #111c33;
+    /* 卡片 */
+    --bg-input: #0f172a;
+    /* 输入区域 */
 
-    --text-primary: #1e293b;
-    --text-secondary: #475569;
-    --text-muted: #64748b;
+    /* Hover / Active */
+    --bg-hover: rgba(59, 130, 246, 0.12);
+
+    /* Text - 高对比但不刺眼 */
+    --text-primary: #e5e7eb;
+    --text-secondary: #9ca3af;
+    --text-muted: #6b7280;
     --text-on-primary: #ffffff;
     --text-on-accent: #ffffff;
 
-    --border-color: #cbd5e1;
-    --shadow-sm: 0 1px 3px rgba(30, 64, 175, 0.1);
-    --shadow-md: 0 4px 6px rgba(30, 64, 175, 0.12);
-    --shadow-lg: 0 10px 15px rgba(30, 64, 175, 0.1);
-    --focus-ring: rgba(30, 64, 175, 0.3);
+    /* Borders & Shadows */
+    --border-color: #1e293b;
 
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.6);
+    --shadow-md: 0 6px 20px rgba(37, 99, 235, 0.25);
+    --shadow-lg: 0 30px 60px rgba(0, 0, 0, 0.85);
+
+    /* Focus Ring */
+    --focus-ring: rgba(59, 130, 246, 0.45);
+
+    /* 状态色（偏冷，适合暗色） */
     --success: #22c55e;
     --error: #ef4444;
     --warning: #f59e0b;
     --info: #3b82f6;
 
-    /* JSON Syntax Highlighting */
-    --jv-key: #1e3a8a;
-    /* Navy Blue */
-    --jv-string: #c2410c;
-    /* Orange Red */
-    --jv-number: #15803d;
-    /* Green */
-    --jv-boolean: #2563eb;
-    /* Blue */
-    --jv-null: #2563eb;
-    --jv-punctuation: #334155;
-    --tree-guide-line: rgba(30, 58, 138, 0.1);
-    --search-match-bg: rgba(251, 146, 60, 0.4);
-    --search-match-current-bg: #f97316;
-    --bg-input-mini: rgba(30, 58, 138, 0.05);
-    --border-input-mini: rgba(30, 58, 138, 0.15);
-    --json-text-color: #1e293b;
-    /* Slate-800 for Navy theme */
+    /* JSON Syntax Highlighting（Dark 蓝系） */
+    --jv-key: #93c5fd;
+    --jv-string: #fdba74;
+    --jv-number: #86efac;
+    --jv-boolean: #60a5fa;
+    --jv-null: #60a5fa;
+    --jv-punctuation: #9ca3af;
+
+    --tree-guide-line: rgba(255, 255, 255, 0.08);
+
+    --search-match-bg: rgba(245, 158, 11, 0.4);
+    --search-match-current-bg: #f59e0b;
+
+    --bg-input-mini: rgba(0, 0, 0, 0.25);
+    --border-input-mini: rgba(255, 255, 255, 0.12);
+
+    --json-text-color: #e5e7eb;
 }
