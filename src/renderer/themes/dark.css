@@ -1,0 +1,32 @@
+/* ==================== 暗夜黑主题 (Dark) ==================== */
+[data-theme="dark"] {
+    /* Primary: 页眉/顶栏 */
+    --primary-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --primary-color: #94a3b8;
+
+    /* Accent: 激活/高亮色 (青蓝) */
+    --accent-color: #38bdf8;
+    --accent-gradient: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+    --accent-text: #0f172a;
+
+    /* Backgrounds */
+    --bg-body: #0f172a;
+    --bg-container: #1e293b;
+    --bg-card: #334155;
+    --bg-input: #1e293b;
+    --bg-hover: rgba(255, 255, 255, 0.08);
+
+    /* Text */
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --text-on-primary: #f8fafc;
+    --text-on-accent: #0f172a;
+
+    /* Borders & Shadows */
+    --border-color: #334155;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.5);
+    --focus-ring: rgba(56, 189, 248, 0.3);
+}

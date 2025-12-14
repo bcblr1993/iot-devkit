@@ -7,12 +7,7 @@ const isMac = process.platform === 'darwin';
 // ======================== Theme Configuration ========================
 const THEMES = [
     { id: 'classic', label: '经典白' },
-    { id: 'purple', label: '梦幻紫' },
-    { id: 'ocean', label: '海洋蓝' },
-    { id: 'emerald', label: '翡翠绿' },
-    { id: 'dark', label: '暗夜黑' },
-    { id: 'sunset', label: '暖阳橙' },
-    { id: 'rose', label: '玫瑰粉' },
+    { id: 'dark', label: '暗夜黑' }
 ];
 
 // Theme config file path

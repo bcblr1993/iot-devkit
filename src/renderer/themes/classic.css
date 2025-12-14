@@ -1,0 +1,73 @@
+/* ==================== 经典白主题 (Classic White) ==================== */
+
+/* Default fallback (:root) - same as Classic theme */
+:root {
+    /* Primary: 页眉/顶栏 */
+    --primary-gradient: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    --primary-color: #343a40;
+
+    /* Accent: 激活/高亮色 (蓝色) */
+    --accent-color: #3b82f6;
+    --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    --accent-text: #ffffff;
+
+    /* Backgrounds */
+    --bg-body: #f8f9fa;
+    --bg-container: #ffffff;
+    --bg-card: #ffffff;
+    --bg-input: #ffffff;
+    --bg-hover: #e9ecef;
+
+    /* Text */
+    --text-primary: #212529;
+    --text-secondary: #495057;
+    --text-muted: #868e96;
+    --text-on-primary: #212529;
+    --text-on-accent: #ffffff;
+
+    /* Borders & Shadows */
+    --border-color: #dee2e6;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.08);
+    --focus-ring: rgba(59, 130, 246, 0.25);
+
+    /* Status Colors */
+    --success: #10b981;
+    --error: #ef4444;
+    --warning: #f59e0b;
+    --info: #3b82f6;
+}
+
+/* Classic theme when explicitly set */
+[data-theme="classic"] {
+    /* Primary: 页眉/顶栏 */
+    --primary-gradient: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    --primary-color: #343a40;
+
+    /* Accent: 激活/高亮色 (蓝色) */
+    --accent-color: #3b82f6;
+    --accent-gradient: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    --accent-text: #ffffff;
+
+    /* Backgrounds */
+    --bg-body: #f8f9fa;
+    --bg-container: #ffffff;
+    --bg-card: #ffffff;
+    --bg-input: #ffffff;
+    --bg-hover: #e9ecef;
+
+    /* Text */
+    --text-primary: #212529;
+    --text-secondary: #495057;
+    --text-muted: #868e96;
+    --text-on-primary: #212529;
+    --text-on-accent: #ffffff;
+
+    /* Borders & Shadows */
+    --border-color: #dee2e6;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.08);
+    --focus-ring: rgba(59, 130, 246, 0.25);
+}

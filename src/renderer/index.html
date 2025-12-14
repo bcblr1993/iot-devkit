@@ -4,6 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <title>IoT DevKit</title>
+    <!-- Theme files (must load before main styles) -->
+    <link rel="stylesheet" href="themes/classic.css">
+    <link rel="stylesheet" href="themes/dark.css">
+    <!-- Main styles -->
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -160,23 +164,19 @@
                     <!-- 时间戳转日期 -->
                     <section class="tool-section">
                         <h2>🔄 时间戳 → 日期</h2>
-                        <div class="converter-form">
-                            <div class="form-row">
-                                <label for="ts-input">输入时间戳:</label>
-                                <input type="text" id="ts-input" placeholder="支持10位(秒)或13位(毫秒)" />
-                            </div>
-                            <div class="form-row">
-                                <label for="ts-timezone">选择时区:</label>
-                                <select id="ts-timezone">
-                                    <option value="Asia/Shanghai">UTC+8 北京/上海</option>
-                                </select>
-                            </div>
-                            <div class="form-row result-row">
-                                <label>转换结果:</label>
-                                <div class="result-display">
-                                    <span id="ts-result" class="result-text"></span>
-                                    <button class="btn-copy" id="copy-ts-result">📋 复制</button>
-                                </div>
+                        <div class="form-grid">
+                            <label for="ts-input">输入时间戳:</label>
+                            <input type="text" id="ts-input" placeholder="支持10位(秒)或13位(毫秒)" />
+
+                            <label for="ts-timezone">选择时区:</label>
+                            <select id="ts-timezone">
+                                <option value="Asia/Shanghai">UTC+8 北京/上海</option>
+                            </select>
+
+                            <label>转换结果:</label>
+                            <div class="result-display">
+                                <span id="ts-result" class="result-text"></span>
+                                <button class="btn-copy" id="copy-ts-result">📋 复制</button>
                             </div>
                         </div>
                     </section>
@@ -184,23 +184,19 @@
                     <!-- 日期转时间戳 -->
                     <section class="tool-section">
                         <h2>📅 日期 → 时间戳</h2>
-                        <div class="converter-form">
-                            <div class="form-row">
-                                <label for="datetime-input">日期时间:</label>
-                                <input type="text" id="datetime-input" placeholder="2025-12-13 21:00:00 或粘贴任意时间格式" />
-                            </div>
-                            <div class="form-row">
-                                <label for="dt-timezone">选择时区:</label>
-                                <select id="dt-timezone">
-                                    <option value="Asia/Shanghai">UTC+8 北京/上海</option>
-                                </select>
-                            </div>
-                            <div class="form-row result-row">
-                                <label>时间戳:</label>
-                                <div class="result-display">
-                                    <span id="dt-result-ms" class="result-text timestamp-value"></span>
-                                    <button class="btn-copy" id="copy-dt-ms">📋 复制</button>
-                                </div>
+                        <div class="form-grid">
+                            <label for="datetime-input">日期时间:</label>
+                            <input type="text" id="datetime-input" placeholder="2025-12-13 21:00:00 或粘贴任意时间格式" />
+
+                            <label for="dt-timezone">选择时区:</label>
+                            <select id="dt-timezone">
+                                <option value="Asia/Shanghai">UTC+8 北京/上海</option>
+                            </select>
+
+                            <label>时间戳:</label>
+                            <div class="result-display">
+                                <span id="dt-result-ms" class="result-text timestamp-value"></span>
+                                <button class="btn-copy" id="copy-dt-ms">📋 复制</button>
                             </div>
                         </div>
                     </section>

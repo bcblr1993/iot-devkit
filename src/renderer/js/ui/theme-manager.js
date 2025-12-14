@@ -9,12 +9,7 @@
 export class ThemeManager {
     static THEMES = {
         classic: '经典白',
-        purple: '梦幻紫',
-        ocean: '海洋蓝',
-        emerald: '翡翠绿',
-        dark: '暗夜黑',
-        sunset: '暖阳橙',
-        rose: '玫瑰粉'
+        dark: '暗夜黑'
     };
 
     static DEFAULT_THEME = 'classic';
