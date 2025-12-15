@@ -116,6 +116,19 @@ class App {
 
         // Setup main navigation panel switching
         this.setupPanelSwitching();
+
+        // Restore last active panel
+        this.restoreActivePanel();
+    }
+
+    /**
+     * Restore the last active panel from local storage
+     */
+    restoreActivePanel() {
+        const lastPanel = localStorage.getItem('active-panel');
+        if (lastPanel && lastPanel !== 'simulator') {
+            this.switchPanel(lastPanel);
+        }
     }
 
     async loadInitialConfig() {
@@ -522,6 +535,8 @@ class App {
         }
 
         this.currentPanel = panelName;
+        // Save to local storage
+        localStorage.setItem('active-panel', panelName);
         console.log(`[App] 切换到面板: ${panelName}`);
     }
 }
