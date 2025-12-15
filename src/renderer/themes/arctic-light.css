@@ -1,0 +1,34 @@
+/* ==================== ARCTIC LIGHT（极地亮蓝） ==================== */
+[data-theme="arctic-light"] {
+    --primary-gradient: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+    --primary-color: #020617;
+
+    --accent-color: #0284c7;
+    --accent-gradient: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+    --accent-text: #ffffff;
+
+    --bg-body: #e0f2fe;
+    --bg-container: #f0f9ff;
+    --bg-card: #ffffff;
+    --bg-input: #f0f9ff;
+    --bg-hover: rgba(2, 132, 199, 0.08);
+
+    --text-primary: #020617;
+    --text-secondary: #0f172a;
+    --text-muted: #475569;
+
+    --border-color: #bae6fd;
+
+    --shadow-sm: 0 1px 2px rgba(2,6,23,0.05);
+    --shadow-md: 0 8px 20px rgba(2,6,23,0.1);
+    --shadow-lg: 0 28px 48px rgba(2,6,23,0.14);
+
+    --focus-ring: rgba(2, 132, 199, 0.4);
+
+    --jv-key: #0c4a6e;
+    --jv-string: #b45309;
+    --jv-number: #047857;
+    --jv-boolean: #0369a1;
+    --jv-null: #0369a1;
+    --jv-punctuation: #334155;
+}

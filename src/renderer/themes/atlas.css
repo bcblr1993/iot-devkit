@@ -1,0 +1,29 @@
+/* ==================== ATLAS（工业深蓝） ==================== */
+[data-theme="atlas"] {
+    --primary-gradient: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+    --primary-color: #e5e7eb;
+
+    --accent-color: #38bdf8;
+    --accent-gradient: linear-gradient(135deg, #7dd3fc 0%, #0284c7 100%);
+    --accent-text: #020617;
+
+    --bg-body: #020617;
+    --bg-container: #020617;
+    --bg-card: #111827;
+    --bg-input: #020617;
+    --bg-hover: rgba(56, 189, 248, 0.1);
+
+    --text-primary: #e5e7eb;
+    --text-secondary: #cbd5f5;
+    --text-muted: #94a3b8;
+
+    --border-color: #1e293b;
+    --focus-ring: rgba(56, 189, 248, 0.45);
+
+    --jv-key: #cbd5f5;
+    --jv-string: #fde68a;
+    --jv-number: #86efac;
+    --jv-boolean: #7dd3fc;
+    --jv-null: #7dd3fc;
+    --jv-punctuation: #94a3b8;
+}

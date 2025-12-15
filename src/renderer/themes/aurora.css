@@ -1,0 +1,29 @@
+/* ==================== AURORA（极光） ==================== */
+[data-theme="aurora"] {
+    --primary-gradient: linear-gradient(135deg, #020617 0%, #1e1b4b 50%, #064e3b 100%);
+    --primary-color: #ecfeff;
+
+    --accent-color: #22d3ee;
+    --accent-gradient: linear-gradient(135deg, #67e8f9 0%, #14b8a6 100%);
+    --accent-text: #020617;
+
+    --bg-body: #020617;
+    --bg-container: #020617;
+    --bg-card: #020617;
+    --bg-input: #020617;
+    --bg-hover: rgba(34, 211, 238, 0.15);
+
+    --text-primary: #ecfeff;
+    --text-secondary: #a5f3fc;
+    --text-muted: #67e8f9;
+
+    --border-color: #164e63;
+    --focus-ring: rgba(34, 211, 238, 0.5);
+
+    --jv-key: #a5f3fc;
+    --jv-string: #fde68a;
+    --jv-number: #86efac;
+    --jv-boolean: #22d3ee;
+    --jv-null: #22d3ee;
+    --jv-punctuation: #67e8f9;
+}

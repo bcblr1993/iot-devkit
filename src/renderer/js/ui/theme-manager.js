@@ -15,7 +15,16 @@ export class ThemeManager {
         carbon: '石墨黑',
         obsidian: '黑曜石',
         'emerald-dark': '森之绿',
-        'midnight-purple': '夜之紫'
+        'midnight-purple': '夜之紫',
+        atlas: '工业深蓝',
+        aurora: '极光',
+        monolith: '权威',
+        polar: '极地',
+        void: '虚空黑',
+        cloud: '云白',
+        'arctic-light': '极地亮蓝',
+        sandstone: '暖沙',
+        'mint-light': '薄荷亮绿'
     };
 
     static DEFAULT_THEME = 'classic';
@@ -34,7 +43,7 @@ export class ThemeManager {
         if (themeSelect) {
             // 设置初始值
             themeSelect.value = this.currentTheme;
-            
+
             // 监听变更
             themeSelect.addEventListener('change', (e) => {
                 const newTheme = e.target.value;
@@ -68,10 +77,10 @@ export class ThemeManager {
         // 设置 data-theme 属性
         document.documentElement.setAttribute('data-theme', themeName);
         this.currentTheme = themeName;
-        
+
         // 保存到本地存储
         localStorage.setItem('app-theme', themeName);
-        
+
         // 同步下拉菜单状态 (如果是通过 IPC 变更)
         const themeSelect = document.getElementById('theme-select');
         if (themeSelect && themeSelect.value !== themeName) {

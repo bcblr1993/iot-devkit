@@ -1,0 +1,29 @@
+/* ==================== POLAR（极地） ==================== */
+[data-theme="polar"] {
+    --primary-gradient: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+    --primary-color: #020617;
+
+    --accent-color: #0ea5e9;
+    --accent-gradient: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+    --accent-text: #020617;
+
+    --bg-body: #020617;
+    --bg-container: #020617;
+    --bg-card: #020617;
+    --bg-input: #020617;
+    --bg-hover: rgba(56, 189, 248, 0.15);
+
+    --text-primary: #e0f2fe;
+    --text-secondary: #bae6fd;
+    --text-muted: #7dd3fc;
+
+    --border-color: #1e40af;
+    --focus-ring: rgba(56, 189, 248, 0.55);
+
+    --jv-key: #bae6fd;
+    --jv-string: #fde68a;
+    --jv-number: #86efac;
+    --jv-boolean: #7dd3fc;
+    --jv-null: #7dd3fc;
+    --jv-punctuation: #94a3b8;
+}

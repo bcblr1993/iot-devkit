@@ -13,7 +13,16 @@ const THEMES = [
     { id: 'carbon', label: '⚫ 石墨黑' },
     { id: 'obsidian', label: '💎 黑曜石' },
     { id: 'emerald-dark', label: '🌲 森之绿' },
-    { id: 'midnight-purple', label: '💜 夜之紫' }
+    { id: 'midnight-purple', label: '💜 夜之紫' },
+    { id: 'atlas', label: '🌌 工业深蓝' },
+    { id: 'aurora', label: '🌈 极光' },
+    { id: 'monolith', label: '🗿 权威' },
+    { id: 'polar', label: '❄️ 极地' },
+    { id: 'void', label: '⚫ 虚空黑' },
+    { id: 'cloud', label: '☁️ 云白' },
+    { id: 'arctic-light', label: '🧊 极地亮蓝' },
+    { id: 'sandstone', label: '🏜️ 暖沙' },
+    { id: 'mint-light', label: '🍃 薄荷亮绿' }
 ];
 
 // Theme config file path

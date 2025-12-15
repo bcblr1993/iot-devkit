@@ -1,0 +1,34 @@
+/* ==================== VOID（虚空黑） ==================== */
+[data-theme="void"] {
+    --primary-gradient: linear-gradient(135deg, #0a0a0a 0%, #000000 100%);
+    --primary-color: #f5f5f5;
+
+    --accent-color: #3f3f46;
+    --accent-gradient: linear-gradient(135deg, #52525b 0%, #27272a 100%);
+    --accent-text: #fafafa;
+
+    --bg-body: #000000;
+    --bg-container: #050505;
+    --bg-card: #0f0f0f;
+    --bg-input: #050505;
+    --bg-hover: rgba(255, 255, 255, 0.04);
+
+    --text-primary: #f5f5f5;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+
+    --border-color: #1f1f1f;
+
+    --shadow-sm: none;
+    --shadow-md: 0 0 0 1px rgba(255,255,255,0.04);
+    --shadow-lg: none;
+
+    --focus-ring: rgba(255, 255, 255, 0.25);
+
+    --jv-key: #f5f5f5;
+    --jv-string: #a1a1aa;
+    --jv-number: #86efac;
+    --jv-boolean: #60a5fa;
+    --jv-null: #a1a1aa;
+    --jv-punctuation: #71717a;
+}
