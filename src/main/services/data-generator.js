@@ -77,10 +77,18 @@ function resetKey1Counter() {
 /**
  * 生成 "default" 格式的数据负载
  * @param {number} count 需要生成的字段数量
+ * @param {string} [clientId] 设备ID
+ * @param {number} [timestamp] 可选的时间戳(ms)
  * @returns {object}
  */
-function generateBatteryStatus(count, clientId) {
+function generateBatteryStatus(count, clientId, timestamp) {
     const data = {};
+    // 如果提供了时间戳，则添加到数据中(如果格式支持)
+    // 注意: batteryStatus 默认格式通常只是KV对，没有标准的时间字段
+    // 这里我们假设它可能作为一个特殊key或者只是数据内容
+    // 现有逻辑没有显式的时间字段，这里暂时保持不变，或者如果需要可以注入 'ts' 字段
+    // 根据用户已有代码，default 格式似乎全是 key_x。
+    // 但是为了保持一致性，如果后续有需求可以加。目前仅透传。
 
     for (let i = 1; i <= count; i++) {
         if (i === 1) {
@@ -106,15 +114,20 @@ function generateBatteryStatus(count, clientId) {
         }
     }
 
+    if (timestamp) {
+        data['ts'] = timestamp;
+    }
+
     return data;
 }
 
 /**
  * 生成 "tn" 格式的数据负载
  * @param {number} count 数据点数量
+ * @param {number} [timestamp] 可选的时间戳(ms)
  * @returns {object}
  */
-function generateTnPayload(count) {
+function generateTnPayload(count, timestamp) {
     const arr = [];
     for (let i = 0; i < count; i++) {
         arr.push({
@@ -125,7 +138,7 @@ function generateTnPayload(count) {
         });
     }
 
-    const now = new Date();
+    const now = timestamp ? new Date(timestamp) : new Date();
     return {
         "type": "real",
         "sn": "TN001",
@@ -139,11 +152,12 @@ function generateTnPayload(count) {
 
 /**
  * 生成 "tn-empty" 格式的数据负载
- * @param {number} count 数据点数量
+ * @param {number} count 数据点数量 (ignored)
+ * @param {number} [timestamp] 可选的时间戳(ms)
  * @returns {object}
  */
-function generateTnEmptyPayload(count) {
-    const now = new Date();
+function generateTnEmptyPayload(count, timestamp) {
+    const now = timestamp ? new Date(timestamp) : new Date();
     const data = {
         "type": "real",
         "sn": "TN001",
@@ -159,9 +173,10 @@ function generateTnEmptyPayload(count) {
  * @param {Array} schema - Schema 数组
  * @param {number} count - 需要生成的数量（从头开始截取）
  * @param {string} clientId - 设备ID（用于 key_1 独立计数）
+ * @param {number} [timestamp] - 可选的时间戳
  * @returns {object} 数据对象
  */
-function generateTypedData(schema, count, clientId) {
+function generateTypedData(schema, count, clientId, timestamp) {
     const data = {};
     const effectiveCount = Math.min(count, schema.length);
 
@@ -191,6 +206,11 @@ function generateTypedData(schema, count, clientId) {
                 data[item.name] = getRandomFloat(0, 100, 2);
         }
     }
+
+    if (timestamp) {
+        data['ts'] = timestamp;
+    }
+
     return data;
 }
 

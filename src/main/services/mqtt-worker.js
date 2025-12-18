@@ -74,16 +74,21 @@ function createClient(deviceIndex, config) {
             let sendCount = 0;
             const intervalId = setInterval(() => {
                 // Generate fresh data each time to ensure random values
+                // Calculate consistent timestamp
+                // Use alignedStartTime from config if available, fallback to now (though config should always have it in new version)
+                const startTime = config.alignedStartTime || Date.now();
+                const payloadTimestamp = startTime + (sendCount * config.sendInterval * 1000);
+
                 let payload;
                 switch (config.format) {
                     case 'tn':
-                        payload = require('./data-generator').generateTnPayload(config.randomKeyCount);
+                        payload = require('./data-generator').generateTnPayload(config.randomKeyCount, payloadTimestamp);
                         break;
                     case 'tn-empty':
-                        payload = require('./data-generator').generateTnEmptyPayload();
+                        payload = require('./data-generator').generateTnEmptyPayload(0, payloadTimestamp);
                         break;
                     default:
-                        payload = require('./data-generator').generateBatteryStatus(config.randomKeyCount, clientId);
+                        payload = require('./data-generator').generateBatteryStatus(config.randomKeyCount, clientId, payloadTimestamp);
                         break;
                 }
 
@@ -100,7 +105,6 @@ function createClient(deviceIndex, config) {
                         sendLog(`[${clientId}] 发送失败: ${err.message}`, 'error');
                         workerStats.failureCount++;
                     } else {
-                        sendCount++;
                         workerStats.successCount++;
 
                         // 每 100 条发送一次统计（批量上报）
@@ -124,6 +128,8 @@ function createClient(deviceIndex, config) {
                         }
                     }
                 });
+
+                sendCount++; // Increment for next timestamp calculation
             }, config.sendInterval * 1000);
 
             intervals.set(clientId, intervalId);

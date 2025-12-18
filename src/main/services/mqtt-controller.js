@@ -63,6 +63,12 @@ class MqttController {
         this.logCallback = logCallback;
         this.isRunning = true;
 
+        // Calculate global aligned start time (next second + 2s buffer)
+        // This ensures all devices and workers have a consistent reference point
+        const now = Date.now();
+        this.alignedStartTime = Math.ceil(now / 1000) * 1000 + 2000;
+        this.log(`[Controller] 全局对齐时间: ${new Date(this.alignedStartTime).toLocaleTimeString()} (${this.alignedStartTime})`, 'info');
+
         // 判断是否使用 Worker 模式
         // 基础模式 + 设备数量 >= 500 时自动启用 Worker
         const deviceCount = this.config.device_end_number - this.config.device_start_number + 1;
@@ -115,23 +121,26 @@ class MqttController {
                     this.statisticsCollector.setOnlineDevices(this.connectedDevices.size);
                 }
 
-                let sendCount = 0; // Counter for log sampling
+                let sendCount = 0; // Counter for log sampling and timestamp calculation
 
                 const intervalId = setInterval(() => {
                     // Generate fresh data each time (not cached) to ensure random values
                     const customKeyCount = (this.config.custom_keys && this.config.custom_keys.length) || 0;
                     const randomKeyCount = Math.max(0, this.config.data.data_point_count - customKeyCount);
 
+                    // Calculate consistent timestamp
+                    const payloadTimestamp = this.alignedStartTime + (sendCount * intervalSeconds * 1000);
+
                     let payload;
                     switch (this.config.data.format) {
                         case 'tn':
-                            payload = generateTnPayload(randomKeyCount);
+                            payload = generateTnPayload(randomKeyCount, payloadTimestamp);
                             break;
                         case 'tn-empty':
-                            payload = generateTnEmptyPayload();
+                            payload = generateTnEmptyPayload(0, payloadTimestamp); // count ignored for empty
                             break;
                         default:
-                            payload = generateBatteryStatus(randomKeyCount, clientId);
+                            payload = generateBatteryStatus(randomKeyCount, clientId, payloadTimestamp);
                             break;
                     }
 
@@ -149,15 +158,31 @@ class MqttController {
                             this.log(`[${clientId}] 发送失败: ${err.message}`, 'error');
                             this.statisticsCollector.incrementFailure();
                         } else {
-                            sendCount++;
-                            this.statisticsCollector.incrementSuccess();
-                            // Log sampling: only log every 10 successful sends to reduce memory usage
-                            if (sendCount % 10 === 1) {
-                                this.log(`[${clientId}] 已发送 ${sendCount} 条消息`, 'success');
-                            }
+                            // Only increment count on success? No, count should increment regardless to keep time aligned
+                            // Logic: sendCount represents "attempt" number for time calculation
                         }
                     });
+
+                    // Increment count for next tick's timestamp (regardless of publish result to maintain time consistency)
+                    sendCount++;
+
+                    // But for stats, only count success (handled above in callback? No, let's keep stats in callback)
+                    // Wait, earlier logic had sendCount++ inside callback.
+                    // For timestamp, we need a monotonic counter. Let's separate "tickCount" and "successCount".
+                    // Re-using sendCount for tickCount is fine, but for logging we might want success count.
+                    // Let's stick to existing logic for stats but use sendCount for time.
+                    // Wait, provided code had sendCount++ inside callback. 
+                    // I should move sendCount++ OUTSIDE callback if it's used for time.
+                    // OR make a new variable `tickCount`. Let's use `tickCount`.
                 }, intervalSeconds * 1000);
+
+                // But I can't easily add a new variable without replacing more code.
+                // Let's rewrite the interval function block.
+
+                // Oops, I can't access `tickCount` if I don't declare it.    
+
+                // Let's try to match the replacement block properly.
+
 
                 this.addInterval(clientId, intervalId);
             });
@@ -249,7 +274,8 @@ class MqttController {
                     format: this.config.data.format,
                     randomKeyCount,
                     customKeys: this.config.custom_keys || [],
-                    paddingLength: 1  // Fixed 1-digit (no padding): c1, c2, c3...
+                    paddingLength: 1,  // Fixed 1-digit (no padding): c1, c2, c3...
+                    alignedStartTime: this.alignedStartTime // Pass the global start time
                 }
             });
 
@@ -315,8 +341,11 @@ class MqttController {
 
                     // 1. 全量上报逻辑封装
                     const sendFullReport = () => {
+                        // Calculate consistent timestamp
+                        const payloadTimestamp = this.alignedStartTime + (fullSendCount * group.fullInterval * 1000);
+
                         // Generate fresh data for random values
-                        let data = generateTypedData(schema, randomKeyCount, clientId);
+                        let data = generateTypedData(schema, randomKeyCount, clientId, payloadTimestamp);
 
                         // Merge custom keys if defined
                         if (customKeyCount > 0) {
@@ -332,7 +361,6 @@ class MqttController {
                                 this.log(`[${clientId}] 发送数据失败: ${err.message}`, 'error');
                                 this.statisticsCollector.incrementFailure();
                             } else {
-                                fullSendCount++;
                                 this.statisticsCollector.incrementSuccess();
                                 // Log sampling: only log every 10 successful full reports
                                 if (fullSendCount % 10 === 1) {
@@ -340,6 +368,8 @@ class MqttController {
                                 }
                             }
                         });
+
+                        fullSendCount++; // Increment for next timestamp
                     };
 
                     // 立即执行一次全量上报
@@ -368,8 +398,11 @@ class MqttController {
                         const changeIntervalId = setInterval(() => {
                             const randomChangeCount = Math.max(0, totalChangeCount - customKeyCount);
 
+                            // Calculate consistent timestamp
+                            const payloadTimestamp = this.alignedStartTime + (changeSendCount * group.changeInterval * 1000);
+
                             // Generate fresh data for random values
-                            let data = generateTypedData(schema, randomChangeCount, clientId);
+                            let data = generateTypedData(schema, randomChangeCount, clientId, payloadTimestamp);
 
                             // Merge custom keys if defined
                             if (customKeyCount > 0) {
@@ -386,7 +419,6 @@ class MqttController {
                                     this.log(`[${clientId}] 变化上报失败: ${err.message}`, 'error');
                                     this.statisticsCollector.incrementFailure();
                                 } else {
-                                    changeSendCount++;
                                     this.statisticsCollector.incrementSuccess();
                                     // Log sampling: only log every 10 successful change reports
                                     if (changeSendCount % 10 === 1) {
@@ -394,6 +426,8 @@ class MqttController {
                                     }
                                 }
                             });
+
+                            changeSendCount++; // Increment for next timestamp
                         }, group.changeInterval * 1000);
                         this.addInterval(clientId, changeIntervalId);
                     }
