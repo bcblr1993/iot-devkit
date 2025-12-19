@@ -87,7 +87,7 @@ class StatisticsUI {
 
         if (onlineEl) onlineEl.textContent = stats.onlineDevices.toLocaleString();
         if (offlineEl) offlineEl.textContent = stats.offlineDevices.toLocaleString();
-        if (totalEl) totalEl.textContent = stats.totalMessages.toLocaleString();
+        if (totalEl) totalEl.textContent = stats.totalMessages.toLocaleString() + ' 条';
         if (successEl) successEl.textContent = stats.successRate + '%';
         if (failureEl) failureEl.textContent = stats.failureRate + '%';
         if (latencyEl) latencyEl.textContent = stats.avgLatency + 'ms';
