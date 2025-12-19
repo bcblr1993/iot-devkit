@@ -92,6 +92,7 @@ class MqttController {
         resetCustomKeyCounters();
 
         const paddingLength = 1; // Fixed 1-digit (no padding): c1, c2, c3...
+        const intervalSeconds = this.config.send_interval || 1;
 
         // 重置并设置总设备数
         this.statisticsCollector.reset();
@@ -119,6 +120,9 @@ class MqttController {
                     this.connectedDevices.add(clientId);
                     this.statisticsCollector.setOnlineDevices(this.connectedDevices.size);
                 }
+
+                const customKeyCount = (this.config.custom_keys && this.config.custom_keys.length) || 0;
+                const randomKeyCount = Math.max(0, this.config.data.data_point_count - customKeyCount);
 
                 let sendCount = 0; // Counter for log sampling and timestamp calculation
                 const intervalMs = intervalSeconds * 1000;
