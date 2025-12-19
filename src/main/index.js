@@ -113,7 +113,14 @@ function createWindow() {
     // 打开开发者工具（用于调试）
     // mainWindow.webContents.openDevTools();
 
-    const mqttController = new MqttController();
+    // Initialize FileLogger if not already initialized
+    // (We do it here to ensure app.getPath is ready)
+    if (!global.fileLogger) {
+        const FileLogger = require('./services/file-logger');
+        global.fileLogger = new FileLogger(app.getPath('userData'));
+    }
+
+    const mqttController = new MqttController(global.fileLogger);
 
     // 将新创建的窗口和控制器存入数组
     const instance = {

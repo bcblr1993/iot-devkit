@@ -10,7 +10,7 @@ export class LoggerUI {
         this.searchInput = getElement('log-search');
         this.allLogs = []; // Store all logs
         this.currentFilter = '';
-        this.MAX_DOM_LOGS = 500; // Maximum DOM elements to prevent memory leak
+        this.MAX_DOM_LOGS = 100; // Reduced from 500 to prevent tile memory issues
         this.MAX_STORED_LOGS = 1000; // Maximum stored logs for search
 
         this.setupSearchListener();

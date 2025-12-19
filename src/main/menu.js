@@ -165,6 +165,19 @@ function createMenu(mainWindow) {
             label: '帮助',
             submenu: [
                 {
+                    label: '📂 打开日志文件夹',
+                    click: async () => {
+                        const logPath = path.join(app.getPath('userData'), 'logs');
+                        if (fs.existsSync(logPath)) {
+                            await shell.openPath(logPath);
+                        } else {
+                            // If logs dir doesn't exist yet, open userData
+                            await shell.openPath(app.getPath('userData'));
+                        }
+                    }
+                },
+                { type: 'separator' },
+                {
                     label: '了解更多',
                     click: async () => {
                         await shell.openExternal('https://github.com/chenyn-chen/mqtt-electron-simulator');

@@ -10,13 +10,14 @@ const SchemaGenerator = require('./schema-generator');
 const StatisticsCollector = require('./statistics-collector');
 
 class MqttController {
-    constructor() {
+    constructor(fileLogger = null) {
         this.config = null;
         this.clients = [];
         // Map<clientId, Array<intervalId>>
         this.clientIntervals = new Map();
         this.isRunning = false;
         this.logCallback = null;
+        this.fileLogger = fileLogger; // Inject file logger
 
         // Worker Threads
         this.workers = [];
@@ -36,6 +37,12 @@ class MqttController {
      * @param {Object} [data] - 可选的数据载荷
      */
     log(message, type = 'info', data = null) {
+        // 1. Write to file if logger exists
+        if (this.fileLogger) {
+            this.fileLogger.write(message, type, data);
+        }
+
+        // 2. Send to UI via callback (batching handled in main.js)
         if (this.isRunning && typeof this.logCallback === 'function') {
             this.logCallback({
                 message,
