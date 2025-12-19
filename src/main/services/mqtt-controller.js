@@ -111,8 +111,7 @@ class MqttController {
             };
 
             this.createClient(i, mqttConfig, paddingLength, (client, clientId) => {
-                // 基础模式的定时器逻辑
-                const intervalSeconds = this.config.send_interval || 1;
+                // 启动定时发送，间隔: intervalSeconds
                 this.log(`[${clientId}] 启动定时发送，间隔: ${intervalSeconds}秒`, 'info');
 
                 // 添加到已连接设备集合
@@ -122,22 +121,32 @@ class MqttController {
                 }
 
                 let sendCount = 0; // Counter for log sampling and timestamp calculation
+                const intervalMs = intervalSeconds * 1000;
+                let nextTargetTime = this.alignedStartTime;
 
-                const intervalId = setInterval(() => {
-                    // Generate fresh data each time (not cached) to ensure random values
-                    const customKeyCount = (this.config.custom_keys && this.config.custom_keys.length) || 0;
-                    const randomKeyCount = Math.max(0, this.config.data.data_point_count - customKeyCount);
+                const scheduleNextTick = () => {
+                    if (!this.isRunning) return;
 
-                    // Calculate consistent timestamp
-                    const payloadTimestamp = this.alignedStartTime + (sendCount * intervalSeconds * 1000);
+                    // 1. Calculate consistent timestamp
+                    const payloadTimestamp = this.alignedStartTime + (sendCount * intervalMs);
 
+                    // 2. Check drift
+                    const now = Date.now();
+                    const diff = now - payloadTimestamp;
+                    if (diff > 2000) {
+                        if (Math.random() < 0.01) {
+                            this.log(`[${clientId}] Lag warning: Running ${diff}ms behind schedule`, 'warning');
+                        }
+                    }
+
+                    // 3. Generate Payload
                     let payload;
                     switch (this.config.data.format) {
                         case 'tn':
                             payload = generateTnPayload(randomKeyCount, payloadTimestamp);
                             break;
                         case 'tn-empty':
-                            payload = generateTnEmptyPayload(0, payloadTimestamp); // count ignored for empty
+                            payload = generateTnEmptyPayload(0, payloadTimestamp);
                             break;
                         default:
                             payload = generateBatteryStatus(randomKeyCount, clientId, payloadTimestamp);
@@ -153,38 +162,34 @@ class MqttController {
                     const size = Buffer.byteLength(msg);
                     this.statisticsCollector.setMessageSize(size);
 
+                    // 4. Publish
                     client.publish(this.config.mqtt.topic, msg, (err) => {
                         if (err) {
                             this.log(`[${clientId}] 发送失败: ${err.message}`, 'error');
                             this.statisticsCollector.incrementFailure();
                         } else {
-                            // Only increment count on success? No, count should increment regardless to keep time aligned
-                            // Logic: sendCount represents "attempt" number for time calculation
+                            this.statisticsCollector.incrementSuccess();
+                            if (sendCount % 10 === 1) {
+                                this.log(`[${clientId}] 已发送 ${sendCount} 条消息`, 'success');
+                            }
                         }
                     });
 
-                    // Increment count for next tick's timestamp (regardless of publish result to maintain time consistency)
+                    // 5. Schedule Next
                     sendCount++;
+                    nextTargetTime = this.alignedStartTime + (sendCount * intervalMs);
+                    const delay = Math.max(0, nextTargetTime - Date.now());
 
-                    // But for stats, only count success (handled above in callback? No, let's keep stats in callback)
-                    // Wait, earlier logic had sendCount++ inside callback.
-                    // For timestamp, we need a monotonic counter. Let's separate "tickCount" and "successCount".
-                    // Re-using sendCount for tickCount is fine, but for logging we might want success count.
-                    // Let's stick to existing logic for stats but use sendCount for time.
-                    // Wait, provided code had sendCount++ inside callback. 
-                    // I should move sendCount++ OUTSIDE callback if it's used for time.
-                    // OR make a new variable `tickCount`. Let's use `tickCount`.
-                }, intervalSeconds * 1000);
+                    const timeoutId = setTimeout(scheduleNextTick, delay);
+                    this.addInterval(clientId, timeoutId);
+                };
 
-                // But I can't easily add a new variable without replacing more code.
-                // Let's rewrite the interval function block.
-
-                // Oops, I can't access `tickCount` if I don't declare it.    
-
-                // Let's try to match the replacement block properly.
-
-
-                this.addInterval(clientId, intervalId);
+                // Start: wait for aligned start time
+                // If alignedStartTime is in future, correct. If past (e.g. drift at start), start immediately.
+                // We start at sendCount=0, so target is alignedStartTime.
+                const initialDelay = Math.max(0, this.alignedStartTime - Date.now());
+                const firstId = setTimeout(scheduleNextTick, initialDelay);
+                this.addInterval(clientId, firstId);
             });
         }
     }
@@ -341,6 +346,7 @@ class MqttController {
 
                     // 1. 全量上报逻辑封装
                     const sendFullReport = () => {
+                        if (!this.isRunning) return;
                         // Calculate consistent timestamp
                         const payloadTimestamp = this.alignedStartTime + (fullSendCount * group.fullInterval * 1000);
 
@@ -370,14 +376,19 @@ class MqttController {
                         });
 
                         fullSendCount++; // Increment for next timestamp
+
+                        // Schedule Next
+                        const nextTarget = this.alignedStartTime + (fullSendCount * group.fullInterval * 1000);
+                        const delay = Math.max(0, nextTarget - Date.now());
+                        const timeoutId = setTimeout(sendFullReport, delay);
+                        this.addInterval(clientId, timeoutId);
                     };
 
-                    // 立即执行一次全量上报
-                    sendFullReport();
-
-                    // 启动全量上报定时器
-                    const fullIntervalId = setInterval(sendFullReport, group.fullInterval * 1000);
-                    this.addInterval(clientId, fullIntervalId);
+                    // Initial Schdule
+                    // We start at count=0
+                    const initialFullDelay = Math.max(0, this.alignedStartTime - Date.now());
+                    const firstFullId = setTimeout(sendFullReport, initialFullDelay);
+                    this.addInterval(clientId, firstFullId);
 
                     // 2. 变化上报定时器
                     // 注意：变化上报通常是基于总 Key 数量的比例，这里我们假设变化上报也包含自定义 Key
@@ -395,7 +406,8 @@ class MqttController {
                     const totalChangeCount = Math.floor(group.keyCount * group.changeRatio);
 
                     if (totalChangeCount > 0) {
-                        const changeIntervalId = setInterval(() => {
+                        const sendChangeReport = () => {
+                            if (!this.isRunning) return;
                             const randomChangeCount = Math.max(0, totalChangeCount - customKeyCount);
 
                             // Calculate consistent timestamp
@@ -427,9 +439,18 @@ class MqttController {
                                 }
                             });
 
-                            changeSendCount++; // Increment for next timestamp
-                        }, group.changeInterval * 1000);
-                        this.addInterval(clientId, changeIntervalId);
+                            changeSendCount++;
+
+                            // Schedule Next
+                            const nextTarget = this.alignedStartTime + (changeSendCount * group.changeInterval * 1000);
+                            const delay = Math.max(0, nextTarget - Date.now());
+                            const timeoutId = setTimeout(sendChangeReport, delay);
+                            this.addInterval(clientId, timeoutId);
+                        };
+
+                        const initialChangeDelay = Math.max(0, this.alignedStartTime - Date.now());
+                        const firstChangeId = setTimeout(sendChangeReport, initialChangeDelay);
+                        this.addInterval(clientId, firstChangeId);
                     }
                 });
             }
@@ -470,9 +491,10 @@ class MqttController {
             // 执行连接后的回调（启动定时器）
             // 增加 0-1000ms 的随机延迟，防止所有设备定时器在同一时刻触发导致 Event Loop 阻塞
             const staggerDelay = Math.floor(Math.random() * 1000);
-            setTimeout(() => {
+            const staggerId = setTimeout(() => {
                 onConnect(client, clientId);
             }, staggerDelay);
+            this.addInterval(clientId, staggerId); // Track stagger timeout for cleanup
         });
 
         client.on('error', (err) => {
@@ -501,7 +523,7 @@ class MqttController {
     clearIntervals(clientId) {
         if (this.clientIntervals.has(clientId)) {
             const intervals = this.clientIntervals.get(clientId);
-            intervals.forEach(id => clearInterval(id));
+            intervals.forEach(id => clearTimeout(id)); // Use clearTimeout
             this.clientIntervals.delete(clientId);
         }
     }

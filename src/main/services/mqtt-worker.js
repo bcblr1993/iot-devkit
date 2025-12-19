@@ -9,7 +9,8 @@ const { getBasicTemplate, clearTemplateCache } = require('./data-generator');
 
 // Worker 状态
 let clients = [];
-let intervals = new Map();
+let intervals = new Map(); // Stores the current timeout ID for the loop
+let staggerTimeouts = new Map(); // Stores the initial stagger timeout ID
 let isRunning = false;
 
 // Worker 统计数据
@@ -70,15 +71,34 @@ function createClient(deviceIndex, config) {
         // 增加 0-1000ms 的随机延迟，防止 Worker 内部定时器拥塞
         const staggerDelay = Math.floor(Math.random() * 1000);
 
-        setTimeout(() => {
-            let sendCount = 0;
-            const intervalId = setInterval(() => {
-                // Generate fresh data each time to ensure random values
-                // Calculate consistent timestamp
-                // Use alignedStartTime from config if available, fallback to now (though config should always have it in new version)
-                const startTime = config.alignedStartTime || Date.now();
-                const payloadTimestamp = startTime + (sendCount * config.sendInterval * 1000);
+        const staggerId = setTimeout(() => {
+            staggerTimeouts.delete(clientId);
+            if (!isRunning) return; // Prevent zombie start if stopped during delay
 
+            let sendCount = 0;
+            const intervalMs = config.sendInterval * 1000;
+            // Use alignedStartTime from config if available, fallback to now
+            const baseTime = config.alignedStartTime || Date.now();
+            let nextTargetTime = baseTime;
+
+            // Recursive function for precise timing
+            const scheduleNextTick = () => {
+                if (!isRunning) return;
+
+                // 1. Calculate consistent timestamp based on count
+                const payloadTimestamp = baseTime + (sendCount * intervalMs);
+
+                // 2. Check drift (Trigger warning if we are falling behind significantly)
+                const now = Date.now();
+                const drift = now - payloadTimestamp;
+                if (drift > 2000) {
+                    // Only log periodically to avoid spam
+                    if (Math.random() < 0.01) {
+                        sendLog(`[${clientId}] Lag warning: Running ${drift}ms behind schedule`, 'warning');
+                    }
+                }
+
+                // 3. Generate Payload
                 let payload;
                 switch (config.format) {
                     case 'tn':
@@ -100,6 +120,7 @@ function createClient(deviceIndex, config) {
                 const msg = JSON.stringify(payload);
                 const size = Buffer.byteLength(msg);
 
+                // 4. Publish
                 client.publish(config.topic, msg, (err) => {
                     if (err) {
                         sendLog(`[${clientId}] 发送失败: ${err.message}`, 'error');
@@ -115,7 +136,7 @@ function createClient(deviceIndex, config) {
                                 data: {
                                     successCount: workerStats.successCount - workerStats.lastReportedSuccess,
                                     failureCount: workerStats.failureCount - workerStats.lastReportedFailure,
-                                    messageSize: size // Report the size of the latest message
+                                    messageSize: size
                                 }
                             });
                             workerStats.lastReportedSuccess = workerStats.successCount;
@@ -124,16 +145,35 @@ function createClient(deviceIndex, config) {
 
                         // 日志采样
                         if (sendCount % 10 === 1) {
-                            sendLog(`[${clientId}] 已发送 ${sendCount} 条消息`, 'success');
+                            sendLog(`[${clientId}] 已发送 ${sendCount} 条消息 (Lag: ${drift}ms)`, 'success');
                         }
                     }
                 });
 
-                sendCount++; // Increment for next timestamp calculation
-            }, config.sendInterval * 1000);
+                // 5. Schedule Next
+                sendCount++;
+                nextTargetTime = baseTime + (sendCount * intervalMs); // Ideally strictly aligned
 
-            intervals.set(clientId, intervalId);
+                // Calculate delay for next tick
+                const delay = Math.max(0, nextTargetTime - Date.now());
+
+                // Store timeout ID for cleanup
+                const timeoutId = setTimeout(scheduleNextTick, delay);
+                intervals.set(clientId, timeoutId);
+            };
+
+            // Start the loop
+            // Calculate initial delay to reach the first target time
+            // If baseTime is in future, wait. If in past (e.g. drift), start immediately.
+            // But we start at count=0, so target is baseTime.
+            nextTargetTime = baseTime;
+            const initialDelay = Math.max(0, nextTargetTime - Date.now());
+            const firstId = setTimeout(scheduleNextTick, initialDelay);
+            intervals.set(clientId, firstId);
+
         }, staggerDelay);
+
+        staggerTimeouts.set(clientId, staggerId);
     });
 
     client.on('error', (err) => {
@@ -150,8 +190,12 @@ function createClient(deviceIndex, config) {
         });
 
         if (intervals.has(clientId)) {
-            clearInterval(intervals.get(clientId));
+            clearTimeout(intervals.get(clientId)); // Use clearTimeout for setTimeout
             intervals.delete(clientId);
+        }
+        if (staggerTimeouts.has(clientId)) {
+            clearTimeout(staggerTimeouts.get(clientId));
+            staggerTimeouts.delete(clientId);
         }
     });
 }
@@ -185,10 +229,15 @@ function stopSimulation() {
     sendLog(`[Worker ${workerData.workerId}] 正在停止...`, 'info');
 
     // 清理所有定时器
-    for (const [clientId, intervalId] of intervals.entries()) {
-        clearInterval(intervalId);
+    for (const [clientId, timeoutId] of intervals.entries()) {
+        clearTimeout(timeoutId);
     }
     intervals.clear();
+
+    for (const [clientId, timeoutId] of staggerTimeouts.entries()) {
+        clearTimeout(timeoutId);
+    }
+    staggerTimeouts.clear();
 
     // 关闭所有客户端
     clients.forEach(client => {
