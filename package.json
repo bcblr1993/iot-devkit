@@ -1,6 +1,6 @@
 {
   "name": "iot-devkit",
-  "version": "1.0.0-20251219-1043",
+  "version": "1.0.0-20251219-1602",
   "description": "IoT DevKit - 物联网开发工具箱，支持 MQTT 设备模拟和时间戳转换等",
   "homepage": "https://gogs.baizhiedu.xin/chenyn/mqtt-electron-simulator",
   "main": "src/main/index.js",

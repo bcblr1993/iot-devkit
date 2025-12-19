@@ -124,8 +124,11 @@ class MqttController {
                 const customKeyCount = (this.config.custom_keys && this.config.custom_keys.length) || 0;
                 const randomKeyCount = Math.max(0, this.config.data.data_point_count - customKeyCount);
 
-                let sendCount = 0; // Counter for log sampling and timestamp calculation
                 const intervalMs = intervalSeconds * 1000;
+                // Smart Resume: Calculate sendCount based on current time to avoid "catch-up" bursts on reconnect
+                // If we reconnect, we skip missed intervals and resume at the next valid slot.
+                let sendCount = Math.floor(Math.max(0, Date.now() - this.alignedStartTime) / intervalMs);
+
                 let nextTargetTime = this.alignedStartTime;
 
                 const scheduleNextTick = () => {
@@ -134,7 +137,7 @@ class MqttController {
                     // 1. Calculate consistent timestamp
                     const payloadTimestamp = this.alignedStartTime + (sendCount * intervalMs);
 
-                    // 2. Check drift
+                    // 2. Check drift (only warn if we are significantly behind CURRENT schedule, ignoring startup catchup)
                     const now = Date.now();
                     const diff = now - payloadTimestamp;
                     if (diff > 2000) {
@@ -345,8 +348,8 @@ class MqttController {
                     const customKeyCount = (group.customKeys && group.customKeys.length) || 0;
                     const randomKeyCount = Math.max(0, group.keyCount - customKeyCount);
 
-                    let fullSendCount = 0; // Counter for full report sampling
-                    let changeSendCount = 0; // Counter for change report sampling
+                    let fullSendCount = Math.floor(Math.max(0, Date.now() - this.alignedStartTime) / (group.fullInterval * 1000));
+                    let changeSendCount = Math.floor(Math.max(0, Date.now() - this.alignedStartTime) / (group.changeInterval * 1000));
 
                     // 1. 全量上报逻辑封装
                     const sendFullReport = () => {
