@@ -1,9 +1,13 @@
 {
   "name": "iot-devkit",
-  "version": "1.0.0-20251215-0941",
+  "version": "1.0.0-20251219-1043",
   "description": "IoT DevKit - 物联网开发工具箱，支持 MQTT 设备模拟和时间戳转换等",
+  "homepage": "https://gogs.baizhiedu.xin/chenyn/mqtt-electron-simulator",
   "main": "src/main/index.js",
-  "author": "yannan.chen",
+  "author": {
+    "name": "yannan.chen",
+    "email": "chenyn6185@gmail.com"
+  },
   "scripts": {
     "start": "electron .",
     "prebuild": "node scripts/update-version-timestamp.js",
@@ -75,7 +79,8 @@
         "AppImage",
         "deb"
       ],
-      "icon": "resources/icons/icon.png"
+      "icon": "resources/icons/icon.png",
+      "maintainer": "yannan.chen <chenyn@zparkhr.com.cn>"
     }
   }
 }
