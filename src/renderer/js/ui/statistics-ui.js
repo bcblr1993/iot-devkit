@@ -18,54 +18,36 @@ class StatisticsUI {
      */
     createUI() {
         this.container.innerHTML = `
-            <div class="stats-header">
-                <span class="stats-title">📊 实时统计</span>
-            </div>
-            <div class="stats-content">
-                <div class="stats-row">
-                    <div class="stat-item">
-                        <span class="stat-icon">🟢</span>
-                        <span class="stat-label">在线设备</span>
-                        <span class="stat-value" id="stat-online">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-icon">🔴</span>
-                        <span class="stat-label">离线设备</span>
-                        <span class="stat-value" id="stat-offline">0</span>
-                    </div>
+            <div class="stats-bar">
+                <div class="stat-item compact">
+                    <span class="stat-icon">🟢</span>
+                    <span class="stat-val" id="stat-online">0</span>
                 </div>
-                <div class="stats-row">
-                    <div class="stat-item">
-                        <span class="stat-icon">📤</span>
-                        <span class="stat-label">总消息</span>
-                        <span class="stat-value" id="stat-total">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-icon">✅</span>
-                        <span class="stat-label">成功率</span>
-                        <span class="stat-value" id="stat-success">0%</span>
-                    </div>
+                <div class="stat-item compact">
+                    <span class="stat-icon">🔴</span>
+                    <span class="stat-val" id="stat-offline">0</span>
                 </div>
-                <div class="stats-row">
-                    <div class="stat-item">
-                        <span class="stat-icon">❌</span>
-                        <span class="stat-label">失败率</span>
-                        <span class="stat-value" id="stat-failure">0%</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-icon">⏱️</span>
-                        <span class="stat-label">平均延迟</span>
-                        <span class="stat-value" id="stat-latency">0.00ms</span>
-                    </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item compact">
+                    <span class="stat-icon">📤</span>
+                    <span class="stat-val" id="stat-total">0</span>
                 </div>
-                <div class="stats-row" id="message-size-container">
-                    <div class="stat-item" style="flex: 2;">
-                        <span class="stat-icon">📦</span>
-                        <span class="stat-label">消息大小 (Bytes)</span>
-                        <div id="stat-message-sizes" class="stat-value-list">
-                            <span class="stat-value" id="stat-msg-size">0</span>
-                        </div>
-                    </div>
+                <div class="stat-item compact">
+                    <span class="stat-icon">✅</span>
+                    <span class="stat-val" id="stat-success">0%</span>
+                </div>
+                <div class="stat-item compact">
+                    <span class="stat-icon">❌</span>
+                    <span class="stat-val" id="stat-failure">0%</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item compact">
+                    <span class="stat-icon">⏱️</span>
+                    <span class="stat-val" id="stat-latency">0ms</span>
+                </div>
+                <div class="stat-item compact flex-grow">
+                    <span class="stat-icon">📦</span>
+                    <span class="stat-val" id="stat-msg-size">0 B</span>
                 </div>
             </div>
         `;
@@ -93,20 +75,10 @@ class StatisticsUI {
         if (latencyEl) latencyEl.textContent = stats.avgLatency + 'ms';
 
         // Update Message Sizes
-        const msgSizesContainer = document.getElementById('stat-message-sizes');
-        if (msgSizesContainer) {
-            if (stats.groupMessageSizes && Object.keys(stats.groupMessageSizes).length > 0) {
-                // Advanced Mode: Show list of groups
-                let html = '';
-                for (const [groupName, size] of Object.entries(stats.groupMessageSizes)) {
-                    html += `<div class="stat-sub-item"><span class="stat-sub-label">${groupName}:</span> <span class="stat-sub-value">${size} B</span></div>`;
-                }
-                msgSizesContainer.innerHTML = html;
-            } else {
-                // Basic Mode: Show single value
-                const size = stats.messageSize || 0;
-                msgSizesContainer.innerHTML = `<span class="stat-value">${size}</span>`;
-            }
+        const msgSizeEl = document.getElementById('stat-msg-size');
+        if (msgSizeEl) {
+            const size = stats.messageSize || 0;
+            msgSizeEl.textContent = size + (stats.groupMessageSizes ? '+' : '');
         }
 
         // 根据成功率添加视觉反馈

@@ -20,82 +20,80 @@ body {
     font-size: 13px;
 }
 
-/* ==================== Statistics Panel ==================== */
-#statistics-panel {
-    background: var(--primary-gradient);
-    border-radius: 10px;
-    padding: 8px 12px;
-    margin-bottom: 8px;
-    color: var(--text-on-primary);
-    box-shadow: var(--shadow-md);
-}
-
-.stats-header {
-    display: none;
-    /* 隐藏标题，让面板更紧凑 */
-}
-
-.stats-content {
+/* ==================== Statistics (Inline in Header) ==================== */
+.statistics-inline {
+    flex: 1;
+    /* Take available space between title and controls */
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 4px 8px;
     align-items: center;
-}
-
-.stats-row {
-    display: contents;
-    /* 让子元素直接参与 flex 布局 */
-}
-
-.stat-item {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: rgba(255, 255, 255, 0.12);
-    padding: 4px 10px;
-    border-radius: 20px;
+    padding: 0 16px;
     font-size: 11px;
-    backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    user-select: none;
+    overflow: hidden;
+    /* Prevent breaking layout if too small */
+    height: 28px;
+    /* Match button height roughly */
+}
+
+/* Adjust stats bar for inline context */
+.statistics-inline .stats-bar {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 12px;
+}
+
+/* Hide divider if space is tight? Or keep it. */
+.statistics-inline .stat-divider {
+    background-color: #333;
+    height: 12px;
+}
+
+.stats-bar {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    gap: 16px;
+    overflow: hidden;
+}
+
+.stat-item.compact {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     white-space: nowrap;
+    color: #ced4da;
 }
 
-.stat-item:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
-    transition: all 0.2s ease;
-}
-
-.stat-item--full {
-    flex: none;
-}
-
-.stat-icon {
+.stat-item.compact .stat-icon {
     font-size: 14px;
 }
 
-.stat-label {
-    opacity: 0.85;
-    font-size: 11px;
-    font-weight: 500;
+.stat-item.compact .stat-val {
+    font-weight: 600;
+    font-family: "JetBrains Mono", monospace;
 }
 
-.stat-value {
-    font-weight: 700;
-    font-size: 12px;
-    margin-left: 2px;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+.stat-divider {
+    width: 1px;
+    height: 16px;
+    background-color: #495057;
+    margin: 0 4px;
 }
 
+.stat-item.flex-grow {
+    flex: 1;
+    justify-content: flex-end;
+}
+
+/* Success/Failure Colors */
 .stat-value--good {
-    color: #4ade80;
+    color: #40c057;
 }
 
 .stat-value--warning {
-    color: #fbbf24;
+    color: #fab005;
 }
-
 
 /* ==================== Container ==================== */
 .container {
@@ -162,7 +160,8 @@ header {
 }
 
 .theme-select option {
-    background: var(--bg-card); /* Fallback color for options since glassmorphism fails there */
+    background: var(--bg-card);
+    /* Fallback color for options since glassmorphism fails there */
     color: var(--text-primary);
 }
 
@@ -200,27 +199,53 @@ main {
 
 /* Panels that need scrolling */
 #timestamp-panel,
-#simulator-panel,
 #settings-panel {
     overflow-y: auto;
     padding: 20px;
 }
 
+/* Simulator Panel: Flex Layout for detached components */
+#simulator-panel {
+    display: none;
+    /* Toggled via .active */
+    flex-direction: column;
+    overflow: hidden;
+    /* Prevent body scroll */
+    padding: 0;
+    /* Remove padding from container */
+    height: 100%;
+}
+
+#simulator-panel.active {
+    display: flex;
+}
+
+#simulator-panel .config-section {
+    flex: 1;
+    /* Take remaining space */
+    overflow-y: auto;
+    /* Internal scrolling */
+    padding: 20px;
+    height: 100%;
+    /* Ensure full height usage */
+}
+
+/* JSON Panel needs no padding and no outer scroll */
 /* JSON Panel needs no padding and no outer scroll */
 #json-panel {
     padding: 0;
     overflow: hidden;
 }
 
-.main-panel.active {
-    display: flex;
-}
+/* .main-panel.active is handled by specific IDs or defaults */
 
 /* ==================== Config Section ==================== */
 .config-section {
-    padding: 12px 16px;
+    /* Padding is now handled by the #simulator-panel .config-section rule */
+    /* padding: 12px 16px; */
     background-color: var(--bg-card);
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: none;
+    /* Removed as it's full height */
 }
 
 .config-panel h2 {
@@ -601,11 +626,26 @@ button {
     background: #fa5252;
 }
 
+/* Compact Clear Button */
+.log-controls .btn-warning {
+    padding: 0 10px;
+    /* Reduced horizontal padding */
+    font-size: 12px;
+}
+
 /* ==================== Log Section ==================== */
 .log-section {
-    padding: 12px 16px;
-    background-color: #1e1e1e;
+    padding: 10px 12px;
+    background-color: #1a1a1a;
     transition: all 0.3s ease;
+    flex: 0 0 auto;
+    /* Don't grow or shrink */
+    border-top: 1px solid #333;
+    /* Visual separation */
+    z-index: 50;
+    /* Ensure above config scroll */
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
+    /* Lift effect */
 }
 
 .log-section .log-header {
@@ -617,69 +657,250 @@ button {
     color: var(--primary-color);
 }
 
+/* Toggle Icon in Log Controls */
 .toggle-icon {
-    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 10px;
-    margin-right: 4px;
-    transition: transform 0.3s ease;
+    width: 28px;
+    height: 28px;
+    color: #6c757d;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-left: 4px;
+    /* Space from Clear button */
 }
 
+/* Rotate icon when NOT collapsed (panel is OPEN) */
 .log-section:not(.collapsed) .toggle-icon {
-    transform: rotate(90deg);
+    transform: rotate(180deg);
+    /* Flip up for open state */
 }
 
-.log-section.collapsed .log-container,
+/* Original rotation was 90deg, but now we use up/down arrow */
+
+/* Collapsed State: Zero height content, but keep header visible */
+/* Collapsed State: Zero height content, but keep header visible */
+.log-section.collapsed .log-container {
+    height: 0;
+    min-height: 0;
+    /* Override base min-height */
+    flex: 0 0 0;
+    padding: 0;
+    margin: 0;
+    opacity: 0;
+    border: none;
+}
+
+/* Hide controls smoothly or just hide them? Hiding them is better for clean header */
 .log-section.collapsed .log-controls {
-    display: none;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
 }
 
-.log-section.collapsed .log-header {
-    margin-bottom: 0;
+.log-section:not(.collapsed) .log-controls {
+    opacity: 1;
+    transition: opacity 0.3s ease 0.1s;
+    /* Slight delay */
+}
+
+/* Container Transitions */
+/* Container Transitions */
+.log-container {
+    flex: 0 0 260px;
+    /* Don't grow, fixed basis */
+    background: #252525;
+    border-radius: 6px;
+    padding: 8px;
+    overflow-y: auto;
+    font-family: "JetBrains Mono", "SF Mono", "Consolas", "Courier New", monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border: 1px solid #333;
+    /* Full border */
+    border-radius: 6px;
+    /* Full radius */
+    min-width: 0;
+
+    /* Strict sizing: Lock height to 260px */
+    min-height: 260px;
+    /* Force minimum height */
+    height: 260px !important;
+    max-height: 260px;
+
+    opacity: 1;
+    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        flex 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.2s ease,
+        padding 0.3s ease,
+        margin 0.3s ease;
 }
 
 .log-panel {
     display: flex;
     flex-direction: column;
     height: auto;
+    width: 100%;
+    /* Ensure children stretch */
 }
 
-.log-section:not(.collapsed) .log-panel {
-    height: 350px;
+/* Maximized State */
+.log-section.maximized {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1000;
+    margin: 0;
+    border-radius: 0;
+    padding: 16px 20px;
+    background-color: #1a1a1a;
+    /* Ensure background is solid */
+}
+
+.log-section.maximized .log-panel {
+    height: calc(100vh - 60px) !important;
+}
+
+.log-section.maximized .log-container {
+    height: 100% !important;
+    min-height: 0 !important;
+    /* Allow flex to control height */
+    max-height: none !important;
+    flex: 1 !important;
+    /* Allow growing in maximized state */
+}
+
+/* Ensure controls have same height */
+.log-controls {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    height: 30px;
+    /* Explicit height */
+}
+
+/* Common style for all Log controls to ensure alignment */
+.log-controls input,
+.log-controls button {
+    height: 28px !important;
+    /* Force matching height */
+    box-sizing: border-box;
+    margin: 0;
+}
+
+.log-controls input {
+    padding: 2px 8px;
+    font-size: 12px;
+}
+
+.log-controls button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Icon Buttons */
+.btn-icon {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ced4da;
+    width: 28px;
+    padding: 0;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+/* Log Container Fix */
+.log-container {
+    flex: 1;
+    background: #252525;
+    border-radius: 6px;
+    padding: 8px;
+    overflow-y: auto;
+    font-family: "JetBrains Mono", "SF Mono", "Consolas", "Courier New", monospace;
+    font-size: 12px;
+    line-height: 1.4;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border: 1px solid #333;
+    min-width: 0;
+    /* Prevent flex overflow */
+}
+
+.btn-icon:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-icon.active {
+    background: rgba(74, 222, 128, 0.15);
+    color: #4ade80;
+    border-color: rgba(74, 222, 128, 0.4);
+}
+
+.log-controls {
+    display: flex;
+    gap: 6px;
+    align-items: center;
 }
 
 .log-header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 16px;
+    justify-content: space-between;
+    /* Fallback */
+    margin-bottom: 10px;
+    /* Reduced margin */
 }
 
-.log-header h2 {
+.log-header h3 {
     color: #f8f9fa;
-    font-size: 18px;
+    font-size: 16px;
+    /* Slightly smaller header */
     font-weight: 600;
     display: flex;
     align-items: center;
     gap: 8px;
+    margin: 0;
+    /* Reset margin for better alignment */
+    flex: 0 0 auto;
+    /* Don't take extra space, let stats take it */
+    white-space: nowrap;
 }
 
 .log-container {
     flex: 1;
-    background: #2d2d2d;
-    border-radius: 8px;
-    padding: 16px;
+    background: #252525;
+    /* Slightly lighter than section bg for depth */
+    border-radius: 6px;
+    padding: 8px;
+    /* Reduced padding */
     overflow-y: auto;
-    font-family: "JetBrains Mono", "Fira Code", "Courier New", monospace;
-    font-size: 13px;
-    line-height: 1.6;
+    font-family: "JetBrains Mono", "SF Mono", "Consolas", "Courier New", monospace;
+    font-size: 12px;
+    /* Smaller font */
+    line-height: 1.4;
+    /* Tighter lines */
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    border: 1px solid #404040;
+    gap: 2px;
+    /* Minimal gap between entries */
+    border: 1px solid #333;
 }
 
 .log-container::-webkit-scrollbar {
-    width: 10px;
+    width: 8px;
+    /* Thinner scrollbar */
 }
 
 .log-container::-webkit-scrollbar-track {
@@ -688,93 +909,102 @@ button {
 }
 
 .log-container::-webkit-scrollbar-thumb {
-    background: #4a4a4a;
+    background: #444;
     border-radius: 4px;
 }
 
 .log-container::-webkit-scrollbar-thumb:hover {
-    background: #5a5a5a;
+    background: #555;
 }
 
 .log-entry {
     display: flex;
-    gap: 12px;
-    padding: 4px 0;
+    gap: 8px;
+    /* Reduced gap */
+    padding: 1px 4px;
+    /* Very distinct compact padding */
+    border-radius: 3px;
+}
+
+.log-entry:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    /* Subtle hover effect */
 }
 
 .log-timestamp {
-    color: #868e96;
-    font-size: 12px;
-    min-width: 90px;
+    color: #6c757d;
+    /* Dimmer timestamp */
+    font-size: 11px;
+    min-width: 85px;
+    font-variant-numeric: tabular-nums;
+    /* Monospaced numbers */
+    opacity: 0.8;
 }
 
 .log-message {
     flex: 1;
     word-wrap: break-word;
+    color: #e9ecef;
 }
 
 /* Search highlight */
 .log-message mark {
-    background-color: #ffc107;
-    color: #000;
-    padding: 2px 4px;
-    border-radius: 3px;
-    font-weight: bold;
+    background-color: rgba(255, 193, 7, 0.3);
+    color: #fff;
+    padding: 0 2px;
+    border-radius: 2px;
+    font-weight: normal;
+    border: 1px solid rgba(255, 193, 7, 0.5);
 }
 
 /* Default log entry color */
 .log-entry {
-    color: #e9ecef;
-    margin-bottom: 4px;
+    color: #dee2e6;
+    margin-bottom: 0;
+    /* Remove bottom margin */
 }
 
-/* 更亮的绿色 */
+/* Refined Colors */
 .log-entry.log-success {
-    color: #51cf66;
-    font-weight: 500;
+    color: #69db7c;
+    /* Open Color Green 4 */
 }
 
-/* 更亮的红色 */
 .log-entry.log-error {
-    color: #ff6b6b;
-    font-weight: 500;
+    color: #ff8787;
+    /* Open Color Red 4 */
 }
 
-/* 更亮的黄色 */
 .log-entry.log-warning {
     color: #ffd43b;
-    font-weight: 500;
+    /* Open Color Yellow 4 */
 }
 
-/* 更亮的蓝色 */
 .log-entry.log-info {
     color: #74c0fc;
-    font-weight: 400;
+    /* Open Color Blue 4 */
 }
 
 .log-data-wrapper {
     position: relative;
-    margin-top: 4px;
+    margin-top: 2px;
+    margin-left: 93px;
+    /* Align with message start */
 }
 
 .log-data {
     color: #a5d6a7;
-    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-    font-size: 12px;
-    background-color: rgba(0, 0, 0, 0.3);
-    padding: 8px;
-    padding-right: 30px;
-    /* Space for scrollbar and buttons */
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    background-color: rgba(0, 0, 0, 0.2);
+    padding: 6px;
     border-radius: 4px;
     white-space: pre-wrap;
     word-break: break-all;
-    border-left: 3px solid var(--primary-color);
-
-    /* Collapsible styles */
-    max-height: 120px;
-    overflow-y: auto;
-    transition: max-height 0.3s ease;
+    border-left: 2px solid var(--primary-color);
+    line-height: 1.3;
 }
+
 
 .log-data.expanded {
     max-height: none;

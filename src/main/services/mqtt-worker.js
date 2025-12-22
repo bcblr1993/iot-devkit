@@ -22,6 +22,21 @@ let workerStats = {
 };
 
 /**
+ * Format date to YYYY-MM-DD HH:mm:ss
+ */
+function formatDate(date) {
+    const pad = (n) => String(n).padStart(2, '0');
+    const year = date.getFullYear();
+    const month = pad(date.getMonth() + 1);
+    const day = pad(date.getDate());
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    const seconds = pad(date.getSeconds());
+    const ms = String(date.getMilliseconds()).padStart(3, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${ms}`;
+}
+
+/**
  * 向主线程发送日志
  */
 function sendLog(message, type = 'info') {
@@ -30,7 +45,7 @@ function sendLog(message, type = 'info') {
         data: {
             message,
             type,
-            timestamp: new Date().toLocaleTimeString()
+            timestamp: formatDate(new Date())
         }
     });
 }
@@ -143,10 +158,8 @@ function createClient(deviceIndex, config) {
                             workerStats.lastReportedFailure = workerStats.failureCount;
                         }
 
-                        // 日志采样
-                        if (sendCount % 10 === 1) {
-                            sendLog(`[${clientId}] 已发送 ${sendCount} 条消息 (Lag: ${drift}ms)`, 'success');
-                        }
+                        // 实时日志（不再采样）
+                        sendLog(`[${clientId}] 已发送 ${sendCount} 条消息 (大小: ${size} Bytes, Lag: ${drift}ms)`, 'success');
                     }
                 });
 

@@ -8,12 +8,90 @@ export class LoggerUI {
     constructor() {
         this.logContainer = getElement('log-container');
         this.searchInput = getElement('log-search');
+        this.autoScrollBtn = getElement('log-auto-scroll-btn');
+        this.maximizeBtn = getElement('log-maximize-btn');
+        this.logSection = getElement('log-section');
+
         this.allLogs = []; // Store all logs
         this.currentFilter = '';
         this.MAX_DOM_LOGS = 100; // Reduced from 500 to prevent tile memory issues
         this.MAX_STORED_LOGS = 1000; // Maximum stored logs for search
 
+        this.isAutoScroll = true;
+        this.isMaximized = false;
+
         this.setupSearchListener();
+        this.setupControlListeners();
+    }
+
+    setupControlListeners() {
+        // Auto Scroll Toggle
+        if (this.autoScrollBtn) {
+            this.autoScrollBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent header collapse
+                this.isAutoScroll = !this.isAutoScroll;
+                this.updateAutoScrollState();
+            });
+        }
+
+        // Maximize Toggle
+        if (this.maximizeBtn) {
+            this.maximizeBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent header collapse
+                this.toggleMaximize();
+            });
+        }
+
+        // Search Input: Stop propagation to prevent collapsing when clicking/typing
+        if (this.searchInput) {
+            this.searchInput.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
+            // Auto expand when focusing search
+            this.searchInput.addEventListener('focus', () => {
+                if (this.logSection && this.logSection.classList.contains('collapsed')) {
+                    this.logSection.classList.remove('collapsed');
+                }
+            });
+        }
+    }
+
+    updateAutoScrollState() {
+        if (this.autoScrollBtn) {
+            if (this.isAutoScroll) {
+                this.autoScrollBtn.classList.add('active');
+                this.autoScrollBtn.title = '自动滚动: 开';
+                this.autoScrollBtn.textContent = '📜';
+            } else {
+                this.autoScrollBtn.classList.remove('active');
+                this.autoScrollBtn.title = '自动滚动: 关';
+                this.autoScrollBtn.textContent = '⏸️';
+            }
+        }
+    }
+
+    toggleMaximize() {
+        this.isMaximized = !this.isMaximized;
+        if (this.logSection) {
+            this.logSection.classList.toggle('maximized', this.isMaximized);
+            // Ensure not collapsed when maximized
+            if (this.isMaximized) {
+                this.logSection.classList.remove('collapsed');
+            }
+        }
+
+        if (this.maximizeBtn) {
+            if (this.isMaximized) {
+                this.maximizeBtn.classList.add('active');
+                this.maximizeBtn.textContent = '➖';
+                this.maximizeBtn.title = '还原';
+            } else {
+                this.maximizeBtn.classList.remove('active');
+                this.maximizeBtn.textContent = '⛶';
+                this.maximizeBtn.title = '最大化';
+            }
+        }
     }
 
     setupSearchListener() {
@@ -54,9 +132,39 @@ export class LoggerUI {
                 this.logContainer.removeChild(this.logContainer.firstChild);
             }
 
-            // Auto-scroll to bottom
-            this.logContainer.scrollTop = this.logContainer.scrollHeight;
+            // Auto-scroll to bottom only if enabled
+            if (this.isAutoScroll) {
+                this.logContainer.scrollTop = this.logContainer.scrollHeight;
+            }
         }
+    }
+
+    /**
+     * Get color for a group ID
+     */
+    getGroupColor(groupId) {
+        if (!groupId) return null;
+
+        // Modern, neon-like palette for dark theme
+        const palette = [
+            '#06b6d4', // Cyan
+            '#f472b6', // Pink
+            '#a78bfa', // Purple
+            '#34d399', // Emerald
+            '#fbbf24', // Amber
+            '#60a5fa', // Blue
+            '#fb7185', // Rose
+            '#a3e635'  // Lime
+        ];
+
+        // Simple hash to select color
+        let hash = 0;
+        for (let i = 0; i < groupId.length; i++) {
+            hash = groupId.charCodeAt(i) + ((hash << 5) - hash);
+        }
+
+        const index = Math.abs(hash) % palette.length;
+        return palette[index];
     }
 
     createLogElement(logEntry) {
@@ -65,16 +173,67 @@ export class LoggerUI {
 
         const timestampSpan = document.createElement('span');
         timestampSpan.className = 'log-timestamp';
-        timestampSpan.textContent = logEntry.timestamp || new Date().toLocaleTimeString();
+        timestampSpan.textContent = logEntry.timestamp || new Date().toLocaleString('zh-CN', { hour12: false });
 
         const messageSpan = document.createElement('span');
         messageSpan.className = 'log-message';
 
-        // Highlight search term if exists
+        let messageHtml = logEntry.message;
+
+        // Apply group coloring if context exists
+        if (logEntry.context && logEntry.context.groupId) {
+            const color = this.getGroupColor(logEntry.context.groupId);
+            if (color) {
+                // Regex to find [Prefix] at start or similar patterns
+                // We expect format: [ClientId] Message...
+                // Let's color the first bracketed part
+                messageHtml = messageHtml.replace(/^(\[[^\]]+\])/, `<span style="color: ${color}; font-weight: bold;">$1</span>`);
+            }
+        }
+
+        // Highlight search term if exists (apply over the HTML)
         if (this.currentFilter) {
-            messageSpan.innerHTML = this.highlightText(logEntry.message, this.currentFilter);
+            // Note: simple replace might break HTML tags if search matches tags, 
+            // but here we just added a simple span. To be safe, we should ideally highlight text content only
+            // but for simplicity and performance in this specific log format:
+            // We'll rely on the fact that search terms usually aren't "span" or "style".
+            // A better approach for robust highlighting with HTML:
+            // 1. Text only -> highlight -> then apply color prefix.
+            // But we already constructed HTML.
+            // Let's reconstruct:
+
+            // Re-implement order: 
+            // 1. Get raw text
+            const rawText = logEntry.message;
+
+            // 2. Highlight text
+            let processedText = this.highlightText(rawText, this.currentFilter);
+
+            // 3. Apply group color to the already highlighted text's prefix
+            if (logEntry.context && logEntry.context.groupId) {
+                const color = this.getGroupColor(logEntry.context.groupId);
+                if (color) {
+                    processedText = processedText.replace(/^(\[[^\]]+\])/, `<span style="color: ${color}; font-weight: bold;">$1</span>`);
+                    // Also handle if the bracket itself was highlighted (e.g. search for "[")
+                    // The regex above works on plain text. If highlighted, it might be <mark>[</mark>...
+                    // Complex. Let's stick to the previous simple logic for now:
+                    // Color the prefix first, then highlight.
+                    // But highlightText expects string.
+
+                    // Alternative: Just set the style on the messageSpan if it's a simple match?
+                    // No, user wants the prefix colored.
+                }
+            }
+            messageSpan.innerHTML = processedText;
         } else {
-            messageSpan.textContent = logEntry.message;
+            // No filter, just apply color
+            if (logEntry.context && logEntry.context.groupId) {
+                const color = this.getGroupColor(logEntry.context.groupId);
+                if (color) {
+                    messageHtml = messageHtml.replace(/^(\[[^\]]+\])/, `<span style="color: ${color}; font-weight: bold;">$1</span>`);
+                }
+            }
+            messageSpan.innerHTML = messageHtml;
         }
 
         logDiv.appendChild(timestampSpan);

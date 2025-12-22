@@ -69,9 +69,6 @@
             <div id="simulator-panel" class="main-panel active">
                 <!-- 配置区域 -->
                 <section class="config-section">
-                    <!-- 统计面板 -->
-                    <div id="statistics-panel"></div>
-
                     <div class="config-panel">
                         <!-- 公共MQTT设置 -->
                         <div class="common-settings">
@@ -167,11 +164,17 @@
                     <!-- Log Panel -->
                     <div class="log-panel">
                         <div class="log-header" id="log-header-toggle">
-                            <h3><span class="toggle-icon">▶</span> 📋 运行日志</h3>
+                            <h3>📋 运行日志</h3>
+                            <!-- 统计信息 (Inline) -->
+                            <div id="statistics-panel" class="statistics-inline"></div>
+
                             <div class="log-controls">
                                 <input type="text" id="log-search" class="log-search-input"
                                     placeholder="🔍 搜索日志 (设备ID、消息内容...)">
-                                <button id="clear-btn" class="btn btn-warning">🗑️ 清空日志</button>
+                                <button id="log-auto-scroll-btn" class="btn-icon active" title="自动滚动: 开">📜</button>
+                                <button id="log-maximize-btn" class="btn-icon" title="最大化">⛶</button>
+                                <button id="clear-btn" class="btn btn-warning">🗑️</button>
+                                <span class="toggle-icon">▼</span>
                             </div>
                         </div>
                         <div id="log-container" class="log-container"></div>

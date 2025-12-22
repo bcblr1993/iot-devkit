@@ -31,12 +31,28 @@ class MqttController {
     }
 
     /**
+     * Format date to YYYY-MM-DD HH:mm:ss
+     */
+    formatDate(date) {
+        const pad = (n) => String(n).padStart(2, '0');
+        const year = date.getFullYear();
+        const month = pad(date.getMonth() + 1);
+        const day = pad(date.getDate());
+        const hours = pad(date.getHours());
+        const minutes = pad(date.getMinutes());
+        const seconds = pad(date.getSeconds());
+        const ms = String(date.getMilliseconds()).padStart(3, '0');
+        return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}.${ms}`;
+    }
+
+    /**
      * 内部日志方法
      * @param {string} message - 要记录的消息
      * @param {string} type - 日志类型: 'info', 'success', 'error', 'data'
      * @param {Object} [data] - 可选的数据载荷
+     * @param {Object} [context] - 上下文信息 (e.g. { groupId })
      */
-    log(message, type = 'info', data = null) {
+    log(message, type = 'info', data = null, context = null) {
         // 1. Write to file if logger exists
         if (this.fileLogger) {
             this.fileLogger.write(message, type, data);
@@ -47,8 +63,9 @@ class MqttController {
             this.logCallback({
                 message,
                 type,
-                timestamp: new Date().toLocaleTimeString(),
-                data
+                timestamp: this.formatDate(new Date()),
+                data,
+                context
             });
         } else {
             console.log(`[Controller-Suppressed] [${type}] ${message}`);
@@ -120,7 +137,7 @@ class MqttController {
 
             this.createClient(i, mqttConfig, paddingLength, (client, clientId) => {
                 // 启动定时发送，间隔: intervalSeconds
-                this.log(`[${clientId}] 启动定时发送，间隔: ${intervalSeconds}秒`, 'info');
+                this.log(`[${clientId}] 启动定时发送，间隔: ${intervalSeconds}秒`, 'info', null, { groupId: 'Basic' });
 
                 // 添加到已连接设备集合
                 if (!this.connectedDevices.has(clientId)) {
@@ -149,7 +166,7 @@ class MqttController {
                     const diff = now - payloadTimestamp;
                     if (diff > 2000) {
                         if (Math.random() < 0.01) {
-                            this.log(`[${clientId}] Lag warning: Running ${diff}ms behind schedule`, 'warning');
+                            this.log(`[${clientId}] Lag warning: Running ${diff}ms behind schedule`, 'warning', null, { groupId: 'Basic' });
                         }
                     }
 
@@ -179,13 +196,11 @@ class MqttController {
                     // 4. Publish
                     client.publish(this.config.mqtt.topic, msg, (err) => {
                         if (err) {
-                            this.log(`[${clientId}] 发送失败: ${err.message}`, 'error');
+                            this.log(`[${clientId}] 发送失败: ${err.message}`, 'error', null, { groupId: 'Basic' });
                             this.statisticsCollector.incrementFailure();
                         } else {
                             this.statisticsCollector.incrementSuccess();
-                            if (sendCount % 10 === 1) {
-                                this.log(`[${clientId}] 已发送 ${sendCount} 条消息`, 'success');
-                            }
+                            this.log(`[${clientId}] 已发送 ${sendCount} 条消息 (大小: ${size} Bytes)`, 'success', null, { groupId: 'Basic' });
                         }
                     });
 
@@ -251,7 +266,9 @@ class MqttController {
                 if (msg.type === 'log') {
                     // 防止 Worker 在停止后仍发送日志导致的竞态条件
                     if (this.logCallback && typeof this.logCallback === 'function') {
-                        this.logCallback(msg.data);
+                        // Inject Context for Basic Mode Coloring
+                        const logData = { ...msg.data, context: { groupId: 'Basic' } };
+                        this.logCallback(logData);
                     }
                 } else if (msg.type === 'ready') {
                     this.log(`[Worker ${msg.workerId}] 已就绪`, 'success');
@@ -328,7 +345,7 @@ class MqttController {
             // Fixed 1-digit (no padding): c1, c2, c3...
             const paddingLength = 1;
 
-            this.log(`[Controller] 启动分组 "${group.name}": 设备 [${group.start} - ${group.end}], Key数量: ${group.keyCount}`, 'info');
+            this.log(`[Controller] 启动分组 "${group.name}": 设备 [${group.start} - ${group.end}], Key数量: ${group.keyCount}`, 'info', null, { groupId: group.name });
 
             for (let i = group.start; i <= group.end; i++) {
                 // 为每个设备生成固定的 Schema（使用默认类型比例：各25%）
@@ -378,14 +395,11 @@ class MqttController {
 
                         client.publish(this.config.mqtt.topic, jsonString, (err) => {
                             if (err) {
-                                this.log(`[${clientId}] 发送数据失败: ${err.message}`, 'error');
+                                this.log(`[${clientId}] 发送数据失败: ${err.message}`, 'error', null, { groupId: group.name });
                                 this.statisticsCollector.incrementFailure();
                             } else {
                                 this.statisticsCollector.incrementSuccess();
-                                // Log sampling: only log every 10 successful full reports
-                                if (fullSendCount % 10 === 1) {
-                                    this.log(`[${clientId}] 全量上报成功 (已发送${fullSendCount}次)`, 'success');
-                                }
+                                this.log(`[${clientId}] 全量上报成功 (已发送${fullSendCount}次, 大小: ${size} Bytes)`, 'success', null, { groupId: group.name });
                             }
                         });
 
@@ -405,18 +419,6 @@ class MqttController {
                     this.addInterval(clientId, firstFullId);
 
                     // 2. 变化上报定时器
-                    // 注意：变化上报通常是基于总 Key 数量的比例，这里我们假设变化上报也包含自定义 Key
-                    // 或者我们只对随机生成的 Key 进行变化上报？
-                    // 用户需求是 "数据点数为 5 就最多定义 5 个 key"，这意味着总数控制。
-                    // 对于变化上报，如果比例是 0.3，总数 10，那么应该上报 3 个 Key。
-                    // 这 3 个 Key 可能包含自定义 Key，也可能不包含。
-                    // 简单起见，我们先计算需要上报的总数，然后尝试混合。
-                    // 但目前的实现是 generateTypedData 生成前 N 个，mergeCustomKeys 添加所有自定义 Key。
-                    // 如果 mergeCustomKeys 总是添加所有自定义 Key，那么变化上报的数量可能会超过预期（如果自定义 Key 很多）。
-                    // 不过通常变化上报是 "部分" 上报。
-                    // 让我们保持简单：变化上报的数量 = floor(总数 * 比例)。
-                    // 其中自定义 Key 全部上报（假设它们是重要的），剩余配额给随机 Key。
-
                     const totalChangeCount = Math.floor(group.keyCount * group.changeRatio);
 
                     if (totalChangeCount > 0) {
@@ -442,14 +444,11 @@ class MqttController {
 
                             client.publish(this.config.mqtt.topic, jsonString, (err) => {
                                 if (err) {
-                                    this.log(`[${clientId}] 变化上报失败: ${err.message}`, 'error');
+                                    this.log(`[${clientId}] 变化上报失败: ${err.message}`, 'error', null, { groupId: group.name });
                                     this.statisticsCollector.incrementFailure();
                                 } else {
                                     this.statisticsCollector.incrementSuccess();
-                                    // Log sampling: only log every 10 successful change reports
-                                    if (changeSendCount % 10 === 1) {
-                                        this.log(`[${clientId}] 变化上报成功 (已发送${changeSendCount}次)`, 'success');
-                                    }
+                                    this.log(`[${clientId}] 变化上报成功 (已发送${changeSendCount}次, 大小: ${size} Bytes)`, 'success', null, { groupId: group.name });
                                 }
                             });
 

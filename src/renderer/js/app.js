@@ -68,9 +68,11 @@ class App {
 
         // Clear logs
         if (this.clearBtn) {
-            this.clearBtn.addEventListener('click', () => this.logger.clear());
+            this.clearBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent toggling panel
+                this.logger.clear();
+            });
         }
-
         // Export/Import config
         if (this.exportBtn) {
             this.exportBtn.addEventListener('click', () => this.handleExport());
@@ -97,6 +99,12 @@ class App {
             logHeaderToggle.addEventListener('click', () => {
                 const logSection = document.getElementById('log-section');
                 if (logSection) {
+                    // If maximizing, toggle off maximized state when collapsing
+                    if (logSection.classList.contains('maximized')) {
+                        logSection.classList.remove('maximized');
+                        // Update maximize icon in existing instance if possible, or just let UI update independently
+                        // For now basic class removal fixes the layout break
+                    }
                     logSection.classList.toggle('collapsed');
                 }
             });
