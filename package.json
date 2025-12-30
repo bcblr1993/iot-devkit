@@ -3,6 +3,10 @@
   "version": "1.0.0-20251219-1621",
   "description": "IoT DevKit - 物联网开发工具箱，支持 MQTT 设备模拟和时间戳转换等",
   "homepage": "https://gogs.baizhiedu.xin/chenyn/mqtt-electron-simulator",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bcblr1993/iot-devkit.git"
+  },
   "main": "src/main/index.js",
   "author": {
     "name": "yannan.chen",
